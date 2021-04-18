@@ -165,7 +165,7 @@ Citizen.CreateThread(function()
 end)
 
 function VaultDoor()
-    local VaultDoor = GetClosestObjectOfType(255.2283, 223.976, 102.3932, 25.0, `v_ilev_bk_vaultdoor`, 0, 0, 0)
+    local VaultDoor = GetClosestObjectOfType(255.2283, 223.976, 102.3932, 25.0, "v_ilev_bk_vaultdoor", 0, 0, 0)
     local CurrentHeading = 160.0
 
     if states["vaultDoor"] and GetEntityHeading(VaultDoor) > 159 then

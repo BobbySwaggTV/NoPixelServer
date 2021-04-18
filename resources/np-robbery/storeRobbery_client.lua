@@ -455,7 +455,7 @@ end)
 
 function SpawnPed(i)
 	recentSpawn = true
-	pedType = `mp_m_shopkeep_01`
+	pedType = "mp_m_shopkeep_01"
 	local x = storePedLocations[i]["x"]
 	local y = storePedLocations[i]["y"]
 	local z = storePedLocations[i]["z"]
