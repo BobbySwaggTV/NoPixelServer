@@ -16,9 +16,9 @@ if %errorLevel%==0  (
 	echo "Go into the .git/config text file and make changes there."
 ) else (
 	rem Get input for server.cfg
-	set /p steamAPIKey="Enter your steam web API key: "
-	set /p steamID="Enter your (hex) steam ID: "
-	set /p licenseKey="Enter your FiveM server license key (from keymaster.fivem.net): "
+	set /p steamAPIKey="24365E09C2FBF107A178D9F16D24E9A5"
+	set /p steamID="steam:11000010c3f99d8"
+	set /p licenseKey="av4pmqmgc0ki1in2lilejnvtm8829ad1"
 	
 	rem Add the filter for server.cfg
 	echo. >> %~dp0\.git\config
@@ -28,8 +28,8 @@ if %errorLevel%==0  (
 		
 	rem Get input for database config
 	echo.
-	set /p dbUser="Enter your database user: "
-	set /p dbPassword="Database user password: "
+	set /p dbUser="root"
+	set /p dbPassword=""
 	
 	rem Add the filter for the database config
 	echo [filter "sql-config-filter"] >> %~dp0\.git\config
