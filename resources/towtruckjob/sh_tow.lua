@@ -157,7 +157,7 @@ AddEventHandler('pv:tow', function()
 	local playerped = PlayerPedId()
 	local vehicle = GetVehiclePedIsIn(playerped, true)
 	
-	local towmodel = `towtruck`
+	local towmodel = "towtruck"
 	local isVehicleTow = isTowVehicle(vehicle)
 			
 	if isVehicleTow then
