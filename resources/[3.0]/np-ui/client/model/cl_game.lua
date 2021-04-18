@@ -1,5 +1,5 @@
 -- PRE SPAWN
---[[local charSpawned = false
+local charSpawned = false
 
 local pedId, plyId = PlayerPedId(), PlayerId()
 
@@ -15,7 +15,7 @@ Citizen.CreateThread(function()
         DisplayRadar(0)
         Citizen.Wait(0)
     end
-end)]]-- Remove to This Line if HUD not working
+end)
 
 -- CHAR SPAWN
 function getCharacterInfo()
