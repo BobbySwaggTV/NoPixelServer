@@ -20,9 +20,16 @@
 - [x] made the chart resposive
 - [x] made the chart player count more consistent
 - [x] reverted dark mode as default
+> v3.2.3
+- [x] perf chart: increase chart to 30 hours (360 snaps) 
+- [x] perf chart: changed color scheme
+- [x] perf chart: change padding
+- [x] perf chart: added server reset lines
+- [x] merge some prs (language, redm, minor)
+- [x] add koa sessions and server log to the diagnostics page
+
 
 > ASAP!:
-- [ ] deal with the last 2 PRs
 - [ ] consolidate the log pages
 - [ ] add discord group whitelist (whitelist switch becomes a select box that will enable guildID and roleID)
         - Manual Approval (default)
@@ -33,7 +40,6 @@
         - this message id can be stored in the config file
         - if discord id is present, use that instead of name (careful with the pings!)
 - [ ] send log via FD3
-- [ ] add RedM compatibility
 - [ ] add `.editorconfig`
 - [ ] create auto backup of the database
 - [ ] ignore key bindings commands  https://discord.com/channels/577993482761928734/766868363041046589/795420910713831446

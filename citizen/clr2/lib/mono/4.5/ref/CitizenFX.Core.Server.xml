@@ -6745,6 +6745,16 @@
             See also: [Resource manifest](https://docs.fivem.net/resources/manifest/)
             </summary>
         </member>
+        <member name="F:CitizenFX.Core.Native.Hash.GET_PLAYER_CAMERA_ROTATION">
+            <summary>
+            Gets the current camera rotation for a specified player. This native is used server side when using OneSync.
+            </summary>
+        </member>
+        <member name="F:CitizenFX.Core.Native.Hash.GET_PLAYER_FAKE_WANTED_LEVEL">
+            <summary>
+            Gets the current fake wanted level for a specified player. This native is used server side when using OneSync.
+            </summary>
+        </member>
         <member name="F:CitizenFX.Core.Native.Hash.GET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER">
             <summary>
             A getter for [SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER](#\_0x4A3DC7ECCC321032).
@@ -6767,6 +6777,11 @@
         <member name="F:CitizenFX.Core.Native.Hash.GET_PLAYER_TOKEN">
             <summary>
             Gets a player's token. Tokens can be used to enhance banning logic, however are specific to a server.
+            </summary>
+        </member>
+        <member name="F:CitizenFX.Core.Native.Hash.GET_PLAYER_WANTED_CENTRE_POSITION">
+            <summary>
+            Gets the current known coordinates for the specified player from cops perspective. This native is used server side when using OneSync.
             </summary>
         </member>
         <member name="F:CitizenFX.Core.Native.Hash.GET_PLAYER_WANTED_LEVEL">
@@ -8188,6 +8203,28 @@
             The key to look up in the resource manifest.
             </param>
         </member>
+        <member name="M:CitizenFX.Core.Native.API.GetPlayerCameraRotation(System.String)">
+            <summary>
+            Gets the current camera rotation for a specified player. This native is used server side when using OneSync.
+            </summary>
+            <param name="playerSrc">
+            The player handle.
+            </param>
+            <returns>
+            The player's camera rotation. Values are in radians.
+            </returns>
+        </member>
+        <member name="M:CitizenFX.Core.Native.API.GetPlayerFakeWantedLevel(System.String)">
+            <summary>
+            Gets the current fake wanted level for a specified player. This native is used server side when using OneSync.
+            </summary>
+            <param name="playerSrc">
+            The target player
+            </param>
+            <returns>
+            The fake wanted level
+            </returns>
+        </member>
         <member name="M:CitizenFX.Core.Native.API.GetPlayerMeleeWeaponDamageModifier(System.Int32)">
             <summary>
             A getter for [SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER](#\_0x4A3DC7ECCC321032).
@@ -8241,6 +8278,17 @@
             </param>
             <returns>
             A token value.
+            </returns>
+        </member>
+        <member name="M:CitizenFX.Core.Native.API.GetPlayerWantedCentrePosition(System.String)">
+            <summary>
+            Gets the current known coordinates for the specified player from cops perspective. This native is used server side when using OneSync.
+            </summary>
+            <param name="playerSrc">
+            The target player
+            </param>
+            <returns>
+            The player's position known by police. Vector zero if the player has no wanted level.
             </returns>
         </member>
         <member name="M:CitizenFX.Core.Native.API.GetPlayerWantedLevel(System.String)">
