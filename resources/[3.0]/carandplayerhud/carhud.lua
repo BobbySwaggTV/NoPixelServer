@@ -1717,30 +1717,30 @@ end)
 
 HasNuiFocus, IsFocusThreadRunning = false, false
 
-RegisterNetEvent('np-voice:focus:set')
-AddEventHandler('np-voice:focus:set', function(hasFocus, hasKeyboard, hasMouse)
+RegisterNetEvent('np:voice:focus:set')
+AddEventHandler('np:voice:focus:set', function(hasFocus, hasKeyboard, hasMouse)
 	HasNuiFocus = hasFocus
 
 	if HasNuiFocus and not IsFocusThreadRunning then
 		Citizen.CreateThread(function ()
-      while HasNuiFocus do
-        if hasKeyboard then
-            DisableAllControlActions(0)
-            EnableControlAction(0, 249, true)
-        end
+            while HasNuiFocus do
+                if hasKeyboard then
+                    DisableAllControlActions(0)
+                    EnableControlAction(0, 249, true)
+                end
 
-        if not hasKeyboard and hasMouse then
-            DisableControlAction(0, 1, true)
-            DisableControlAction(0, 2, true)
-        elseif hasKeyboard and not hasMouse then
-            EnableControlAction(0, 1, true)
-            EnableControlAction(0, 2, true)
-        end
+                if not hasKeyboard and hasMouse then
+                    DisableControlAction(0, 1, true)
+                    DisableControlAction(0, 2, true)
+                elseif hasKeyboard and not hasMouse then
+                    EnableControlAction(0, 1, true)
+                    EnableControlAction(0, 2, true)
+                end
 
-        Citizen.Wait(0)
+                Citizen.Wait(0)
 			end
-    end)
-  end
+        end)
+    end
 end)
 
 

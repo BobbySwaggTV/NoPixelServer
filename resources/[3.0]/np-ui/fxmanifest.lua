@@ -19,6 +19,5 @@ files {
 
 client_scripts {
   'client/cl_exports.lua',
-  'client/cl_lib.lua',
-  'client/model/cl_*.lua'
+  'client/cl_*.lua'
 }
