@@ -55,7 +55,7 @@ AddEventHandler('bank:deposit', function(amount)
         TriggerClientEvent('showNotify', source, 'Amount is too high.')
         CancelEvent()
     else
-        if (tonumber(rounded) <= tonumber(user:money)) then
+        if (tonumber(rounded) <= tonumber(user:money())) then
             user:removeMoney((rounded))
             local player = user.identifier
             deposit(player, rounded)
