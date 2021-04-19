@@ -23,9 +23,9 @@ local currentValues = {
 }
 
 local flyingCars = {
-  [`oppressor`] = true,
-  [`oppressor2`] = true,
-  [`deluxo`] = true,
+  ["oppressor"] = true,
+  ["oppressor2"] = true,
+  ["deluxo"] = true,
 }
 
 RegisterNetEvent('car:windowsdown')
@@ -77,7 +77,7 @@ AddEventHandler("police:sport",function()
   if (IsPedInAnyVehicle(PlayerPedId(), false)) then
     local veh = GetVehiclePedIsIn(PlayerPedId(),false)
     local Driver = GetPedInVehicleSeat(veh, -1)
-    local defaultHash = `2015POLSTANG`
+    local defaultHash = "2015POLSTANG"
 
     if Driver == PlayerPedId() and IsVehicleModel( veh, defaultHash ) then
       local fInitialDriveForce = GetVehicleHandlingFloat(veh, 'CHandlingData', 'fInitialDriveForce')
@@ -358,7 +358,7 @@ function carryPed(ped)
     end
 
 
-    if IsControlJustPressed(0, 38) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(PlayerPedId()))  then
+    if IsControlJustPressed(0, 38) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(PlayerPedId()))  then
       holdingBody = false
       DetachEntity(ped)
     end
@@ -716,7 +716,7 @@ function disabledPeds2()
 end
 
 function createObjectTest()
-  local prop = `prop_mp_drug_package`
+  local prop = "prop_mp_drug_package"
   local x,y,z = table.unpack(GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 0.5, -1.0))
   RequestModel(prop)
   while not HasModelLoaded(prop) do
@@ -902,7 +902,7 @@ toggleFaceWear = function(pWearType, pShouldRemove)
     local LocalPlayer = exports["np-base"]:getModule("LocalPlayer")
     local gender = LocalPlayer:getCurrentCharacter().gender
     local bareFootIndex = 34
-    if not IsPedMale(PlayerPedId()) or gender ~= 0 or GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` then
+    if not IsPedMale(PlayerPedId()) or gender ~= 0 or GetEntityModel(PlayerPedId()) == "mp_f_freemode_01" then
       bareFootIndex = 35
     end
     SetPedComponentVariation(PlayerPedId(), PropIndex, bareFootIndex, 0, -1)
@@ -1524,7 +1524,7 @@ function GetInWheelChair()
 
   local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, -0.85, -0.45)
 
-  local chair = CreateObject( `prop_wheelchair_01_s`, pos.x, pos.y, pos.z, true, true, true)
+  local chair = CreateObject( "prop_wheelchair_01_s", pos.x, pos.y, pos.z, true, true, true)
 
   SetEntityCoords(chair, pos.x, pos.y, pos.z-0.85)
   Citizen.Wait(1000)
@@ -1765,7 +1765,7 @@ Citizen.CreateThread(function()
 
       if HoldTime >= 2 and not HasNuiFocus then
         HoldTime = 0
-        ActivateFrontendMenu(`FE_MENU_VERSION_MP_PAUSE`, 0, 42)
+        ActivateFrontendMenu("FE_MENU_VERSION_MP_PAUSE", 0, 42)
       end
 
       LastStroke = time
@@ -1878,7 +1878,7 @@ AddEventHandler("fire:damageUser", function(Reqeuester)
 
   if IsPedShooting(Attackerped) then
     local name = GetSelectedPedWeapon(Attackerped)
-    if name == `WEAPON_FIREEXTINGUISHER` and not exports["isPed"]:isPed("dead") then
+    if name == "WEAPON_FIREEXTINGUISHER" and not exports["isPed"]:isPed("dead") then
       lastDamageTrigger = GetGameTimer()
       currentValues["oxy"] = currentValues["oxy"] - 15
     end
@@ -1891,7 +1891,7 @@ Citizen.CreateThread(function()
     Wait(1)
     if currentValues["oxy"] > 0 and IsPedSwimmingUnderWater(PlayerPedId()) then
       if not hasChanged then
-        SetAudioSubmixEffectParamInt(0, 0, `enabled`, 1)
+        SetAudioSubmixEffectParamInt(0, 0, "enabled", 1)
         hasChanged = true
       end
       SetPedDiesInWater(PlayerPedId(), false)
@@ -1910,7 +1910,7 @@ Citizen.CreateThread(function()
 
     if not IsPedSwimmingUnderWater( PlayerPedId() ) and currentValues["oxy"] < 25.0 then
       if hasChanged then
-        SetAudioSubmixEffectParamInt(0, 0, `enabled`, 0)
+        SetAudioSubmixEffectParamInt(0, 0, "enabled", 0)
         hasChanged = false
       end
       if GetGameTimer() - lastDamageTrigger > 3000 then
@@ -1966,9 +1966,9 @@ Citizen.CreateThread(function()
   local veh_body_health = GetVehicleBodyHealth(get_ped_veh)
   local veh_burnout = IsVehicleInBurnout(get_ped_veh) -- Vehicle Burnout
   local thespeed = GetEntitySpeed(get_ped_veh) * 3.6
-  currentValues["parachute"] = HasPedGotWeapon(get_ped, `gadget_parachute`, false)
+  currentValues["parachute"] = HasPedGotWeapon(get_ped, "gadget_parachute", false)
 
-  local huntingRifleHash = `weapon_sniperrifle2` -- -646649097
+  local huntingRifleHash = "weapon_sniperrifle2" -- -646649097
 
   while true do
 
@@ -1996,7 +1996,7 @@ Citizen.CreateThread(function()
       veh_burnout = IsVehicleInBurnout(get_ped_veh) -- Vehicle Burnout
       thespeed = GetEntitySpeed(get_ped_veh) * 3.6
       currentValues["stress"] = math.ceil(stresslevel / 10)
-      currentValues["parachute"] = HasPedGotWeapon(get_ped, `gadget_parachute`, false)
+      currentValues["parachute"] = HasPedGotWeapon(get_ped, "gadget_parachute", false)
       currentValues["crosshair"] = IsPedArmed(get_ped, 6)
         and IsPlayerFreeAiming(PlayerId())
         and GetSelectedPedWeapon(PlayerPedId()) ~= huntingRifleHash
@@ -2254,7 +2254,7 @@ end
 Citizen.CreateThread(function()
     while true do
         local ped = PlayerPedId()
-        if isFatSizEnabled and GetEntityModel(ped) == `ig_siz_fat` and IsPedInAnyVehicle(ped) then
+        if isFatSizEnabled and GetEntityModel(ped) == "ig_siz_fat" and IsPedInAnyVehicle(ped) then
             gettingUpThread()
             local veh = GetVehiclePedIsIn(ped)
             local model = GetEntityModel(veh)

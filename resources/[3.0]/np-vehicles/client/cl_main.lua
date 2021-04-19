@@ -183,7 +183,7 @@ AddEventHandler('baseevents:enteredVehicle', function(pCurrentVehicle, currentSe
   SetPedConfigFlag(PlayerPedId(), 35, false)
   local vehicleClass = GetVehicleClass(pCurrentVehicle)
   if vehicleClass == 15 or vehicleClass == 16 then
-      SetAudioSubmixEffectParamInt(0, 0, `enabled`, 1)
+      SetAudioSubmixEffectParamInt(0, 0, "enabled", 1)
   end
   if currentSeat == -1 then
     processVehicleHandling(pCurrentVehicle)
@@ -198,7 +198,7 @@ AddEventHandler('baseevents:leftVehicle', function(pCurrentVehicle, pCurrentSeat
   currentVehicleIdentifier = nil
   TriggerEvent('harness', false, 0);
   TriggerEvent('seatbelt', false);
-  SetAudioSubmixEffectParamInt(0, 0, `enabled`, 0)
+  SetAudioSubmixEffectParamInt(0, 0, "enabled", 0)
   toggleOffroadState(false)
 end)
 

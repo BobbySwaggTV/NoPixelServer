@@ -181,7 +181,7 @@ exports("AddTargetModel", AddTargetModel)
 
 Citizen.CreateThread(function()
     local peds = {
-        `a_f_m_bevhills_02`,
+        "a_f_m_bevhills_02",
     }
     AddTargetModel(peds, {
         options = {

@@ -1,6 +1,6 @@
 local models = {
-  [`tropic`] = { y = -0.75, z = 0.75 },
-  [`suntrap`] = { y = -0.5, z = 0.35 },
+  ["tropic"] = { y = -0.75, z = 0.75 },
+  ["suntrap"] = { y = -0.5, z = 0.35 },
 }
 local trailer = nil
 AddEventHandler("vehicle:primeTrailerForMounting", function(params, pEntity)
