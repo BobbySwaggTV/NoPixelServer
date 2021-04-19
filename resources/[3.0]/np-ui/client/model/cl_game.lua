@@ -1,5 +1,5 @@
 -- PRE SPAWN
-local charSpawned = false
+--local charSpawned = false
 
 local pedId, plyId = PlayerPedId(), PlayerId()
 
@@ -10,12 +10,12 @@ function GetPlayer()
     return plyId
 end
 
-Citizen.CreateThread(function()
+--[[Citizen.CreateThread(function()
     while not charSpawned do
         DisplayRadar(0)
         Citizen.Wait(0)
     end
-end)
+end)]]--
 
 -- CHAR SPAWN
 function getCharacterInfo()
