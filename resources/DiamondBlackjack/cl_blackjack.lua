@@ -211,9 +211,11 @@ Citizen.CreateThread(function()
             if closestChair ~= nil and closestChairDist < 2 then
                 if not timeoutHowToBlackjack then
                     if blackjackTableData[closestChair] == false then 
-                        drawNativeNotification("Press ~INPUT_PICKUP~ to play the blackjack")
+                        --drawNativeNotification("Press ~INPUT_PICKUP~ to play the blackjack")
+                        TriggerEvent("DoLongHudText", "Press E to play BlackJack")
                     else 
-                        drawNativeNotification("This seat is taken.")
+                        --drawNativeNotification("This seat is taken.")
+                        TriggerEvent("DoLongHudText", "This seat is taken", 2)
                     end
                     showHowToBlackjack(true)
                     if not playedCasinoGuiSound then
@@ -497,7 +499,8 @@ AddEventHandler("Blackjack:beginBetsBlackjack",function(gameID,tableId)
     blackjackInstructional = setupBlackjackInstructionalScaleform("instructional_buttons")
     --print("made blackjackInstructional true cause its intro time bet")
     ClearHelp(true)
-    drawNativeNotification("Place your bets")
+    --drawNativeNotification("Place your bets")
+    TriggerEvent("DoLongHudText", "Place your bets")
     bettedThisRound = false
     drawTimerBar = true
     drawCurrentHand = false
@@ -522,7 +525,8 @@ AddEventHandler("Blackjack:beginBetsBlackjack",function(gameID,tableId)
         drawTimerBar = false
         if not bettedThisRound then
             --print("made blackjackInstructional nil cause you didnt bet")
-            drawNativeNotification("No bet placed, round skipped")
+            --drawNativeNotification("No bet placed, round skipped")
+            TriggerEvent("DoLongHudText", "No bet placed, Round skipped", 2)
         end
     end)
 end)
@@ -611,7 +615,8 @@ AddEventHandler("Blackjack:standOrHit",function(gameId,chairId,nextCardCount,tab
                     waitingForStandOrHitState = false
                     TriggerServerEvent("Blackjack:standBlackjack",globalGameId,globalNextCardCount)
                     declineCard()
-                    drawNativeNotification("Failed to stand/hit in time, standing.")
+                    --drawNativeNotification("Failed to stand/hit in time, standing.")
+                    TriggerEvent("DoLongHudText", "Failed to stand/hit in time, standing.", 2)
                 end
             end)
         else 
@@ -661,7 +666,8 @@ function goToBlackjackSeat(blackjackSeatID)
     closestDealerPed, closestDealerPedDistance = getClosestDealer()
     PlayAmbientSpeech1(closestDealerPed,"MINIGAME_DEALER_GREET","SPEECH_PARAMS_FORCE_NORMAL_CLEAR",1)
     --print("[CMG Casino] start sit at blackjack seat") 
-    drawNativeNotification("Waiting for next game to start...")
+    --drawNativeNotification("Waiting for next game to start...")
+    TriggerEvent("DoLongHudText", "Waiting for next game to start...")
     blackjackAnimsToLoad = {
       "anim_casino_b@amb@casino@games@blackjack@dealer",
       "anim_casino_b@amb@casino@games@shared@dealer@",
@@ -1041,7 +1047,8 @@ AddEventHandler("Blackjack:blackjackLose",function(tableId)
         TaskPlayAnim(dealerPed, "anim_casino_b@amb@casino@games@blackjack@dealer", "reaction_bad", 3.0, 1.0, -1, 2, 0, 0, 0, 0 )
         angryILost()
         canExitBlackjack = true
-        drawNativeNotification("~r~You lose!")
+        --drawNativeNotification("~r~You lose!")
+        TriggerEvent("DoLongHudText", "You lose!", 2)
         drawCurrentHand = false
         currentHand = 0
         dealersHand = 0
@@ -1056,7 +1063,8 @@ AddEventHandler("Blackjack:blackjackPush",function(tableId)
         TaskPlayAnim(dealerPed, "anim_casino_b@amb@casino@games@blackjack@dealer", "reaction_impartial", 3.0, 1.0, -1, 2, 0, 0, 0, 0 )
         annoyedIPushed()
         canExitBlackjack = true
-        drawNativeNotification("~b~You pushed!")
+        --drawNativeNotification("~b~You pushed!")
+        TriggerEvent("DoLongHudText", "You pushed!")
         drawCurrentHand = false
         currentHand = 0
         dealersHand = 0
@@ -1071,7 +1079,8 @@ AddEventHandler("Blackjack:blackjackWin",function(tableId)
         TaskPlayAnim(dealerPed, "anim_casino_b@amb@casino@games@blackjack@dealer", "reaction_good", 3.0, 1.0, -1, 2, 0, 0, 0, 0 )
         happyIWon()
         canExitBlackjack = true
-        drawNativeNotification("~g~You win!")
+        --drawNativeNotification("~g~You win!")
+        TriggerEvent("DoLongHudText", "You win!")
         drawCurrentHand = false
         currentHand = 0
         dealersHand = 0
