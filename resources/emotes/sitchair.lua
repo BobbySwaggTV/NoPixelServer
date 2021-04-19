@@ -185,7 +185,7 @@ AddEventHandler('animation:Chair2', function()
 
 		local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, -0.65, 0.0)
 
-		local chair = CreateObject( `prop_chair_01a`, pos.x, pos.y, pos.z, true, false, false)
+		local chair = CreateObject( "prop_chair_01a", pos.x, pos.y, pos.z, true, false, false)
 		SetEntityHeading(chair,GetEntityHeading(ped))
 		SetEntityCollision(chair,false,false)
 		SetEntityCoords(chair, pos.x, pos.y, pos.z)
