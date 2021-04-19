@@ -1,5 +1,5 @@
 local inCasino = false
-local carOnShow = `baller5`
+local carOnShow = "baller5"
 local polyEntryTimeout = false
 local enterFirstTime = true
 local entranceTeleportCoords = vector3(1089.73,206.36,-48.99 + 0.05)
