@@ -514,7 +514,7 @@ Citizen.CreateThread( function()
           local plate1 = GetVehicleNumberPlateText(curveh)
 
           -- temporary fix for segway on / off to prevent desync and anim bugs.
-          if GetEntityModel(curveh) == `POLFEGWAY` then
+          if GetEntityModel(curveh) == "POLFEGWAY" then
               local targetCoords = GetEntityCoords(curveh, 0)
               local ply = PlayerPedId()
               local plyCoords = GetEntityCoords(ply, 0)
@@ -551,7 +551,7 @@ Citizen.CreateThread( function()
                     TriggerServerEvent('np:peds:decor', GetPlayerServerId(pedOwner), PedToNet(pedDriver))
                 end
 
-                if GetEntityModel(curveh) ~= `taxi` then
+                if GetEntityModel(curveh) ~= "taxi" then
                   
                   if math.random(100) > 95 then
 

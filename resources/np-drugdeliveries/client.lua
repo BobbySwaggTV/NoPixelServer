@@ -113,7 +113,7 @@ function buildDrugShop()
 	local generator = { x = pillStore["x"] , y = pillStore["y"], z = pillStore["z"] - 35.0}
   	SetEntityCoords(PlayerPedId(),generator.x,generator.y,generator.z+2)
   	
-	local building = CreateObject(`traphouse_shell`,generator.x-0.31811000,generator.y+1.79183500,generator.z+2.56171400,false,false,false)
+	local building = CreateObject("traphouse_shell",generator.x-0.31811000,generator.y+1.79183500,generator.z+2.56171400,false,false,false)
 	FreezeEntityPosition(building, true)
 	local coordsofbuilding = GetEntityCoords(building, true)
 	-- CreateObject(`V_38_C_Barbers_Det`,coordsofbuilding.x+0.36036100,coordsofbuilding.y-0.35528500,coordsofbuilding.z+1.54137200,false,false,false)
@@ -225,7 +225,7 @@ function CreateDrugStorePed()
 	if DoesEntityExist(drugStorePed) then
 		return
 	end
-	local hashKey = `a_m_y_stwhi_02`
+	local hashKey = "a_m_y_stwhi_02"
 	local pedType = GetPedType(hashKey)
     RequestModel(hashKey)
     while not HasModelLoaded(hashKey) do
@@ -311,7 +311,7 @@ end
 
 function CreateOxyPed()
 
-    local hashKey = `a_m_y_stwhi_01`
+    local hashKey = "a_m_y_stwhi_01"
 
     local pedType = 5
 
@@ -344,7 +344,7 @@ end
 function CreateDrugPed()
 	
 
-    local hashKey = `g_m_y_salvagoon_01`
+    local hashKey = "g_m_y_salvagoon_01"
 
     local pedType = 5
 

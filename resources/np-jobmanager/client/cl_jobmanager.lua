@@ -12,7 +12,7 @@ AddEventHandler("np-jobmanager:playerBecameJob", function(job, name, notify)
         TriggerEvent('DoLongHudText',"Broadcast from this room and give out the vibes to los santos on 1982.9",1)
     end  
 	if job == "unemployed"  then
-		SetPedRelationshipGroupDefaultHash(PlayerPedId(),`PLAYER`)
+		SetPedRelationshipGroupDefaultHash(PlayerPedId(),"PLAYER")
         SetPoliceIgnorePlayer(PlayerPedId(),false)
         TriggerEvent("ResetRadioChannel");
 	end

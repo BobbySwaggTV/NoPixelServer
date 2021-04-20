@@ -37,7 +37,7 @@ local bluedata = {
 
 function penis()    
 
-    local car = `rmodmustang`
+    local car = "rmodmustang"
     RequestModel(car)
     while not HasModelLoaded(car) do
         Citizen.Wait(0)
@@ -129,7 +129,7 @@ function balls(data)
     TaskSetBlockingOfNonTemporaryEvents(blue, false)
     ClearPedTasks(blue)
     LoadPed(data)
-    ApplyPedOverlay(blue, `mpbeach_overlays` , `MP_Bea_M_Neck_000`)
+    ApplyPedOverlay(blue, "mpbeach_overlays" , "MP_Bea_M_Neck_000")
 end
 
 function LoadPed(data)
@@ -240,7 +240,7 @@ function SetSkin(model, setDefault)
         SetModelAsNoLongerNeeded(model)
         FreezePedCameraRotation(blue, true)
         if setDefault and model ~= nil and not isCustomSkin(model) then
-            if (model ~= `mp_f_freemode_01` and model ~= `mp_m_freemode_01`) then
+            if (model ~= "mp_f_freemode_01" and model ~= "mp_m_freemode_01") then
                 SetPedRandomComponentVariation(blue, true)
             else
                 SetPedHeadBlendData(blue, 0, 0, 0, 15, 0, 0, 0, 1.0, 0, false)

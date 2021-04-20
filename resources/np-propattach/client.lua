@@ -76,7 +76,7 @@ AddEventHandler('event:control:propAttach', function(useID)
 
 	if attachedPropPerm ~= 0 then
 
-		if (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(PlayerPedId()) and holdingPackage) then
+		if ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(PlayerPedId()) and holdingPackage) then
 
 			if not holdingPackage then
 

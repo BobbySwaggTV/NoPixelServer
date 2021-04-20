@@ -114,7 +114,7 @@ end
 
 RegisterNetEvent("RefuelCar")
 AddEventHandler("RefuelCar",function()
-    local w = `WEAPON_PetrolCan` 
+    local w = "WEAPON_PetrolCan" 
     local curw = GetSelectedPedWeapon(PlayerPedId())
     if curw == w then
         coordA = GetEntityCoords(PlayerPedId(), 1)

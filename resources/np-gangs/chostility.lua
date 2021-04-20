@@ -336,70 +336,70 @@ Citizen.CreateThread(function()
   Wait(600)
       for _, group in ipairs(relationshipTypes) do
         if group == "COP" then
-          SetRelationshipBetweenGroups(3, `PLAYER`,GetHashKey(group))
-          SetRelationshipBetweenGroups(3, GetHashKey(group), `PLAYER`)
-          SetRelationshipBetweenGroups(0, `MISSION2`,GetHashKey(group))
-          SetRelationshipBetweenGroups(0, GetHashKey(group), `MISSION2`)
+          SetRelationshipBetweenGroups(3, "PLAYER",GetHashKey(group))
+          SetRelationshipBetweenGroups(3, GetHashKey(group), "PLAYER")
+          SetRelationshipBetweenGroups(0, "MISSION2",GetHashKey(group))
+          SetRelationshipBetweenGroups(0, GetHashKey(group), "MISSION2")
 
         else
-          SetRelationshipBetweenGroups(0, `PLAYER`,GetHashKey(group))
-          SetRelationshipBetweenGroups(0, GetHashKey(group), `PLAYER`)
-          SetRelationshipBetweenGroups(0, `MISSION2`,GetHashKey(group))
-          SetRelationshipBetweenGroups(0, GetHashKey(group), `MISSION2`)
+          SetRelationshipBetweenGroups(0, "PLAYER",GetHashKey(group))
+          SetRelationshipBetweenGroups(0, GetHashKey(group), "PLAYER")
+          SetRelationshipBetweenGroups(0, "MISSION2",GetHashKey(group))
+          SetRelationshipBetweenGroups(0, GetHashKey(group), "MISSION2")
         end  
-      SetRelationshipBetweenGroups(5, GetHashKey(group), `MISSION8`)
+      SetRelationshipBetweenGroups(5, GetHashKey(group), "MISSION8")
     end
 
 
-    SetRelationshipBetweenGroups(1, `PLAYER`, `AMBIENT_GANG_WEICHENG`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_WEICHENG`, `PLAYER`)
-    SetRelationshipBetweenGroups(1, `PLAYER`, `AMBIENT_GANG_FAMILY`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_FAMILY`, `PLAYER`)
-    SetRelationshipBetweenGroups(1, `PLAYER`, `AMBIENT_GANG_BALLAS`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_BALLAS`, `PLAYER`)
+    SetRelationshipBetweenGroups(1, "PLAYER", "AMBIENT_GANG_WEICHENG")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_WEICHENG", "PLAYER")
+    SetRelationshipBetweenGroups(1, "PLAYER", "AMBIENT_GANG_FAMILY")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_FAMILY", "PLAYER")
+    SetRelationshipBetweenGroups(1, "PLAYER", "AMBIENT_GANG_BALLAS")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_BALLAS", "PLAYER")
 
-    SetRelationshipBetweenGroups(1, `PLAYER`, `AMBIENT_GANG_SALVA`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_SALVA`, `PLAYER`)
-    SetRelationshipBetweenGroups(1, `PLAYER`, `AMBIENT_GANG_MEXICAN`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_MEXICAN`, `PLAYER`)
+    SetRelationshipBetweenGroups(1, "PLAYER", "AMBIENT_GANG_SALVA")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_SALVA", "PLAYER")
+    SetRelationshipBetweenGroups(1, "PLAYER", "AMBIENT_GANG_MEXICAN")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_MEXICAN", "PLAYER")
 
 
 
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_LOST`, `AMBIENT_GANG_WEICHENG`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_WEICHENG`, `AMBIENT_GANG_LOST`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_LOST`, `AMBIENT_GANG_FAMILY`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_FAMILY`, `AMBIENT_GANG_LOST`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_LOST`, `AMBIENT_GANG_BALLAS`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_BALLAS`, `AMBIENT_GANG_LOST`)
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_LOST", "AMBIENT_GANG_WEICHENG")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_WEICHENG", "AMBIENT_GANG_LOST")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_LOST", "AMBIENT_GANG_FAMILY")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_FAMILY", "AMBIENT_GANG_LOST")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_LOST", "AMBIENT_GANG_BALLAS")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_BALLAS", "AMBIENT_GANG_LOST")
 
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_LOST`, `AMBIENT_GANG_SALVA`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_SALVA`, `AMBIENT_GANG_LOST`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_LOST`, `AMBIENT_GANG_MEXICAN`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_MEXICAN`, `AMBIENT_GANG_LOST`)
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_LOST", "AMBIENT_GANG_SALVA")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_SALVA", "AMBIENT_GANG_LOST")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_LOST", "AMBIENT_GANG_MEXICAN")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_MEXICAN", "AMBIENT_GANG_LOST")
 
 
 
 --WEST SIDE
-    SetRelationshipBetweenGroups(1, `MISSION4`, `AMBIENT_GANG_WEICHENG`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_WEICHENG`, `MISSION4`)
+    SetRelationshipBetweenGroups(1, "MISSION4", "AMBIENT_GANG_WEICHENG")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_WEICHENG", "MISSION4")
 
 -- MEDIC / POLICE WEST SIDE
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_WEICHENG`, `MISSION2`)
-    SetRelationshipBetweenGroups(1, `MISSION2`, `AMBIENT_GANG_WEICHENG`)
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_WEICHENG", "MISSION2")
+    SetRelationshipBetweenGroups(1, "MISSION2", "AMBIENT_GANG_WEICHENG")
 
 
 
 --CENTRAL
-    SetRelationshipBetweenGroups(1, `MISSION5`, `AMBIENT_GANG_FAMILY`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_FAMILY`, `MISSION5`)
-    SetRelationshipBetweenGroups(1, `MISSION5`, `AMBIENT_GANG_BALLAS`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_BALLAS`, `MISSION5`)
+    SetRelationshipBetweenGroups(1, "MISSION5", "AMBIENT_GANG_FAMILY")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_FAMILY", "MISSION5")
+    SetRelationshipBetweenGroups(1, "MISSION5", "AMBIENT_GANG_BALLAS")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_BALLAS", "MISSION5")
 
 -- MEDIC / POLICE CENTRAL
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_BALLAS`, `MISSION2`)
-    SetRelationshipBetweenGroups(1, `MISSION2`, `AMBIENT_GANG_BALLAS`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_FAMILY`, `MISSION2`)
-    SetRelationshipBetweenGroups(1, `MISSION2`, `AMBIENT_GANG_FAMILY`)
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_BALLAS", "MISSION2")
+    SetRelationshipBetweenGroups(1, "MISSION2", "AMBIENT_GANG_BALLAS")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_FAMILY", "MISSION2")
+    SetRelationshipBetweenGroups(1, "MISSION2", "AMBIENT_GANG_FAMILY")
 
 
 
@@ -407,55 +407,55 @@ Citizen.CreateThread(function()
 
 
 --EAST SIDE
-    SetRelationshipBetweenGroups(1, `MISSION6`, `AMBIENT_GANG_SALVA`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_SALVA`, `MISSION6`)
-    SetRelationshipBetweenGroups(1, `MISSION6`, `AMBIENT_GANG_MEXICAN`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_MEXICAN`, `MISSION6`)
+    SetRelationshipBetweenGroups(1, "MISSION6", "AMBIENT_GANG_SALVA")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_SALVA", "MISSION6")
+    SetRelationshipBetweenGroups(1, "MISSION6", "AMBIENT_GANG_MEXICAN")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_MEXICAN", "MISSION6")
 
 -- MEDIC / POLICE EAST SIDE
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_SALVA`, `MISSION2`)
-    SetRelationshipBetweenGroups(1, `MISSION2`, `AMBIENT_GANG_SALVA`)
-    SetRelationshipBetweenGroups(1, `MISSION2`, `AMBIENT_GANG_MEXICAN`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_MEXICAN`, `MISSION2`)
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_SALVA", "MISSION2")
+    SetRelationshipBetweenGroups(1, "MISSION2", "AMBIENT_GANG_SALVA")
+    SetRelationshipBetweenGroups(1, "MISSION2", "AMBIENT_GANG_MEXICAN")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_MEXICAN", "MISSION2")
 
 
 
 
 
-    SetRelationshipBetweenGroups(1, -86095805, `MISSION2`)
-    SetRelationshipBetweenGroups(1, `MISSION2`, -86095805)
+    SetRelationshipBetweenGroups(1, -86095805, "MISSION2")
+    SetRelationshipBetweenGroups(1, "MISSION2", -86095805)
 
-    SetRelationshipBetweenGroups(1,1191392768, `MISSION2`)
-    SetRelationshipBetweenGroups(1, `MISSION2`,1191392768)
+    SetRelationshipBetweenGroups(1,1191392768, "MISSION2")
+    SetRelationshipBetweenGroups(1, "MISSION2",1191392768)
     
-    SetRelationshipBetweenGroups(1, `MISSION2`, 45677184)
-    SetRelationshipBetweenGroups(1, 45677184, `MISSION2`)
+    SetRelationshipBetweenGroups(1, "MISSION2", 45677184)
+    SetRelationshipBetweenGroups(1, 45677184, "MISSION2")
 
 
 
 
-    SetRelationshipBetweenGroups(3, `PLAYER`, `MISSION7`)
-    SetRelationshipBetweenGroups(3, `MISSION7`, `PLAYER`)
+    SetRelationshipBetweenGroups(3, "PLAYER", "MISSION7")
+    SetRelationshipBetweenGroups(3, "MISSION7", "PLAYER")
 
-    SetRelationshipBetweenGroups(0, `MISSION7`, `COP`)
-    SetRelationshipBetweenGroups(0, `COP`, `MISSION7`)
+    SetRelationshipBetweenGroups(0, "MISSION7", "COP")
+    SetRelationshipBetweenGroups(0, "COP", "MISSION7")
 
-    SetRelationshipBetweenGroups(0, `MISSION2`, `MISSION7`)
-    SetRelationshipBetweenGroups(0, `MISSION7`, `MISSION2`)
+    SetRelationshipBetweenGroups(0, "MISSION2", "MISSION7")
+    SetRelationshipBetweenGroups(0, "MISSION7", "MISSION2")
 
-    SetRelationshipBetweenGroups(0, `MISSION7`, `MISSION7`)
+    SetRelationshipBetweenGroups(0, "MISSION7", "MISSION7")
 
-    SetRelationshipBetweenGroups(3, `COP`,`PLAYER`)
-    SetRelationshipBetweenGroups(3, `PLAYER`, `COP`)
+    SetRelationshipBetweenGroups(3, "COP","PLAYER")
+    SetRelationshipBetweenGroups(3, "PLAYER", "COP")
 
-    SetRelationshipBetweenGroups(0, `PLAYER`, `MISSION3`)
-    SetRelationshipBetweenGroups(0, `MISSION3`,`PLAYER`)
+    SetRelationshipBetweenGroups(0, "PLAYER", "MISSION3")
+    SetRelationshipBetweenGroups(0, "MISSION3","PLAYER")
 
     -- LOST MC
-    SetRelationshipBetweenGroups(1, `PLAYER`, `AMBIENT_GANG_LOST`)
-    SetRelationshipBetweenGroups(1, `AMBIENT_GANG_LOST`, `PLAYER`)
-    SetRelationshipBetweenGroups(1,  `COP`, `AMBIENT_GANG_LOST`)
-    SetRelationshipBetweenGroups(1,  `AMBIENT_GANG_LOST`, `COP`)
+    SetRelationshipBetweenGroups(1, "PLAYER", "AMBIENT_GANG_LOST")
+    SetRelationshipBetweenGroups(1, "AMBIENT_GANG_LOST", "PLAYER")
+    SetRelationshipBetweenGroups(1,  "COP", "AMBIENT_GANG_LOST")
+    SetRelationshipBetweenGroups(1,  "AMBIENT_GANG_LOST", "COP")
 
   end
 end)
@@ -464,47 +464,47 @@ RegisterNetEvent('gangs:setDefaultRelations')
 AddEventHandler("gangs:setDefaultRelations",function() 
     Citizen.Wait(1000)
     for _, group in ipairs(relationshipTypes) do
-      SetRelationshipBetweenGroups(0, `PLAYER`,GetHashKey(group))
-      SetRelationshipBetweenGroups(0, GetHashKey(group), `PLAYER`)
-      SetRelationshipBetweenGroups(0, `MISSION2`,GetHashKey(group))
-      SetRelationshipBetweenGroups(0, GetHashKey(group), `MISSION2`)
+      SetRelationshipBetweenGroups(0, "PLAYER",GetHashKey(group))
+      SetRelationshipBetweenGroups(0, GetHashKey(group), "PLAYER")
+      SetRelationshipBetweenGroups(0, "MISSION2",GetHashKey(group))
+      SetRelationshipBetweenGroups(0, GetHashKey(group), "MISSION2")
       
-      SetRelationshipBetweenGroups(5, GetHashKey(group), `MISSION8`)
+      SetRelationshipBetweenGroups(5, GetHashKey(group), "MISSION8")
     end
     -- mission 7 is guards at vinewood and security guards
-    SetRelationshipBetweenGroups(3, `PLAYER`, `MISSION7`)
-    SetRelationshipBetweenGroups(3, `MISSION7`, `PLAYER`)
+    SetRelationshipBetweenGroups(3, "PLAYER", "MISSION7")
+    SetRelationshipBetweenGroups(3, "PLAYER", "MISSION7")
 
-    SetRelationshipBetweenGroups(0, `MISSION7`, `COP`)
-    SetRelationshipBetweenGroups(0, `COP`, `MISSION7`)
+    SetRelationshipBetweenGroups(0, "MISSION7", "COP")
+    SetRelationshipBetweenGroups(0, "COP", "MISSION7")
 
-    SetRelationshipBetweenGroups(0, `MISSION2`, `MISSION7`)
-     SetRelationshipBetweenGroups(0, `MISSION7`, `MISSION2`)
+    SetRelationshipBetweenGroups(0, "MISSION2", "MISSION7")
+     SetRelationshipBetweenGroups(0, "MISSION7", "MISSION2")
 
-    SetRelationshipBetweenGroups(0, `MISSION7`, `MISSION7`)
+    SetRelationshipBetweenGroups(0, "MISSION7", "MISSION7")
 
 
 
 
     -- players love each other even if full hatred
-    SetRelationshipBetweenGroups(0, `PLAYER`, `MISSION8`)
+    SetRelationshipBetweenGroups(0, "PLAYER", "MISSION8")
 
     -- cops from scenarios love cops and ems logged in
-    SetRelationshipBetweenGroups(0, `COP`, `MISSION2`)
+    SetRelationshipBetweenGroups(0, "COP", "MISSION2")
 
     -- players love cops and ems
-    SetRelationshipBetweenGroups(0, `PLAYER`, `MISSION2`)
+    SetRelationshipBetweenGroups(0, "PLAYER", "MISSION2")
 
-    SetRelationshipBetweenGroups(0, `PLAYER`, `MISSION3`)
-    SetRelationshipBetweenGroups(0, `MISSION3`,`PLAYER`)
+    SetRelationshipBetweenGroups(0, "PLAYER", "MISSION3")
+    SetRelationshipBetweenGroups(0, "MISSION3","PLAYER")
 end)
 --TriggerEvent("gangs:setHatredFull")
 
 RegisterNetEvent('gangs:setHatredFull')
 AddEventHandler("gangs:setHatredFull",function()
     local startcoords = GetEntityCoords(PlayerPedId())
-    SetPedRelationshipGroupHash(PlayerPedId(),`MISSION8`)
-    SetPedRelationshipGroupDefaultHash(PlayerPedId(),`MISSION8`)
+    SetPedRelationshipGroupHash(PlayerPedId(),"MISSION8")
+    SetPedRelationshipGroupDefaultHash(PlayerPedId(),"MISSION8")
     timer = 120000
     while timer > 0 do 
       timer = timer - 1
@@ -1672,7 +1672,7 @@ function canPedBeUsed(ped,isGunshot,isSpeeder)
       end
     end
 
-    if `mp_f_deadhooker` == GetEntityModel(ped) then
+    if "mp_f_deadhooker" == GetEntityModel(ped) then
       return false
     end
 

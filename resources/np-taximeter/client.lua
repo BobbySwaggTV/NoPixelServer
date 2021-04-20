@@ -83,7 +83,7 @@ AddEventHandler('taximeter:PerMinute', function(numsent)
   local numsent = math.ceil(numsent)
 
   if IsPedInAnyVehicle(PlayerPedId(), false) then
-    if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == `taxi` and playerPed == driverPed then
+    if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == "taxi" and playerPed == driverPed then
       PerMinute = numsent
       Total = BaseFare
       --updateDriverMeter()
@@ -102,7 +102,7 @@ AddEventHandler('taximeter:BaseFare', function(numsent)
   local driverPed = GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId(), false), -1)
   local numsent = math.ceil(numsent)
   if IsPedInAnyVehicle(PlayerPedId(), false) then
-    if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == `taxi` and playerPed == driverPed then
+    if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == "taxi" and playerPed == driverPed then
       BaseFare = numsent
       Total = BaseFare
       --updateDriverMeter()
@@ -125,7 +125,7 @@ AddEventHandler('taximeter:freeze', function()
   local playerPed = PlayerPedId()
   local driverPed = GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId(), false), -1)
   local plate = GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId(), false))
-  if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == `taxi` and playerPed == driverPed then
+  if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == "taxi" and playerPed == driverPed then
     frozen = not frozen
     if frozen then
       TriggerServerEvent("taximeter:freeze",plate,true)
@@ -197,7 +197,7 @@ AddEventHandler('taximeter:restartmeter', function()
   local playerPed = PlayerPedId()
   local driverPed = GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId(), false), -1)
   local plate = GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId(), false))
-  if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == `taxi` and playerPed == driverPed then
+  if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == "taxi" and playerPed == driverPed then
     Total = BaseFare
     updateDriverMeter()
   end
@@ -212,7 +212,7 @@ AddEventHandler('taximeter:FreezePlate', function(platesent,result)
   if plate == nil then
     return
   end
-  if plate == platesent and GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == `taxi` and playerPed ~= driverPed then
+  if plate == platesent and GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == "taxi" and playerPed ~= driverPed then
     frozen = result
   end
 end)

@@ -90,7 +90,7 @@ function RenderSpikes(k)
 	if not loadspikes then return end
 	if spikeCoords[k].placed == true or spikeCoords[k].object ~= nil then return end
 	spikeCoords[k].placed = true
-	local spike = `P_ld_stinger_s`
+	local spike = "P_ld_stinger_s"
 
     RequestModel(spike)
     while not HasModelLoaded(spike) do

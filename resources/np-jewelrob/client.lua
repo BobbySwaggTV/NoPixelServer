@@ -129,11 +129,11 @@ AddEventHandler('JewelKOS', function()
 		return
 	end
 	jewelKOS = true
-    SetPedRelationshipGroupDefaultHash(PlayerPedId(),`MISSION3`)
-    SetPedRelationshipGroupHash(PlayerPedId(),`MISSION3`)
+    SetPedRelationshipGroupDefaultHash(PlayerPedId(),"MISSION3")
+    SetPedRelationshipGroupHash(PlayerPedId(),"MISSION3")
     Wait(60000)
-    SetPedRelationshipGroupDefaultHash(PlayerPedId(),`PLAYER`)
-    SetPedRelationshipGroupHash(PlayerPedId(),`PLAYER`)
+    SetPedRelationshipGroupDefaultHash(PlayerPedId(),"PLAYER")
+    SetPedRelationshipGroupHash(PlayerPedId(),"PLAYER")
     jewelKOS = false
 end)
 

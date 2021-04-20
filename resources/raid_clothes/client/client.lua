@@ -83,7 +83,7 @@ function GetDrawables()
     drawables = {}
     local model = GetEntityModel(PlayerPedId())
     local mpPed = false
-    if (model == `mp_f_freemode_01` or model == `mp_m_freemode_01`) then
+    if (model == "mp_f_freemode_01" or model == "mp_m_freemode_01") then
         mpPed = true
     end
     for i = 0, #drawable_names-1 do
@@ -419,7 +419,7 @@ function SetSkin(model, setDefault)
         player = GetPlayerPed(-1)
         FreezePedCameraRotation(player, true)
         SetPedDefaultComponentVariation(player)
-        if setDefault and model ~= nil and not isCustomSkin(model) and (model == `mp_f_freemode_01` or model == `mp_m_freemode_01`) then
+        if setDefault and model ~= nil and not isCustomSkin(model) and (model == "mp_f_freemode_01" or model == "mp_m_freemode_01") then
             SetPedHeadBlendData(player, 0, 0, 0, 15, 0, 0, 0, 1.0, 0, false)
             SetPedComponentVariation(player, 11, 0, 1, 0)
             SetPedComponentVariation(player, 8, 0, 1, 0)
@@ -852,7 +852,7 @@ function Save(save)
     if save then
         data = GetCurrentPed()
         TriggerServerEvent("raid_clothes:insert_character_current", data)
-        if data.model == `mp_f_freemode_01` or data.model == `mp_m_freemode_01` then
+        if data.model == "mp_f_freemode_01" or data.model == "mp_m_freemode_01" then
             TriggerServerEvent("raid_clothes:insert_character_face", data)
             TriggerServerEvent("raid_clothes:set_tats", currentTats)
         end
@@ -1028,9 +1028,9 @@ AddEventHandler("raid_clothes:setclothes", function(data,alreadyExist)
             local gender = LocalPlayer:getCurrentCharacter().gender
             Citizen.Wait(5000)
             if gender ~= 0 then
-                SetSkin(`mp_f_freemode_01`, true)
+                SetSkin("mp_f_freemode_01", true)
             else
-                SetSkin(`mp_m_freemode_01`, true)
+                SetSkin("mp_m_freemode_01", true)
             end
             TriggerServerEvent("HOWMUCHCASHUHGOT")
             OpenMenu("clothesmenu")
@@ -1093,9 +1093,9 @@ AddEventHandler("raid_clothes:defaultReset", function()
     local gender = LocalPlayer:getCurrentCharacter().gender
     Citizen.Wait(1000)
     if gender ~= 0 then
-        SetSkin(`mp_f_freemode_01`, true)
+        SetSkin("mp_f_freemode_01", true)
     else
-        SetSkin(`mp_m_freemode_01`, true)
+        SetSkin("mp_m_freemode_01", true)
     end
     --SetPedHeadBlendData(PlayerPedId(), 0, 0, 0, 15, 0, 0, 0, 1.0, 0, false)
     --menu = "clothesmenu"

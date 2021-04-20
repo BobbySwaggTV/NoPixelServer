@@ -121,7 +121,7 @@ AddEventHandler('drawScaleformJail', function(years,name,cid,date)
         count = 10000
         while count > 0 do
             count = count - 1
-            local objFound = GetClosestObjectOfType(GetEntityCoords(PlayerPedId()), 10.0, `prop_police_id_board`, 0, 0, 0)
+            local objFound = GetClosestObjectOfType(GetEntityCoords(PlayerPedId()), 10.0, "prop_police_id_board", 0, 0, 0)
             if objFound then
                 scaleformPaste(scaleform,objFound,name,years,cid,date)
             end

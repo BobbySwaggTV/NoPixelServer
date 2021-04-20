@@ -96,7 +96,7 @@ RegisterCommand('fixblack', function()
 end)
 
 function secureWarehouseEnter(closeststashid)
-    local metd = `stashhouse1_shell`
+    local metd = "stashhouse1_shell"
     RequestModel(metd)
     while not HasModelLoaded(metd) do
         Citizen.Wait(0)

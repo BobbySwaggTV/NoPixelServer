@@ -147,12 +147,12 @@ local isBadLSD = false
 local isAbsinthe = false
 
 local animals = {
-  `a_c_rabbit_01`,
-  `a_c_pig`,
-  `a_c_shepherd`,
-  `a_c_mtlion`,
-  `a_c_coyote`,
-  `a_c_boar`
+  "a_c_rabbit_01",
+  "a_c_pig",
+  "a_c_shepherd",
+  "a_c_mtlion",
+  "a_c_coyote",
+  "a_c_boar"
 }
 
 local randomDrivingActions = {
@@ -199,7 +199,7 @@ FXAcid = function(time)
     AnimpostfxPlay("DrugsDrivingOut", 3000, 0)
     Wait(3000)
     AnimpostfxStop("DrugsDrivingOut")
-    RemoveRelationshipGroup(`SPECIAL`)
+    RemoveRelationshipGroup("SPECIAL")
     isHigh = false
 
     Cubes = {}
@@ -331,8 +331,8 @@ end
 InitPed = function()
   local plyPed = PlayerPedId()
   local pos = GetEntityCoords(plyPed)
-  SetPedRelationshipGroupDefaultHash(plyPed,`SPECIAL`)
-  SetPedRelationshipGroupHash(plyPed,`SPECIAL`)
+  SetPedRelationshipGroupDefaultHash(plyPed,"SPECIAL")
+  SetPedRelationshipGroupHash(plyPed,"SPECIAL")
   local randomAlt     = math.random(0,359)
   local randomDist    = math.random(50,80)
   local spawnPos      = pos + PointOnSphere(0.0,randomAlt,randomDist)
@@ -342,7 +342,7 @@ InitPed = function()
     spawnPos    = GetEntityCoords(PlayerPedId()) + PointOnSphere(0.0,randomAlt,randomSphere)
     Citizen.Wait(0)
   end
-  local hashKey = `s_m_y_clown_01`
+  local hashKey = "s_m_y_clown_01"
 	local pedType = GetPedType(hashKey)
   RequestModel(hashKey)
   while not HasModelLoaded(hashKey) do
@@ -351,9 +351,9 @@ InitPed = function()
   end
 
   EvilPed = CreatePed(pedType, hashKey, spawnPos, GetEntityHeading(plyPed), false, false) --ClonePed(plyPed, GetEntityHeading(plyPed), false, false)
-  SetPedRelationshipGroupDefaultHash(EvilPed,`SPECIAL`)
-  SetPedRelationshipGroupHash(EvilPed,`SPECIAL`)
-  SetEntityCanBeDamagedByRelationshipGroup(PlayerPedId(), false, `SPECIAL`)
+  SetPedRelationshipGroupDefaultHash(EvilPed,"SPECIAL")
+  SetPedRelationshipGroupHash(EvilPed,"SPECIAL")
+  SetEntityCanBeDamagedByRelationshipGroup(PlayerPedId(), false, "SPECIAL")
   SetPedDropsWeaponsWhenDead(EvilPed, false)
   DecorSetBool(EvilPed, 'ScriptedPed', true)
   Wait(500)

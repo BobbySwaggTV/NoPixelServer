@@ -398,7 +398,7 @@ function createCam()
         crds = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, -2.0, 0.5)
     end
     
-    camball = CreateObject(`prop_golf_ball`, crds, true, true, true)
+    camball = CreateObject("prop_golf_ball", crds, true, true, true)
     FreezeEntityPosition(camball,true)
     cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
     SetCamActive(cam,  true)

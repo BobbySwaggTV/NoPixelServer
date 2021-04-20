@@ -80,7 +80,7 @@ end)
 
 function spawnCart()
 	Citizen.Trace("Spawn Cart")
-	local vehicle = `caddy`
+	local vehicle = "caddy"
 	RequestModel(vehicle)
 
 	while not HasModelLoaded(vehicle) do
@@ -170,7 +170,7 @@ end
 function createBall(x,y,z)
 	Citizen.Trace("Creating Ball")
 	DeleteObject(mygolfball)
-	mygolfball = CreateObject(`prop_golf_ball`, x, y, z, true, true, false) 
+	mygolfball = CreateObject("prop_golf_ball", x, y, z, true, true, false) 
 
 	SetEntityRecordsCollisions(mygolfball,true)
 	addBallBlip()

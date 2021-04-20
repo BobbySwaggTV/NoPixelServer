@@ -71,7 +71,7 @@ Dancing = false
 RegisterNetEvent("attachtopole")
 AddEventHandler("attachtopole", function()
 		local ped = PlayerPedId()
-		local chair = CreateObject( `prop_chair_01a`, 112.59926422119,-1286.5965087891,28.45867729187, true, false, false)
+		local chair = CreateObject( "prop_chair_01a", 112.59926422119,-1286.5965087891,28.45867729187, true, false, false)
 		SetEntityHeading(chair,GetEntityHeading(ped)+180.0)
 		SetEntityCollision(chair,false,false)
 		--SetEntityVisible(chair, false)

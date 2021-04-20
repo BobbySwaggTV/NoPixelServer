@@ -273,7 +273,7 @@ Citizen.CreateThread(function()
               TriggerServerEvent("trucker:jobTaken",job)
               for i = 1, currentJobs[currentJobPos].dropAmount do
                   loadModel("prop_cs_cardbox_01")
-                  local obj = CreateObject(`prop_cs_cardbox_01`,currentJobs[currentJobPos].pickup[1], currentJobs[currentJobPos].pickup[2], currentJobs[currentJobPos].pickup[3]-0.8, 1, 0, 0)
+                  local obj = CreateObject("prop_cs_cardbox_01",currentJobs[currentJobPos].pickup[1], currentJobs[currentJobPos].pickup[2], currentJobs[currentJobPos].pickup[3]-0.8, 1, 0, 0)
                   PlaceObjectOnGroundProperly(obj)
               end
               notspawned = false
@@ -564,7 +564,7 @@ function attachBox()
 
     loadModel("prop_cs_cardbox_01")
     local vehc = GetEntityCoords(existingVeh)
-    local obj = CreateObject(`prop_cs_cardbox_01`,vehc["x"],vehc["y"],vehc["z"], 1, 0, 0)
+    local obj = CreateObject("prop_cs_cardbox_01",vehc["x"],vehc["y"],vehc["z"], 1, 0, 0)
 
     local x = math.random(10) / 10
     if math.random(100) > 50 then
@@ -580,7 +580,7 @@ function attachBox()
 end
 
 function DelBox()
-    local objFound = GetClosestObjectOfType( GetEntityCoords(PlayerPedId()), 5.0, `prop_cs_cardbox_01`, 0, 0, 0)
+    local objFound = GetClosestObjectOfType( GetEntityCoords(PlayerPedId()), 5.0, "prop_cs_cardbox_01", 0, 0, 0)
     if objFound then
         DetachEntity(objFound)
 
@@ -786,7 +786,7 @@ function spawnTruck(i)
 
       TriggerEvent("DoLongHudText","Use Phone to check job",1)
 
-      local model = `mule2`
+      local model = "mule2"
       RequestModel(model)
       while not HasModelLoaded(model) do
           Wait(1)
@@ -831,7 +831,7 @@ function SpawnSaleVehicles(garageNum)
   end
   for i=1,#garges do
 
-      local model = `mule2`
+      local model = "mule2"
       RequestModel(model)
       while not HasModelLoaded(model) do
           Wait(1)

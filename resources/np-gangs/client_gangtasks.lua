@@ -190,52 +190,52 @@ local weaponTypes = {
 function GetRandomMelee()
 	local ws = math.random(1,4)
 	if ws == 1 then
-		return `WEAPON_KNUCKLE`
+		return "WEAPON_KNUCKLE"
 	elseif ws == 2 then 
-		return `WEAPON_KNIFE`
+		return "WEAPON_KNIFE"
 	elseif ws == 3 then
-		return `WEAPON_KNIFE`
+		return "WEAPON_KNIFE"
 	else 
-		return `WEAPON_CROWBAR`
+		return "WEAPON_CROWBAR"
 	end
 end
 
 function GetRandomPistol()
 	local ws = math.random(1,4)
 	if ws == 1 then
-		return `WEAPON_PISTOL`
+		return "WEAPON_PISTOL"
 	elseif ws == 2 then 
-		return `WEAPON_COMBATPISTOL`
+		return "WEAPON_COMBATPISTOL"
 	elseif ws == 3 then
-		return `WEAPON_APPISTOL`
+		return "WEAPON_APPISTOL"
 	else 
-		return `WEAPON_PISTOL50`
+		return "WEAPON_PISTOL50"
 	end
 end
 
 function GetRandomSmall()
 	local ws = math.random(1,4)
 	if ws == 1 then
-		return `WEAPON_MICROSMG`
+		return "WEAPON_MICROSMG"
 	elseif ws == 2 then 
-		return `WEAPON_SMG`
+		return "WEAPON_SMG"
 	elseif ws == 3 then
-		return `WEAPON_ASSAULTSMG`
+		return "WEAPON_ASSAULTSMG"
 	else 
-		return `WEAPON_PUMPSHOTGUN`
+		return "WEAPON_PUMPSHOTGUN"
 	end
 end
 
 function GetRandomLarge()
 	local ws = math.random(1,4)
 	if ws == 1 then
-		return `WEAPON_ADVANCEDRIFLE`
+		return "WEAPON_ADVANCEDRIFLE"
 	elseif ws == 2 then 
-		return `WEAPON_ASSAULTSHOTGUN`
+		return "WEAPON_ASSAULTSHOTGUN"
 	elseif ws == 3 then
-		return `WEAPON_BULLPUPRIFLE`
+		return "WEAPON_BULLPUPRIFLE"
 	else 
-		return `WEAPON_AUTOSHOTGUN`
+		return "WEAPON_AUTOSHOTGUN"
 	end
 end
 
@@ -320,8 +320,8 @@ AddEventHandler('armed:success', function(wp,sc)
 
 		if attack then
 
-	        SetPedRelationshipGroupDefaultHash(hp,`AMBIENT_GANG_LOST`)
-	        SetPedRelationshipGroupHash(hp,`AMBIENT_GANG_LOST`)
+	        SetPedRelationshipGroupDefaultHash(hp,"AMBIENT_GANG_LOST")
+	        SetPedRelationshipGroupHash(hp,"AMBIENT_GANG_LOST")
 	       	RemoveAllPedWeapons(hp, true)
 	       
 	       	DoRandomHostileAnimaiton(hp)
@@ -980,7 +980,7 @@ function WeedProgress()
 end
 
 function workvehicle()
-	local car = `BLAZER`
+	local car = "BLAZER"
 	RequestModel(car)
 	while not HasModelLoaded(car) do
 		Citizen.Wait(1)
@@ -1215,7 +1215,7 @@ function inveh()
 end
 function doGrapeMiniTask()
 	loadModel("prop_cs_cardbox_01")
-	local obj = CreateObject(`prop_cs_cardbox_01`,center["x"],center["y"],center["z"], 1, 0, 0)
+	local obj = CreateObject("prop_cs_cardbox_01",center["x"],center["y"],center["z"], 1, 0, 0)
 
 	SetEntityHeading(obj,math.random(360) + 0.0)
 	local minitask = GetOffsetFromEntityInWorldCoords(obj, math.random(100)+0.0, 0.0, 45.0, true, true, false) 
@@ -1255,7 +1255,7 @@ function doGrapeMiniTask()
 	while timer > 0 and not success do	
 		timer = timer - 1
 		Citizen.Wait(1)
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
 			holdingPackage = not holdingPackage
 			if holdingPackage then
 				CarryBoxAnim()
@@ -1288,7 +1288,7 @@ function doGrapeMiniTask()
 	while timer > 0 and not success do	
 		timer = timer - 1
 		Citizen.Wait(1)
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
 			holdingPackage = not holdingPackage
 			if holdingPackage then
 				CarryBoxAnim()
@@ -1374,11 +1374,11 @@ AddEventHandler("gangTasks:GroupDeliveryTask", function(cidsent,TaskNumber)
 	local rank = exports["isPed"]:GroupRank("carpet_factory")
 	local taskveh = 0
 	if rank > 0 then
-		taskveh = CreateVehicle(`rumpo`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
+		taskveh = CreateVehicle("rumpo", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
 		SetVehicleLivery(taskveh,0)
 	else
 		loadModel("rumpo")
-		taskveh = CreateVehicle(`rumpo`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
+		taskveh = CreateVehicle("rumpo", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
 		SetVehicleLivery(taskveh,0)
 	end
 
@@ -1395,7 +1395,7 @@ AddEventHandler("gangTasks:GroupDeliveryTask", function(cidsent,TaskNumber)
 	TriggerEvent("keys:addNew",taskveh,plate)
 
 	loadModel("prop_cs_cardbox_01")
-	local obj = CreateObject(`prop_cs_cardbox_01`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, 1, 0, 0)
+	local obj = CreateObject("prop_cs_cardbox_01", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, 1, 0, 0)
 
 
 	AttachEntityToEntity(obj, taskveh, GetEntityBoneIndexByName(taskveh, 'bodyshell'), 0.0, -0.8, -0.4, 0, 0, 0, 1, 1, 0, 1, 0, 1)
@@ -1491,11 +1491,11 @@ AddEventHandler("gangTasks:deliveryTask", function(cidsent, TaskNumber)
 	local rank = exports["isPed"]:GroupRank("carpet_factory")
 	if rank > 0 then
 		loadModel("rumpo")
-		taskveh = CreateVehicle(`rumpo`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
+		taskveh = CreateVehicle("rumpo", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
 		SetVehicleLivery(taskveh,0)
 	else
 		loadModel("rumpo")
-		taskveh = CreateVehicle(`rumpo`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
+		taskveh = CreateVehicle("rumpo", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"], activeTasks[TaskNumber]["Location"]["h"], true, false)
 		SetVehicleLivery(taskveh,0)
 	end
 
@@ -1517,7 +1517,7 @@ AddEventHandler("gangTasks:deliveryTask", function(cidsent, TaskNumber)
 
 		loadModel("mp_f_deadhooker")
 
-		local ped = CreatePed(GetPedType(`mp_f_deadhooker`), `mp_f_deadhooker`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, activeTasks[TaskNumber]["Location"]["h"], 1, 1)	
+		local ped = CreatePed(GetPedType("mp_f_deadhooker"), "mp_f_deadhooker", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, activeTasks[TaskNumber]["Location"]["h"], 1, 1)	
 		DecorSetBool(ped, 'ScriptedPed', true)
 		AttachEntityToEntity(ped, taskveh, GetEntityBoneIndexByName(taskveh, 'bodyshell'), 0.0, -0.8, 0.6, 0, 0, 0, 1, 1, 0, 1, 0, 1)
 
@@ -1528,7 +1528,7 @@ AddEventHandler("gangTasks:deliveryTask", function(cidsent, TaskNumber)
 	elseif deliveryType == 2 then
 
 		loadModel("prop_cs_cardbox_01")
-		local obj = CreateObject(`prop_cs_cardbox_01`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, 1, 0, 0)
+		local obj = CreateObject("prop_cs_cardbox_01", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, 1, 0, 0)
 
 
 		AttachEntityToEntity(obj, taskveh, GetEntityBoneIndexByName(taskveh, 'bodyshell'), 0.0, -0.8, -0.4, 0, 0, 0, 1, 1, 0, 1, 0, 1)
@@ -1536,7 +1536,7 @@ AddEventHandler("gangTasks:deliveryTask", function(cidsent, TaskNumber)
 	elseif deliveryType == 3 then
 
 		loadModel("prop_cs_cardbox_01")
-		local obj = CreateObject(`prop_cs_cardbox_01`, activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, 1, 0, 0)
+		local obj = CreateObject("prop_cs_cardbox_01", activeTasks[TaskNumber]["Location"]["x"],activeTasks[TaskNumber]["Location"]["y"],activeTasks[TaskNumber]["Location"]["z"]-10, 1, 0, 0)
 
 		AttachEntityToEntity(obj, taskveh, GetEntityBoneIndexByName(taskveh, 'bodyshell'), 0.0, -0.8, -0.4, 0, 0, 0, 1, 1, 0, 1, 0, 1)
 		failure = DoObjectTaskInside(TaskNumber,failure,taskveh,obj)
@@ -1666,7 +1666,7 @@ function DoObjectTaskInside(TaskNumber,failure,taskveh,obj)
 			DrawText3DTest(pedcrds["x"],pedcrds["y"],pedcrds["z"], "Pickup Package ["..Controlkey["generalUse"][2].."]")
 		end
 		
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
 			holdingPackage = not holdingPackage
 			if holdingPackage then
 				CarryBoxAnim()
@@ -1695,7 +1695,7 @@ function DoObjectTaskInside(TaskNumber,failure,taskveh,obj)
 		local myCrds = plyCoords
 		dst = #(vector3(DeliveryLocation["x"]+1.1,DeliveryLocation["y"]-3.8,DeliveryLocation["z"] - 23) - myCrds)
 
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
 			holdingPackage = not holdingPackage
 			if holdingPackage then
 				CarryBoxAnim()
@@ -1820,7 +1820,7 @@ function DoObjectTaskGroup(TaskNumber,failure,taskveh,obj)
 			DrawText3DTest(pedcrds["x"],pedcrds["y"],pedcrds["z"], "Pickup Package ["..Controlkey["generalUse"][2].."]")
 		end
 		
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
 			holdingPackage = not holdingPackage
 			if holdingPackage then
 				CarryBoxAnim()
@@ -1927,7 +1927,7 @@ function DoObjectTask(TaskNumber,failure,taskveh,obj)
 			DrawText3DTest(pedcrds["x"],pedcrds["y"],pedcrds["z"], "Pickup Package ["..Controlkey["generalUse"][2].."]")
 		end
 		
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingPackage) then
 			holdingPackage = not holdingPackage
 			if holdingPackage then
 				CarryBoxAnim()
@@ -2092,7 +2092,7 @@ function DoBodyTask(TaskNumber,failure,taskveh,ped)
 			DrawText3DTest(pedcrds["x"],pedcrds["y"],pedcrds["z"], "Pickup Body ["..Controlkey["generalUse"][2].."]")
 		end
 		
-		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(plyId) and holdingBody)  then
+		if IsControlJustPressed(0, Controlkey["generalUse"][1]) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(plyId) and holdingBody)  then
 			holdingBody = not holdingBody
 			if holdingBody then
 				ClearPedTasks(ped)
@@ -2198,7 +2198,7 @@ end
 function testanim()
 	local crds = plyCoords
 	loadModel("prop_cs_cardbox_01")
-	local obj = CreateObject(`prop_cs_cardbox_01`,crds["x"],crds["y"],crds["z"] , 1, 0, 0)
+	local obj = CreateObject("prop_cs_cardbox_01",crds["x"],crds["y"],crds["z"] , 1, 0, 0)
 
 	local dict = "anim@heists@box_carry@"
 	local anim = "idle"
@@ -2323,13 +2323,13 @@ function DeleteTrees()
 end
 
 function createTreeObject(num)
-	local treeModel = `bkr_prop_weed_med_01b`
+	local treeModel = "bkr_prop_weed_med_01b"
 	local zm = 3.55
 	if (crops[num]["growth"] < 33) then
 		zm = 1
-		treeModel = `bkr_prop_weed_01_small_01b`
+		treeModel = "bkr_prop_weed_01_small_01b"
 	elseif (crops[num]["growth"] > 66) then
-		treeModel = `bkr_prop_weed_lrg_01b`
+		treeModel = "bkr_prop_weed_lrg_01b"
 	end
 
 

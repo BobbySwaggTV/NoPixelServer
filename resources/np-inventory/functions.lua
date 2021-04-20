@@ -457,7 +457,7 @@ AddEventHandler('RunUseItem', function(itemid, slot, inventoryName, isWeapon)
     if (itemid == "snowballammo") then
         local finished = exports["np-taskbar"]:taskBar(5000,"Reloading",false,false,playerVeh)
         if (finished == 100) then
-            TriggerEvent("actionbar:ammo", `AMMO_SNOWBALL_2`, 50, true)
+            TriggerEvent("actionbar:ammo", "AMMO_SNOWBALL_2", 50, true)
             remove = true
         end
     end
@@ -1660,7 +1660,7 @@ AddEventHandler('veh:repairing', function(inventoryName,slot,itemid)
                             SetVehiclePetrolTankHealth(targetVehicle, 2900.0)
                         end                        
 
-                        if GetEntityModel(targetVehicle) == `BLAZER` then
+                        if GetEntityModel(targetVehicle) == "BLAZER" then
                             SetVehicleEngineHealth(targetVehicle, 600.0)
                             SetVehicleBodyHealth(targetVehicle, 800.0)
                         end

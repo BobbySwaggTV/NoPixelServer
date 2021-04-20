@@ -198,7 +198,7 @@ Citizen.CreateThread(function()
         if not invehicle and IsPedInAnyVehicle(PlayerPedId(), false) then
         	print("entered vehicle")
 
-        	if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == `taxi` then
+        	if GetEntityModel(GetVehiclePedIsUsing(PlayerPedId())) == "taxi" then
         		print("entered taxi boro")
         		TriggerEvent("taximeter:EnteredTaxi")
         	end

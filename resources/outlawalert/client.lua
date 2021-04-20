@@ -452,7 +452,7 @@ end
 local nextMeleeAction = GetCloudTimeAsInt() -- 1777000000
 AddEventHandler('gameEventTriggered', function (name, args)
     local isSelfAttacker = (args[2] == PlayerPedId() and true or false)
-    local isMeleeAttack = (args[5] == `WEAPON_UNARMED` and true or false)
+    local isMeleeAttack = (args[5] == "WEAPON_UNARMED" and true or false)
     if name == "CEventNetworkEntityDamage" and isMeleeAttack and isSelfAttacker and GetCloudTimeAsInt() > nextMeleeAction then
         TriggerEvent("civilian:alertPolice",35.0,"fight",0)
         TriggerEvent("Evidence:StateSet",1,300)
@@ -548,9 +548,9 @@ end)
 
 Citizen.CreateThread( function()
     local origin = false
-    local w = `WEAPON_PetrolCan`
-    local w1 = `WEAPON_FIREEXTINGUISHER`
-    local w2 = `WEAPON_FLARE`
+    local w = "WEAPON_PetrolCan"
+    local w1 = "WEAPON_FIREEXTINGUISHER"
+    local w2 = "WEAPON_FLARE"
     local curw = GetSelectedPedWeapon(PlayerPedId())
     local armed = false
     local timercheck = 0
@@ -638,9 +638,9 @@ Citizen.CreateThread( function()
         local street1 = GetStreetNameFromHashKey(s1)
         local street2 = GetStreetNameFromHashKey(s2)
         local isInVehicle = IsPedInAnyVehicle(PlayerPedId(), true)
-        local w = `WEAPON_PetrolCan`
-        local w1 = `WEAPON_FIREEXTINGUISHER`
-        local w2 = `WEAPON_FLARE`
+        local w = "WEAPON_PetrolCan"
+        local w1 = "WEAPON_FIREEXTINGUISHER"
+        local w2 = "WEAPON_FLARE"
         local curw = GetSelectedPedWeapon(PlayerPedId())
 
         local targetCoords = GetEntityCoords(PlayerPedId(), 0)

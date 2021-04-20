@@ -220,11 +220,11 @@ end
 function resetrelations()
     Citizen.Wait(1000)
     if isCop or isEMS then
-        SetPedRelationshipGroupDefaultHash(PlayerPedId(),`MISSION2`)
-        SetPedRelationshipGroupHash(PlayerPedId(),`MISSION2`)
+        SetPedRelationshipGroupDefaultHash(PlayerPedId(),"MISSION2")
+        SetPedRelationshipGroupHash(PlayerPedId(),"MISSION2")
     else
-        SetPedRelationshipGroupDefaultHash(PlayerPedId(),`PLAYER`)
-        SetPedRelationshipGroupHash(PlayerPedId(),`PLAYER`)
+        SetPedRelationshipGroupDefaultHash(PlayerPedId(),"PLAYER")
+        SetPedRelationshipGroupHash(PlayerPedId(),"PLAYER")
     end
     TriggerEvent("gangs:setDefaultRelations")
 end
@@ -533,11 +533,11 @@ function attemptRevive()
         TriggerEvent('ai:resetKOS')
         ClearPedTasksImmediately(PlayerPedId())
         if isCop then
-            GiveWeaponToPed(PlayerPedId(), `WEAPON_FLASHLIGHT`, true, true)
-            GiveWeaponToPed(PlayerPedId(), `WEAPON_NIGHTSTICK`, true, true)
-            GiveWeaponToPed(PlayerPedId(), `WEAPON_PISTOL`, 150, true, true)
-            GiveWeaponToPed(PlayerPedId(), `WEAPON_FIREEXTINGUISHER`, 1150, true, true)  
-            GiveWeaponToPed(PlayerPedId(), `WEAPON_STUNGUN`, true, true)  
+            GiveWeaponToPed(PlayerPedId(), "WEAPON_FLASHLIGHT", true, true)
+            GiveWeaponToPed(PlayerPedId(), "WEAPON_NIGHTSTICK", true, true)
+            GiveWeaponToPed(PlayerPedId(), "WEAPON_PISTOL", 150, true, true)
+            GiveWeaponToPed(PlayerPedId(), "WEAPON_FIREEXTINGUISHER", 1150, true, true)  
+            GiveWeaponToPed(PlayerPedId(), "WEAPON_STUNGUN", true, true)  
             SetPlayerMaxArmour(PlayerId(), 60)         
             SetPedArmour(PlayerPedId(), 60)            
         end
