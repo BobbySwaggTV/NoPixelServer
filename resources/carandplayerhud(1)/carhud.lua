@@ -72,7 +72,7 @@ AddEventHandler("police:sport",function()
 	if (IsPedInAnyVehicle(PlayerPedId(), false)) then
 		local veh = GetVehiclePedIsIn(PlayerPedId(),false)
 		local Driver = GetPedInVehicleSeat(veh, -1)
-		local defaultHash = `2015POLSTANG`
+		local defaultHash = "2015POLSTANG"
 
 
 
@@ -364,7 +364,7 @@ function carryPed(ped)
 		end
 
 		
-		if IsControlJustPressed(0, 38) or (`WEAPON_UNARMED` ~= GetSelectedPedWeapon(PlayerPedId()))  then
+		if IsControlJustPressed(0, 38) or ("WEAPON_UNARMED" ~= GetSelectedPedWeapon(PlayerPedId()))  then
 			holdingBody = false
 			DetachEntity(ped)
 		end
@@ -723,7 +723,7 @@ function disabledPeds2()
 end
 
 function createObjectTest()
-	local prop = `prop_mp_drug_package`
+	local prop = "prop_mp_drug_package"
 	local x,y,z = table.unpack(GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 0.5, -1.0))
 	RequestModel(prop)
 	while not HasModelLoaded(prop) do
@@ -1668,7 +1668,7 @@ function GetInWheelChair()
 
 	local pos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, -0.85, -0.45)
 
-	local chair = CreateObject( `prop_wheelchair_01_s`, pos.x, pos.y, pos.z, true, true, true)
+	local chair = CreateObject( "prop_wheelchair_01_s", pos.x, pos.y, pos.z, true, true, true)
 
 	SetEntityCoords(chair, pos.x, pos.y, pos.z-0.85)
 	Citizen.Wait(1000)
@@ -2005,7 +2005,7 @@ AddEventHandler("fire:damageUser", function(Reqeuester)
 
 	if IsPedShooting(Attackerped) then
 		local name = GetSelectedPedWeapon(Attackerped)
-        if name == `WEAPON_FIREEXTINGUISHER` and not exports["isPed"]:isPed("dead") then
+        if name == "WEAPON_FIREEXTINGUISHER" and not exports["isPed"]:isPed("dead") then
         	lastDamageTrigger = GetGameTimer()
         	currentValues["oxy"] = currentValues["oxy"] - 15
         end
@@ -2130,7 +2130,7 @@ Citizen.CreateThread(function()
 	currentValues["health"] = GetEntityHealth(get_ped) - 100
 	currentValues["voice"] = 2
 	currentValues["armor"] = GetPedArmour(get_ped)
-	currentValues["parachute"] = HasPedGotWeapon(get_ped, `gadget_parachute`, false)
+	currentValues["parachute"] = HasPedGotWeapon(get_ped, "gadget_parachute", false)
 	while true do
 
 		if sleeping then
@@ -2157,7 +2157,7 @@ Citizen.CreateThread(function()
 			currentValues["health"] = GetEntityHealth(get_ped) - 100
 			currentValues["armor"] = GetPedArmour(get_ped)
 			currentValues["stress"] = math.ceil(stresslevel / 100)
-			currentValues["parachute"] = HasPedGotWeapon(get_ped, `gadget_parachute`, false)
+			currentValues["parachute"] = HasPedGotWeapon(get_ped, "gadget_parachute", false)
 
 			if currentValues["stress"] > 100 then currentValues["stress"] = 100 end
 
