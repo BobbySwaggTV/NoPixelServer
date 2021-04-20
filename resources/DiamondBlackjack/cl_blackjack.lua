@@ -269,7 +269,8 @@ Citizen.CreateThread(function()
                     putBetOnTable()
                     Wait(1000)
                 else
-                    notify("~r~Invalid amount.")
+                    --notify("~r~Invalid amount.")
+                    TriggerEvent("DoLongHudText", "Invalid amount.", 2)
                 end
             end
             if IsControlPressed(0, 10) then --Increase bet [pageup]
