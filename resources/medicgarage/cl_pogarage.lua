@@ -105,7 +105,7 @@ end)
 
 RegisterNetEvent("hasSignedOnEms")
 AddEventHandler("hasSignedOnEms", function()
-	SetPedRelationshipGroupDefaultHash(PlayerPedId(),`MISSION2`)
+	SetPedRelationshipGroupDefaultHash(PlayerPedId(),"MISSION2")
 	SetPoliceIgnorePlayer(PlayerPedId(),true)
 end)
 
@@ -157,8 +157,8 @@ AddEventHandler('event:control:hospitalGarage', function(useID)
 		    TriggerEvent('nowMedicOff')
 		    TriggerServerEvent("TokoVoip:clientHasSelecterCharecter")
 
-		    SetPedRelationshipGroupHash(PlayerPedId(),`PLAYER`)
-		    SetPedRelationshipGroupDefaultHash(PlayerPedId(),`PLAYER`)
+		    SetPedRelationshipGroupHash(PlayerPedId(),"PLAYER")
+		    SetPedRelationshipGroupDefaultHash(PlayerPedId(),"PLAYER")
 		    SetPoliceIgnorePlayer(PlayerPedId(),false)
 		    TriggerEvent("DoLongHudText",'Signed off Duty!',1)
 	    end	
@@ -205,7 +205,7 @@ AddEventHandler('medicg:firetruk', function()
 
 	local myPed = PlayerPedId()
 	local player = PlayerId()
-	local vehicle = `firetruk`
+	local vehicle = "firetruk"
 	RequestModel(vehicle)
 	while not HasModelLoaded(vehicle) do
 		Wait(1)
@@ -242,7 +242,7 @@ AddEventHandler('medicg:c_classic', function()
 
 	local myPed = PlayerPedId()
 	local player = PlayerId()
-	local vehicle = `ambulance`
+	local vehicle = "ambulance"
 	RequestModel(vehicle)
 	while not HasModelLoaded(vehicle) do
 		Wait(1)
@@ -279,7 +279,7 @@ AddEventHandler('medicg:c_classic2', function()
 
 	local myPed = PlayerPedId()
 	local player = PlayerId()
-	local vehicle = `emschief`
+	local vehicle = "emschief"
 	RequestModel(vehicle)
 	while not HasModelLoaded(vehicle) do
 		Wait(1)
@@ -316,7 +316,7 @@ AddEventHandler('medicg:c_classic3', function()
 
 	local myPed = PlayerPedId()
 	local player = PlayerId()
-	local vehicle = `emscommand`
+	local vehicle = "emscommand"
 	RequestModel(vehicle)
 	while not HasModelLoaded(vehicle) do
 		Wait(1)
@@ -353,7 +353,7 @@ AddEventHandler('medicg:c_classic4', function()
 
 	local myPed = PlayerPedId()
 	local player = PlayerId()
-	local vehicle = `emscrt`
+	local vehicle = "emscrt"
 	RequestModel(vehicle)
 	while not HasModelLoaded(vehicle) do
 		Wait(1)
@@ -385,7 +385,7 @@ AddEventHandler('medicg:c_helico', function()
 
 	local myPed = PlayerPedId()
 	local player = PlayerId()
-	local vehicle = `maverick`
+	local vehicle = "maverick"
 	RequestModel(vehicle)
 	while not HasModelLoaded(vehicle) do
 		Wait(1)

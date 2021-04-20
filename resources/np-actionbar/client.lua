@@ -292,7 +292,7 @@ local animDict = "combat@gestures@gang@pistol_1h@beckon"
 local animName = "0"
 
 local prop = "prop_ballistic_shield"
-local pistol = `WEAPON_PISTOL`
+local pistol = "WEAPON_PISTOL"
 
 
 
@@ -376,7 +376,7 @@ Citizen.CreateThread( function()
 			TriggerEvent("inventory-bar",false)
 		end
 
-		if `WEAPON_UNARMED` ~= GetSelectedPedWeapon(PlayerPedId()) then
+		if "WEAPON_UNARMED" ~= GetSelectedPedWeapon(PlayerPedId()) then
 			DisplayAmmoThisFrame(true)
 		end
 
@@ -431,7 +431,7 @@ AddEventHandler('equipWeaponID', function(hash,newInformation,sqlID)
 		return
 	end
 
-	if `WEAPON_UNARMED` == GetSelectedPedWeapon(PlayerPedId()) then
+	if "WEAPON_UNARMED" == GetSelectedPedWeapon(PlayerPedId()) then
 		armed = false
 	end
 
@@ -446,8 +446,8 @@ AddEventHandler('equipWeaponID', function(hash,newInformation,sqlID)
 	end	
 
 
-	SetPedAmmo(PlayerPedId(),  `WEAPON_FIREEXTINGUISHER`, 10000)
-	SetPedAmmo(PlayerPedId(),  `WEAPON_PetrolCan`, 10000)
+	SetPedAmmo(PlayerPedId(),  "WEAPON_FIREEXTINGUISHER", 10000)
+	SetPedAmmo(PlayerPedId(),  "WEAPON_PetrolCan", 10000)
 
 end)
 
@@ -463,8 +463,8 @@ AddEventHandler('brokenWeapon', function()
 	holster1h()
 	armed = false
 
-	SetPedAmmo(PlayerPedId(),  `WEAPON_FIREEXTINGUISHER`, 10000)
-	SetPedAmmo(PlayerPedId(),  `WEAPON_PetrolCan`, 10000)
+	SetPedAmmo(PlayerPedId(),  "WEAPON_FIREEXTINGUISHER", 10000)
+	SetPedAmmo(PlayerPedId(),  "WEAPON_PetrolCan", 10000)
 
 end)
 
@@ -611,7 +611,7 @@ AddEventHandler('actionbar:setEmptyHanded', function()
 	prevupdate = 0
 	updateAmmo()
 	Wait(500)
-	SetCurrentPedWeapon(PlayerPedId(), `WEAPON_UNARMED`, true)
+	SetCurrentPedWeapon(PlayerPedId(), "WEAPON_UNARMED", true)
 end)
 
 
@@ -727,40 +727,40 @@ function unholster1h(weaponHash)
 		copunholster(weaponHash)
 
 	    if weaponHash == 3219281620 then
-			GiveWeaponComponentToPed(PlayerPedId(), 3219281620, `COMPONENT_AT_PI_FLSH_02` )
+			GiveWeaponComponentToPed(PlayerPedId(), 3219281620, "COMPONENT_AT_PI_FLSH_02" )
 	    end
 
 
 	    if weaponHash == 736523883 then
-			GiveWeaponComponentToPed( ped, 736523883, `COMPONENT_AT_AR_FLSH` )
-			GiveWeaponComponentToPed( ped, 736523883, `COMPONENT_AT_SCOPE_MACRO_02` )	
+			GiveWeaponComponentToPed( ped, 736523883, "COMPONENT_AT_AR_FLSH" )
+			GiveWeaponComponentToPed( ped, 736523883, "COMPONENT_AT_SCOPE_MACRO_02" )	
 	    end
 
 	    if weaponHash == -2084633992 then
-			GiveWeaponComponentToPed( ped, -2084633992, `COMPONENT_AT_AR_FLSH` )
-			GiveWeaponComponentToPed( ped, -2084633992, `COMPONENT_AT_AR_AFGRIP` )
-			GiveWeaponComponentToPed( ped, -2084633992, `COMPONENT_AT_SCOPE_MEDIUM` )
+			GiveWeaponComponentToPed( ped, -2084633992, "COMPONENT_AT_AR_FLSH" )
+			GiveWeaponComponentToPed( ped, -2084633992, "COMPONENT_AT_AR_AFGRIP" )
+			GiveWeaponComponentToPed( ped, -2084633992, "COMPONENT_AT_SCOPE_MEDIUM" )
 	    end
 	    if weaponHash == 1432025498 then
-			GiveWeaponComponentToPed( ped, 1432025498, `COMPONENT_AT_SCOPE_MACRO_MK2` )
-			GiveWeaponComponentToPed( ped, 1432025498, `COMPONENT_AT_AR_FLSH` )
+			GiveWeaponComponentToPed( ped, 1432025498, "COMPONENT_AT_SCOPE_MACRO_MK2" )
+			GiveWeaponComponentToPed( ped, 1432025498, "COMPONENT_AT_AR_FLSH" )
 
 	    end
 
 	    if weaponHash == 2024373456 then
-			GiveWeaponComponentToPed( ped, 2024373456, `COMPONENT_AT_AR_FLSH` )
-			GiveWeaponComponentToPed( ped, 2024373456, `COMPONENT_AT_SIGHTS_SMG` )	
-			GiveWeaponComponentToPed( ped, 2024373456, `COMPONENT_AT_MUZZLE_01` )
-			GiveWeaponComponentToPed( ped, 2024373456, `COMPONENT_AT_SB_BARREL_02` )	
+			GiveWeaponComponentToPed( ped, 2024373456, "COMPONENT_AT_AR_FLSH" )
+			GiveWeaponComponentToPed( ped, 2024373456, "COMPONENT_AT_SIGHTS_SMG" )	
+			GiveWeaponComponentToPed( ped, 2024373456, "COMPONENT_AT_MUZZLE_01" )
+			GiveWeaponComponentToPed( ped, 2024373456, "COMPONENT_AT_SB_BARREL_02" )	
 	    end
 
 	    if weaponHash == -86904375 then
-	    	GiveWeaponComponentToPed( ped, -86904375, `COMPONENT_AT_AR_FLSH` )
-	    	GiveWeaponComponentToPed( ped, -86904375, `COMPONENT_AT_SIGHTS` )
+	    	GiveWeaponComponentToPed( ped, -86904375, "COMPONENT_AT_AR_FLSH" )
+	    	GiveWeaponComponentToPed( ped, -86904375, "COMPONENT_AT_SIGHTS" )
 	    end
 
 	    if weaponHash == -1075685676 then
-	    	GiveWeaponComponentToPed( ped, -1075685676, `COMPONENT_AT_PI_FLSH_02` )
+	    	GiveWeaponComponentToPed( ped, -1075685676, "COMPONENT_AT_PI_FLSH_02" )
 	    end  
 
 		AttachmentCheck(weaponHash)
@@ -801,48 +801,48 @@ end
 function AttachmentCheck(weaponhash)
 
 	if exports["np-inventory"]:hasEnoughOfItem("silencer_l",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_AR_SUPP` )
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_AR_SUPP" )
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("silencer_l2",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_AR_SUPP_02` )
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_AR_SUPP_02" )
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("silencer_s",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_PI_SUPP` )
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_PI_SUPP" )
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("silencer_s2",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_PI_SUPP_02` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_PI_SUPP_02" )	
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("extended_ap",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_APPISTOL_CLIP_02` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_APPISTOL_CLIP_02" )	
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("extended_sns",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_SNSPISTOL_CLIP_02` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_SNSPISTOL_CLIP_02" )	
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("extended_micro",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_MICROSMG_CLIP_02` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_MICROSMG_CLIP_02" )	
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("MediumScope",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_SCOPE_MEDIUM` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_SCOPE_MEDIUM" )	
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("SmallScope",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_SCOPE_SMALL` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_SCOPE_SMALL" )	
 	end
 
 
 	if exports["np-inventory"]:hasEnoughOfItem("TinyScope",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_AT_SCOPE_MACRO` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_AT_SCOPE_MACRO" )	
 	end
 
 	if exports["np-inventory"]:hasEnoughOfItem("extended_tec9",1,false) then
-		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, `COMPONENT_MACHINEPISTOL_CLIP_02` )	
+		GiveWeaponComponentToPed( PlayerPedId(), weaponhash, "COMPONENT_MACHINEPISTOL_CLIP_02" )	
 	end
 
 
@@ -885,7 +885,7 @@ function copholster()
 	TaskPlayAnim(ped, dic, anim, 10.0, 2.3, -1, 49, 1, 0, 0, 0 )
 
 	Citizen.Wait(600)
-	SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, 1)
+	SetCurrentPedWeapon(ped, "WEAPON_UNARMED", 1)
 	RemoveAllPedWeapons(ped)
 	ClearPedTasks(ped)
 end
@@ -908,7 +908,7 @@ function holster1h()
     TaskPlayAnim(ped, dict, anim, 1.0, 1.0, -1, 50, 0, 0, 0, 0)   
     Citizen.Wait(animLength - 2200)
     
-    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, 1)
+    SetCurrentPedWeapon(ped, "WEAPON_UNARMED", 1)
     Citizen.Wait(300)
     RemoveAllPedWeapons(ped)
     ClearPedTasks(ped)
@@ -924,7 +924,7 @@ function holster2h(weaponHash)
 	prevupdate = 0
     loadAnimDict(dict) 
     updateAmmo()
-    SetCurrentPedWeapon(ped, `WEAPON_UNARMED`, 1)
+    SetCurrentPedWeapon(ped, "WEAPON_UNARMED", 1)
     TriggerEvent("attachWeaponPull",weaponHash,true)
     TaskPlayAnim(ped, dict, anim, 1.5, 1.5, -1, 49, 10, 0, 0, 0)   
     Citizen.Wait(1200)  
@@ -953,10 +953,10 @@ function grab2h(weaponHash)
     local myJob = exports["isPed"]:isPed("myJob")
 	if myJob == "police" then
 	    if weaponHash == 2210333304 then
-			GiveWeaponComponentToPed( ped, 2210333304, `COMPONENT_AT_AR_FLSH` )
-			GiveWeaponComponentToPed( ped, 2210333304, `COMPONENT_AT_AR_AFGRIP_02` )
-			GiveWeaponComponentToPed( ped, 2210333304, `COMPONENT_AT_SCOPE_MEDIUM` )
-			GiveWeaponComponentToPed( ped, 2210333304, `COMPONENT_AT_AR_SUPP_02` )   	
+			GiveWeaponComponentToPed( ped, 2210333304, "COMPONENT_AT_AR_FLSH" )
+			GiveWeaponComponentToPed( ped, 2210333304, "COMPONENT_AT_AR_AFGRIP_02" )
+			GiveWeaponComponentToPed( ped, 2210333304, "COMPONENT_AT_SCOPE_MEDIUM" )
+			GiveWeaponComponentToPed( ped, 2210333304, "COMPONENT_AT_AR_SUPP_02" )   	
 	    end
 	   
 	    Citizen.Wait(600)
