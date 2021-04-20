@@ -15,7 +15,7 @@ local toggle_lock_on = 22 -- control id to lock onto a vehicle with the camera. 
 local rappeling = false
 -- Script starts here
 local helicam = false
-local polmav_hash = `maverick2`
+local polmav_hash = "maverick2"
 local fov = (fov_max+fov_min)*0.5
 local vision_state = 0 -- 0 is normal, 1 is nightmode, 2 is thermal vision
 local rappelingB = false
@@ -78,10 +78,10 @@ end
 
 function SetrappelType()
 	ClearPedTasksImmediately(PlayerPedId())
-	SetCurrentPedWeapon(PlayerPedId(), `WEAPON_UNARMED`, true)
+	SetCurrentPedWeapon(PlayerPedId(), "WEAPON_UNARMED", true)
 	Citizen.Wait(300)
 	local curw = GetSelectedPedWeapon(PlayerPedId())
-	local w = `WEAPON_CARBINERIFLE`
+	local w = "WEAPON_CARBINERIFLE"
 	--if curw == w then
 	--	TaskAimGunScripted(PlayerPedId(), `SCRIPTED_GUN_TASK_HANGING_UPSIDE_DOWN`, -1, -1);
 	--	armed = true
@@ -100,8 +100,8 @@ AddEventHandler('rappelBuilding', function()
 
 	local curCoords = GetEntityCoords(PlayerPedId())
 	local movecoords = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 2.5, 0.0)
-	heliz = CreateObject(`prop_golf_ball`, movecoords, true, true, true)
-	heliz2 = CreateObject(`prop_golf_ball`, movecoords, true, true, true)
+	heliz = CreateObject("prop_golf_ball", movecoords, true, true, true)
+	heliz2 = CreateObject("prop_golf_ball", movecoords, true, true, true)
 	FreezeEntityPosition(heliz,true)
 	FreezeEntityPosition(heliz2,true)
 
@@ -246,7 +246,7 @@ end
 
 
 function isSwat()
-	if `s_m_y_swat_01` == GetEntityModel(PlayerPedId()) then
+	if "s_m_y_swat_01" == GetEntityModel(PlayerPedId()) then
 		return true
 	else
 		return false
