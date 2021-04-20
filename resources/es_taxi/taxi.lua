@@ -475,7 +475,7 @@ function canPedBeUsed(ped)
     end
 
 
-    if `mp_f_deadhooker` == GetEntityModel(ped) then
+    if "mp_f_deadhooker" == GetEntityModel(ped) then
       return false
     end
 

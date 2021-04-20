@@ -97,7 +97,7 @@ function ReturnNearTaxi()
     repeat
         local pos = GetEntityCoords(vehicle)
         local distance = #(playerCoords - pos)
-        if distance < 45.0 and GetEntityModel(vehicle) == `taxi` and not IsPedAPlayer(GetPedInVehicleSeat(vehicle, -1)) then
+        if distance < 45.0 and GetEntityModel(vehicle) == "taxi" and not IsPedAPlayer(GetPedInVehicleSeat(vehicle, -1)) then
             distanceFrom = distance
             rped = vehicle
         end
@@ -156,7 +156,7 @@ AddEventHandler("startAITaxi", function(passedInside)
         local mycoords = GetEntityCoords(taskveh)
         local bDist = #(vector3(coords["x"], coords["y"],coords["z"]) - vector3(mycoords["x"],mycoords["y"],mycoords["z"]))      
 
-        TaskVehicleDriveToCoord(GetPedInVehicleSeat(taskveh, -1), taskveh, mycoords["x"], mycoords["y"],mycoords["z"], 8.0, 1, `taxi`, 786603, 15.0, true)
+        TaskVehicleDriveToCoord(GetPedInVehicleSeat(taskveh, -1), taskveh, mycoords["x"], mycoords["y"],mycoords["z"], 8.0, 1, "taxi", 786603, 15.0, true)
         TriggerEvent("DoLongHudText","You must wait! Your current taxi is " .. math.ceil(bDist) .. " metres away!",2)
         return 
     end
@@ -170,7 +170,7 @@ AddEventHandler("startAITaxi", function(passedInside)
     if not insideTaxi then
 
     	TriggerEvent("DoLongHudText","Taxi Enroute!",1)
-        car = `taxi`
+        car = "taxi"
         RequestModel(car)
 
         while not HasModelLoaded(car) do
@@ -187,7 +187,7 @@ AddEventHandler("startAITaxi", function(passedInside)
         local id = NetworkGetNetworkIdFromEntity(taskveh)
         SetNetworkIdCanMigrate(id, true)
 
-        local pedmodel = `s_m_m_trucker_01`
+        local pedmodel = "s_m_m_trucker_01"
 
         RequestModel(pedmodel)
         while not HasModelLoaded(pedmodel) do
