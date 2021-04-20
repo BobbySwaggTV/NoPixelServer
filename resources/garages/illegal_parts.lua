@@ -493,7 +493,7 @@ AddEventHandler('illegal_carshop:SpawnVehicle', function(vehicle, plate, customi
 		SetNetworkIdCanMigrate(id, true)
 
 
-		if GetEntityModel(vehicle) == `rumpo` then
+		if GetEntityModel(vehicle) == "rumpo" then
 			SetVehicleLivery(veh,0)
 		end
 

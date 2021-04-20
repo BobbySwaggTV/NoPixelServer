@@ -724,15 +724,15 @@ function AddonsHouseCars(veh,v)
 	local id = NetworkGetNetworkIdFromEntity(veh)
 	SetNetworkIdCanMigrate(id, true)
 	
-	if GetEntityModel(veh) == `rumpo4` then
+	if GetEntityModel(veh) == "rumpo4" then
 		SetVehicleLivery(veh,0)
 	end
 
-	if GetEntityModel(veh) == `rumpo` then
+	if GetEntityModel(veh) == "rumpo" then
 		SetVehicleLivery(veh,0)
 	end
 
-	if GetEntityModel(veh) == `taxi` then
+	if GetEntityModel(veh) == "taxi" then
 
 		SetVehicleExtra(veh, 8, 1)
 		SetVehicleExtra(veh, 9, 1)
@@ -1322,15 +1322,15 @@ AddEventHandler('garages:SpawnVehicle', function(oof, vehicle, plate, customized
 				TriggerServerEvent('veh.getVehicles', plate, veh)
 				
 
-			if GetEntityModel(veh) == `rumpo4` then
+			if GetEntityModel(veh) == "rumpo4" then
 				SetVehicleLivery(veh,0)
 			end
 			
-			if GetEntityModel(veh) == `rumpo` then
+			if GetEntityModel(veh) == "rumpo" then
 				SetVehicleLivery(veh,0)
 			end
 
-			if GetEntityModel(veh) == `taxi` then
+			if GetEntityModel(veh) == "taxi" then
 
 				SetVehicleExtra(veh, 8, 1)
 				SetVehicleExtra(veh, 9, 1)
