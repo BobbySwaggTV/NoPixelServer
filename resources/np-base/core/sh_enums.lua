@@ -21,7 +21,7 @@ NPX.Enums.SpawnLocations = {
 	},
 
 	Initial = {
-		{-216.803, -1037.520, 31.140, 0.0}
+		{-3972.28, 2017.22, 500.92, 0.0}
 	},
 
 	CharacterFirst = {

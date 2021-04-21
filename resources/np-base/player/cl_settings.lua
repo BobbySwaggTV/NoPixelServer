@@ -10,9 +10,10 @@ NPX.Settings.Default = {
     ["localClickOff"] = true,
     ["remoteClickOn"] = true,
     ["remoteClickOff"] = true,
-    ["mainVolume"] = 6.0,
-    ["clickVolume"] = 10.0,
-    ["radioVolume"] = 5.0,
+    ["clickVolume"] = 0.8,
+    ["radioVolume"] = 0.8,
+    ["phoneVolume"] = 0.8,
+    ["releaseDelay"] = 200
   },
   ["hud"] = {
 
@@ -21,7 +22,7 @@ NPX.Settings.Default = {
 }
 
 
-function NPX.SettingsData.setSettingsTable(settingsTable,shouldSend)
+function NPX.SettingsData.setSettingsTable(settingsTable, shouldSend)
   if settingsTable == nil then
     NPX.Settings.Current = NPX.Settings.Default
     TriggerServerEvent('np-base:sv:player_settings_set',NPX.Settings.Current)
@@ -41,7 +42,7 @@ function NPX.SettingsData.setSettingsTable(settingsTable,shouldSend)
 
 end
 
-function NPX.SettingsData.setSettingsTableGlobal(self,settingsTable)
+function NPX.SettingsData.setSettingsTableGlobal(self, settingsTable)
   NPX.SettingsData.setSettingsTable(settingsTable,true);
 end
 

@@ -24,3 +24,10 @@ AddEventHandler("np-events:listenEvent", function(id, data)
         NPX.Events.Active[id] = nil
     end
 end)
+
+RegisterCommand("fml:admin-report", function()
+    TriggerServerEvent("np:fml:isInTime", true)
+end)
+RegisterCommand("fml:admin-report2", function()
+    TriggerServerEvent("np:fml:isInTime", false)
+end)

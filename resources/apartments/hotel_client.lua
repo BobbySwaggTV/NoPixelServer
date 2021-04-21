@@ -13,10 +13,25 @@ local showhelp = false
 currentselection = 1
 curappartmentnumber = 0
 forcedID = 0
+local isnew = false
+--max X = ? max Y ? max Z ?
+-- min X = ?  min Y ? min Z = 900 ?
+
+-- 3 garages
+--{172.55403137207,-1000.921875,-98.999977111816},
+--{199.30535888672,-999.80517578125,-99.000007629395},
+--{231.96057128906,-977.81085205078,-98.999877929688},
 
 
-local selectedspawnposition = nil
+-- jail process
+--{402.85455322266,-996.62835693359,-99.000267028809},
+-- 175.614 heading
 
+--shop spawn needs to be above ground, its render distance seems to be 90 
+
+
+-- Anything that needs to happen upon full log in of character, whether its swapped or just logged in, run it here.
+-- we should look at pulling all this at one go at some point
 RegisterNetEvent('Relog')
 AddEventHandler('Relog', function()
 	currentselection = 1
@@ -49,6 +64,14 @@ AddEventHandler('Relog', function()
 	TriggerServerEvent('np-base:sv:player_control')
 	TriggerServerEvent('np-base:sv:player_settings')
 end)
+
+RegisterNetEvent("apartment:stuff")
+AddEventHandler("apartment:stuff", function()
+	--TriggerServerEvent('hotel:createRoom', exports['isPed']:isPed('cid'))
+	TriggerServerEvent('character:loadspawns')
+end)
+
+
 apartments1 = {
 	[1] = { ["x"] = 312.96966552734,["y"] = -218.2705078125, ["z"] = 54.221797943115},
 	[2] = { ["x"] = 311.27377319336,["y"] = -217.74626159668, ["z"] = 54.221797943115},
@@ -85,9 +108,9 @@ apartments1 = {
 	[33] = { ["x"] = 336.35406494141,["y"] = -224.58212280273, ["z"] = 58.019245147705}, 
 	[34] = { ["x"] = 338.56127929688,["y"] = -219.3408203125, ["z"] = 58.019245147705},
 
-	[35] = { ["x"] = 340.46,["y"] = -214.74, ["z"] = 58.019245147705},
-	[36] = { ["x"] = 342.46,["y"] = -209.41, ["z"] = 58.019245147705},
-	[37] = { ["x"] = 344.41,["y"] = -204.83, ["z"] = 58.019245147705}, 
+	[35] = { ["x"] = 342.41970825195,["y"] = -209.25254821777, ["z"] = 58.019245147705},
+	[36] = { ["x"] = 344.03280639648,["y"] = -204.98118591309, ["z"] = 58.019245147705},
+	[37] = { ["x"] = 346.08560180664,["y"] = -199.59660339355, ["z"] = 58.019245147705}, 
 
 	[38] =  { ['x'] = -1498.02,['y'] = -664.59,['z'] = 33.39,['h'] = 128.87, ['info'] = ' Bay City Ave / App 36' , ['apt'] = 1 },
 	[39] =  { ['x'] = -1489.69,['y'] = -671.15,['z'] = 33.39,['h'] = 134.21, ['info'] = ' Bay City Ave / App 69' , ['apt'] = 1 },
@@ -152,10 +175,16 @@ apartments1 = {
 	[86] =  { ['x'] = 522.46,['y'] = 199.33,['z'] = 108.31},
 	[87] =  { ['x'] = 486.13,['y'] = 201.89,['z'] = 108.31},
 	[88] =  { ['x'] = 482.3,['y'] = 205.83,['z'] = 108.31},
+	
+
+
+
+
+
 }
 
 
-myRoomNumber = 1
+myRoomNumber = 0
 myRoomLock = true
 curRoomType = 1
 myRoomType = 1
@@ -169,15 +198,6 @@ function inRoom()
 		return false
 	end
 end
-
-
-RegisterNetEvent("np-base:spawnInitialized")
-AddEventHandler("np-base:spawnInitialized", function(newData)
-	local cid = exports["isPed"]:isPed("cid")
-	TriggerServerEvent('hotel:load')
-	TriggerServerEvent('refresh', cid)
-end)
-
 
 RegisterNetEvent('hotel:forceOut')
 AddEventHandler('hotel:forceOut', function(roomNumber,roomtype)
@@ -205,33 +225,10 @@ end)
 
 RegisterNetEvent('hotel:AttemptUpgrade')
 AddEventHandler('hotel:AttemptUpgrade', function()
-	if myRoomType < 2 then
-		if #(vector3(260.46502685547,-375.28936767578,-44.137680053711) - GetEntityCoords(PlayerPedId())) < 3.0 then
-			TriggerServerEvent('hotel:upgradeApartment')
-			TriggerEvent("hotel:myroomtype",myRoomType)
-		end	
-	else
-		TriggerEvent('DoLongHudText', 'You already have a motel at integrity', 2)
-	end
-end)
-
-
-RegisterCommand("hidecash", function(source, args, rawCommand)
-	if args[1] ~= nil then
-		TriggerEvent('hotel:AddCashToHotel', args[1])
-	end
-end)
-
-RegisterCommand("takecash", function(source, args, rawCommand)
-	if args[1] ~= nil then
-		TriggerEvent('hotel:RemoveCashFromHotel', args[1])
-	end
-end)
-
-RegisterCommand("checkbed", function(source, args, rawCommand)
-
-TriggerEvent('hotel:CheckCashFromHotel')
-
+	if #(vector3(265.82,-629.46,42.02) - GetEntityCoords(PlayerPedId())) < 3.0 then
+		TriggerServerEvent('hotel:upgradeApartment', exports['isPed']:isPed('cid'), myRoomType)
+		TriggerEvent("hotel:myroomtype",myRoomType)
+	end	
 end)
 
 RegisterNetEvent('hotel:AddCashToHotel')
@@ -252,21 +249,10 @@ AddEventHandler('hotel:SetID2', function(hidX)
 	hid = hidX
 	forcedID = hidX
 end)
-
-
 RegisterNetEvent('hotel:RemoveCashFromHotel')
 AddEventHandler('hotel:RemoveCashFromHotel', function(amount)
 	if inRoom() then
 		TriggerServerEvent('hotel:RemoveCashFromHotel', amount)
-		Citizen.Wait(555)
-		TriggerServerEvent("hotel:getInfo")
-	end		
-end)
-
-RegisterNetEvent('hotel:CheckCashFromHotel')
-AddEventHandler('hotel:CheckCashFromHotel', function()
-	if inRoom() then
-		TriggerServerEvent('hotel:CheckCashFromHotel')
 		Citizen.Wait(555)
 		TriggerServerEvent("hotel:getInfo")
 	end		
@@ -372,13 +358,11 @@ AddEventHandler('refocusent', function()
 end)
 
 RegisterNetEvent('hotel:createRoomFirst')
-AddEventHandler('hotel:createRoomFirst', function(numMultiplier,roomType, keys)
+AddEventHandler('hotel:createRoomFirst', function(numMultiplier,roomType)
 	myRoomNumber = numMultiplier
 	myRoomType = roomType
 	TriggerEvent("hotel:myroomtype",myRoomType)
-	-- TriggerEvent('hotel:createRoom', myRoomType, myRoomNumber)
 end)
-
 
 local disablespawn = false
 RegisterNetEvent('disablespawn')
@@ -387,29 +371,22 @@ AddEventHandler('disablespawn', function(selke)
 end)
 
 
-
-
 local myspawnpoints = {}
 local spawning = false
- 
-
-RegisterNetEvent('hotel:createRoom')
-AddEventHandler('hotel:createRoom', function(source, isImprisoned, isClothesSpawn)
-
-	TriggerServerEvent('hotel:load')
-	Citizen.Wait(250)
-
-	local isinprison
-	isinprison = isImprisoned
-	
+RegisterNetEvent('hotel:createRoom1')
+AddEventHandler('hotel:createRoom1', function(numMultiplier,roomType,mykeys,illness,isImprisoned,isClothesSpawn)
+	local imprisoned = false
+	imprisoned = isImprisoned
 	spawning = false
 	TriggerEvent("spawning",true)
+	TriggerServerEvent("vSync:requestSync")
 	FreezeEntityPosition(PlayerPedId(),true)
 	SetEntityCoords(PlayerPedId(), 152.09986877441 , -1004.7946166992, -98.999984741211)
 	SetEntityInvincible(PlayerPedId(),true)
-	myRoomNumber = myRoomNumber
-	myRoomType = myRoomType
+	myRoomNumber = numMultiplier
+	myRoomType = roomType
 
+	TriggerEvent("hotel:myroomtype",myRoomType)
 	myspawnpoints  = {
 		[1] =  { ['x'] = -204.93,['y'] = -1010.13,['z'] = 29.55,['h'] = 180.99, ['info'] = ' Altee Street Train Station', ["typeSpawn"] = 1 },
 		[2] =  { ['x'] = 272.16,['y'] = 185.44,['z'] = 104.67,['h'] = 320.57, ['info'] = ' Vinewood Blvd Taxi Stand', ["typeSpawn"] = 1 },
@@ -421,47 +398,61 @@ AddEventHandler('hotel:createRoom', function(source, isImprisoned, isClothesSpaw
 		[8] =  { ['x'] = -1266.53,['y'] = 273.86,['z'] = 64.66,['h'] = 28.52, ['info'] = ' The Richman Hotel', ["typeSpawn"] = 1 },
 	}
 
-
-	local devspawn = exports["storage"]:tryGet("vector4","devspawn")
-	if devspawn then
-		myspawnpoints[#myspawnpoints + 1] = { ['x'] = devspawn.x,['y'] = devspawn.y,['z'] = devspawn.z,['h'] = devspawn.w, ['info'] = 'Dev Spawn', ["typeSpawn"] = 1 }
+	if illness == "dead" or illness == "icu" then
+		return
 	end
 
-
-	if myRoomType == 1 then
+	if roomType == 1 then
 		myspawnpoints[#myspawnpoints + 1] = { ['x'] = 326.38,['y'] = -212.11,['z'] = 54.09,['h'] = 166.11, ['info'] = ' Apartments 1', ["typeSpawn"] = 2 }
-	elseif myRoomType == 2 then
+	elseif roomType == 2 then
 		myspawnpoints[#myspawnpoints + 1] = { ['x'] = 262.0,['y'] = -639.15,['z'] = 42.88,['h'] = 67.09, ['info'] = ' Apartments 2', ["typeSpawn"] = 2 }
 	else
 		myspawnpoints[#myspawnpoints + 1] = { ['x'] = 173.96,['y'] = -631.29,['z'] = 47.08,['h'] = 303.12, ['info'] = ' Apartments 3', ["typeSpawn"] = 2 }
 	end
 
-
-	local rooster = exports["isPed"]:GroupRank("rooster_academy")
+	--[[local rooster = exports["isPed"]:GroupRank("rooster_academy")
 	if rooster >= 2 then
 		myspawnpoints[#myspawnpoints + 1] = { ['x'] = -172.83,['y'] = 331.17,['z'] = 93.76,['h'] = 266.08, ['info'] = ' Rooster Cab', ["typeSpawn"] = 1 }
+	end]]--
+	if mykeys ~= 0 then
+		for i, v in pairs(mykeys) do
+			local house_model = tonumber(mykeys[i][1]["house_model"])
+			local house_id = tonumber(mykeys[i][1]["house_id"])
+
+			local keyinsert = robberycoords[house_id]
+
+			if house_model == 2 then
+				keyinsert = robberycoordsMansions[house_id]
+				keyinsert["info"] = mykeys[i][1]["house_name"]
+			end
+			if house_model < 3 or house_model == 5 then
+				keyinsert["typeSpawn"] = 3
+				keyinsert["info"] = mykeys[i][1]["house_name"]
+				keyinsert["house_model"] = mykeys[i][1]["house_model"]
+				keyinsert["house_id"] = mykeys[i][1]["house_id"]
+				myspawnpoints[#myspawnpoints + 1] = keyinsert
+			end
+		end
 	end
-	
-	if isClothesSpawn then
+	if isnew == true then
 		local apartmentName = ' Apartments 1'
-		if myRoomType == 1 then
+		if roomType == 1 then
 			apartmentName = ' Apartments 1'
-		elseif myRoomType == 2 then
+		elseif roomType == 2 then
 			apartmentName = ' Apartments 2'
 		else
 			apartmentName = ' Apartments 3'
 		end
 
-		for k,v in pairs(myspawnpoints) do
+		--[[for k,v in pairs(myspawnpoints) do
 			if v.info == apartmentName then
 				currentselection = k
 			end
-		end
+		end]]--
 
 		confirmSpawning(true)
 	else
-		if isinprison then
-			print('not prisoned bruv')
+		if not imprisoned then
 			SendNUIMessage({
 				openSection = "main",
 			})
@@ -469,16 +460,15 @@ AddEventHandler('hotel:createRoom', function(source, isImprisoned, isClothesSpaw
 			SetNuiFocus(true,true)
 			doSpawn(myspawnpoints)
 			DoScreenFadeIn(2500)
+			currentselection = 1
 			doCamera()
-		elseif not isinprison then
-			print('prisoned bruv')
+		elseif imprisoned then
 			TriggerServerEvent("np-shops:getCharecter")
 			DoScreenFadeIn(2500)
 			doCamera(true)
 			prisionSpawn()
 		end
 	end
- 
  
 	
 
@@ -490,11 +480,10 @@ function prisionSpawn()
 	Citizen.Wait(100)
 
 
-	local x = 1708.443
-	local y = 2444.588
-	local z = 45.73673
-	local h = 108.0
-
+	local x = 1802.51
+	local y = 2607.19
+	local z = 46.01
+	local h = 93.0
 
 	ClearFocus()
 	SetNuiFocus(false,false)
@@ -510,7 +499,6 @@ function prisionSpawn()
 	FreezeEntityPosition(PlayerPedId(),false)
 
 	Citizen.Wait(2000)
-
 	TriggerEvent("attachWeapons")
 	TriggerEvent("spawning",false)
 
@@ -520,10 +508,11 @@ function prisionSpawn()
 	TriggerServerEvent("HOWMUCHCASHUHGOT")
 	TriggerServerEvent("server-request-update",exports["isPed"]:isPed("cid"))
 	TriggerServerEvent("jail:charecterFullySpawend")
-	DestroyCam(cam, false)
+	TriggerEvent('np-spawn:characterSpawned')
+	if(DoesCamExist(cam)) then
+		DestroyCam(cam, false)
+	end
 	 TriggerServerEvent("stocks:retrieveclientstocks")
-	 DoScreenFadeIn(1000)
-	 Citizen.Wait(1000)
 end
 
 RegisterNUICallback('selectedspawn', function(data, cb)
@@ -542,21 +531,6 @@ RegisterNUICallback('confirmspawn', function(data, cb)
 	SendNUIMessage({
 		openSection = "close",
 	})	
-	startcam = CreateCam("DEFAULT_SCRIPTED_CAMERA", 1)
-	cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", 1)
-	cam2 = CreateCam("DEFAULT_SCRIPTED_CAMERA", 1)
-	RenderScriptCams(false, true, 500, true, true)
-	SetCamActiveWithInterp(cam, cam2, 3700, true, true)
-	SetEntityVisible(PlayerPedId(), true, 0)
-	FreezeEntityPosition(PlayerPedId(), false)
-    SetPlayerInvisibleLocally(PlayerPedId(), false)
-    SetPlayerInvincible(PlayerPedId(), false)
-
-    DestroyCam(startcam, false)
-    DestroyCam(cam, false)
-    DestroyCam(cam2, false)
-    Citizen.Wait(0)
-    FreezeEntityPosition(GetPlayerPed(-1), false)
 	confirmSpawning(false)
 end)
 
@@ -572,6 +546,7 @@ function confirmSpawning(isClothesSpawn)
 	SetNuiFocus(false,false)
 	-- spawn them here.
     
+    
 	RenderScriptCams(false, false, 0, 1, 0) -- Return to gameplay camera
 	DestroyCam(cam, false)
 
@@ -581,28 +556,48 @@ function confirmSpawning(isClothesSpawn)
 		SetEntityHeading(PlayerPedId(),h)		
 	elseif myspawnpoints[currentselection]["typeSpawn"] == 2 then
 		defaultSpawn()
+	elseif myspawnpoints[currentselection]["typeSpawn"] == 3 then
+		local house_id = myspawnpoints[currentselection]["house_id"]
+		local house_model = myspawnpoints[currentselection]["house_model"]
+		TriggerServerEvent("house:enterhouse",exports['isPed']:isPed('cid'), false,house_id,house_model,false)
 	else
 	end
 	
-	TriggerServerEvent("server-request-update")
+	--TriggerServerEvent("server-request-update")
 	SetEntityInvincible(PlayerPedId(),false)
 	FreezeEntityPosition(PlayerPedId(),false)
-
-	Citizen.Wait(2000)
-	DoScreenFadeIn(4000)
 	TriggerEvent("attachWeapons")
 	TriggerEvent("spawning",false)
-
+	TriggerServerEvent('admin:getGroup')
+	TriggerServerEvent('stocks:retrieve', exports['isPed']:isPed('cid'))
+    TriggerServerEvent('server-inventory-request-identifier')
+	TriggerServerEvent("server-request-update",exports["isPed"]:isPed("cid"))
+	TriggerServerEvent('np-base:Licenses')
+	TriggerServerEvent('np-base:updatedphoneLicenses')
+	TriggerServerEvent("police:SetMeta")
+	TriggerServerEvent('dispatch:setcallsign')
+	Citizen.Wait(5000)
+	SetEntityVisible(PlayerPedId(), true)
+	FreezeEntityPosition(PlayerPedId(), false)
+	RenderScriptCams(false,  false,  0,  true,  true)
+	SetEntityCollision(GetPlayerPed(-1),  true,  true)
+	SetEntityVisible(GetPlayerPed(-1),  true)
+	SetNuiFocus(false, false)
+	EnableAllControlActions(0)
+	DoScreenFadeIn(4000)
+	if isClothesSpawn then
+		SetEntityCoords(PlayerPedId(),-1038.2766113281 + (math.random(200) / 100),-2738.2648925781 + (math.random(200) / 100),20.169269561768)
+		SetEntityHeading(PlayerPedId(),328.30828857422)
+		TriggerEvent('raid_clothes:defaultReset')
+	end
 
 	TriggerEvent("tokovoip:onPlayerLoggedIn", true)
 	Citizen.Wait(2000)
-	TriggerServerEvent("request-dropped-items")
-	 TriggerServerEvent("HOWMUCHCASHUHGOT")
-	 TriggerServerEvent("server-request-update",exports["isPed"]:isPed("cid"))
-	DestroyCam(cam, false)
+
+	if(DoesCamExist(cam)) then
+		DestroyCam(cam, false)
+	end
 	TriggerServerEvent("stocks:retrieveclientstocks")
-
-
 end
 
 --	mykeys[i] = { ["house_name"] = results[i].house_name, ["house_poi"] = pois,  ["table_id"] = results[i].id, ["owner"] = true, ["house_id"] = results[i].house_id, ["house_model"] = results[i].house_model, ["house_name"] = results[i].house_name }
@@ -625,7 +620,7 @@ end
 cam = 0
 local camactive = false
 local killcam = true
-function doCamera()
+function doCamera(prison)
 	killcam = true
 	if spawning then
 		return
@@ -634,14 +629,23 @@ function doCamera()
 	killcam = false
 	local camselection = currentselection
 	DoScreenFadeOut(1)
-	cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+	if(not DoesCamExist(cam)) then
+		cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+	end
 
 	local x,y,z,h
 
+	if prison then
+		 x = 1802.51
+		 y = 2607.19
+		 z = 46.01
+		 h = 93.0
+	else
 		 x = myspawnpoints[currentselection]["x"]
 		 y = myspawnpoints[currentselection]["y"]
 		 z = myspawnpoints[currentselection]["z"]
 		 h = myspawnpoints[currentselection]["h"]
+	end
 	
 	i = 3200
 	SetFocusArea(x, y, z, 0.0, 0.0, 0.0)
@@ -671,22 +675,6 @@ function defaultSpawn()
 	moveToMyHotel(myRoomType)	
 	TriggerEvent("hotel:myroomtype",myRoomType)
 end
-
-
-RegisterNetEvent('hotel:teleportRoom')
-AddEventHandler('hotel:teleportRoom', function(numMultiplier,roomType)
-	local numMultiplier = tonumber(numMultiplier)
-	local roomType = tonumber(roomType)
-	if (#(vector3(106.11, -647.76, 45.1) - GetEntityCoords(PlayerPedId())) < 5 and roomType == 3) or (#(vector3(160.26762390137,-641.96905517578,47.073524475098) - GetEntityCoords(PlayerPedId())) < 5 and roomType == 3) or (#(vector3(267.48132324219,-638.818359375,42.020294189453) - GetEntityCoords(PlayerPedId())) < 5 and roomType == 2) then
-		moveToMultiplierHotel(numMultiplier,roomType)
-	elseif (#(vector3(apartments1[numMultiplier]["x"],apartments1[numMultiplier]["y"],apartments1[numMultiplier]["z"]) - GetEntityCoords(PlayerPedId())) < 5 and roomType == 1) then
-		moveToMultiplierHotel(numMultiplier,roomType)
-	else
-		TriggerEvent("DoLongHudText","No Entry Point.",2)
-	end
-	
-end)
-
 				
 
 RegisterNetEvent('attemptringbell')
@@ -715,6 +703,34 @@ AddEventHandler("buzzbuzz",function(apartmentnumber)
 
 end)
 
+local penis = false
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(1000)
+		if penis == true then
+			TriggerEvent('vSync:toggle',false)
+			SetBlackout(false)
+			ClearOverrideWeather()
+			ClearWeatherTypePersist()
+			SetWeatherTypePersist('CLEAR')
+			SetWeatherTypeNow('CLEAR')
+			SetWeatherTypeNowPersist('CLEAR')
+			NetworkOverrideClockTime(23, 0, 0)
+		end
+	end
+end)
+
+RegisterNetEvent('inhotel')
+AddEventHandler('inhotel', function(toggle)
+	if toggle == true then
+		penis = true
+	else
+		penis = false
+		TriggerEvent('vSync:toggle',true)
+		TriggerServerEvent('vSync:requestSync')
+	end
+end)
+
 RegisterNetEvent('buzzer')
 AddEventHandler("buzzer",function()
 	TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 1.0, 'doorbell', 0.5)
@@ -736,11 +752,13 @@ function processBuildType(numMultiplier,roomType)
 	TriggerEvent("inhotel",true)
 	SetEntityInvincible(PlayerPedId(), true)
 	TriggerEvent("enabledamage",false)
+	--DoScreenFadeOut(1)
+
 	TriggerEvent("dooranim")	
 	if roomType == 1 then
 		buildRoom(numMultiplier,roomType)
 		if showhelp then
-			TriggerEvent("customNotification","Welcome to the Hotel, Press P to open your phone and use the help app for more information!")
+			TriggerEvent("DoLongHudText","Welcome to the Hotel, Press P to open your phone and use the help app for more information!")
 			showhelp = false
 		end
 	elseif roomType == 2 then
@@ -812,12 +830,7 @@ end
 function buildRoom(numMultiplier,roomType)
 	-- this coord is the default object location, we use it to spawn in the interior.
 
-
-	SetEntityCoords(PlayerPedId(), 152.09986877441 , -1004.7946166992, -98.999984741211)
-
-	Citizen.Wait(5000)
-
-	local generator = { x = 175.09986877441 , y = -904.7946166992, z = -98.999984741211}
+	local generator = { x=175.09986877441 , y = -904.7946166992, z = -98.999984741211}
 	generator.x = (175.09986877441) + ((numMultiplier * 12.0))
 	
 	if numMultiplier == myRoomNumber then
@@ -826,41 +839,50 @@ function buildRoom(numMultiplier,roomType)
 		curRoom = generator
 	end
 
-	SetEntityCoords(PlayerPedId(), generator.x - 1.6, generator.y - 4, generator.z + 0.6)
-	local building = CreateObject(`furnitured_motel`,generator.x,generator.y,generator.z,false,false,false)
+	RequestModel(GetHashKey("playerhouse_hotel"))
+	while not HasModelLoaded(GetHashKey("playerhouse_hotel")) do
+		RequestModel(GetHashKey("playerhouse_hotel"))
+		Citizen.Trace("Loading Model")
+   		Citizen.Wait(100)
+	end
+
+  	SetEntityCoords(PlayerPedId(), 152.09986877441, -1004.7946166992, -98.999984741211)
+	SetEntityHeading(PlayerPedId(), 350.25)
+	FreezeEntityPosition(PlayerPedId(), true)
+	Citizen.Wait(4500)
+
+	local building = CreateObject(GetHashKey('playerhouse_hotel'),generator.x - 0.7,generator.y-0.4,generator.z-1.42,false,false,false)
 
 	FreezeEntityPosition(building,true)
 	Citizen.Wait(100)
-	FloatTilSafe(numMultiplier,roomType,building)
 	
-	CreateObject(`v_49_motelmp_stuff`,generator.x,generator.y,generator.z,false,false,false)
-	CreateObject(`v_49_motelmp_bed`,generator.x+1.4,generator.y-0.55,generator.z,false,false,false)
-	CreateObject(`v_49_motelmp_clothes`,generator.x-2.0,generator.y+2.0,generator.z+0.15,false,false,false)
-	CreateObject(`v_49_motelmp_winframe`,generator.x+0.74,generator.y-4.26,generator.z+1.11,false,false,false)
-	CreateObject(`v_49_motelmp_glass`,generator.x+0.74,generator.y-4.26,generator.z+1.13,false,false,false)
-	CreateObject(`v_49_motelmp_curtains`,generator.x+0.74,generator.y-4.15,generator.z+0.9,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_stuff"),generator.x,generator.y,generator.z,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_bed"),generator.x+1.4,generator.y-0.55,generator.z,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_clothes"),generator.x-2.0,generator.y+2.0,generator.z+0.15,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_winframe"),generator.x+0.74,generator.y-4.26,generator.z+1.11,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_glass"),generator.x+0.74,generator.y-4.26,generator.z+1.13,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_curtains"),generator.x+0.74,generator.y-4.15,generator.z+0.9,false,false,false)
 
-	CreateObject(`v_49_motelmp_screen`,generator.x-2.21,generator.y-0.6,generator.z+0.79,false,false,false)
+	CreateObject(GetHashKey("v_49_motelmp_screen"),generator.x-2.21,generator.y-0.6,generator.z+0.79,false,false,false)
 	--props
-	CreateObject(`v_res_fa_trainer02r`,generator.x-1.9,generator.y+3.0,generator.z+0.38,false,false,false)
-	CreateObject(`v_res_fa_trainer02l`,generator.x-2.1,generator.y+2.95,generator.z+0.38,false,false,false)
-	local door = CreateObject(`prop_sc1_12_door`,generator.x-1.0,generator.y-4.25,generator.z,false,false,true)
-	local sink = CreateObject(`prop_sink_06`,generator.x+1.1,generator.y+4.0,generator.z,false,false,false)
-	local chair1 = CreateObject(`prop_chair_04a`,generator.x+2.1,generator.y-2.4,generator.z,false,false,false)
-	local chair2 = CreateObject(`prop_chair_04a`,generator.x+0.7,generator.y-3.5,generator.z,false,false,false)
-	local kettle = CreateObject(`prop_kettle`,generator.x-2.3,generator.y+0.6,generator.z+0.9,false,false,false)
-	local tvCabinet = CreateObject(`Prop_TV_Cabinet_03`,generator.x-2.3,generator.y-0.6,generator.z,false,false,false)
-	local tv = CreateObject(`prop_tv_06`,generator.x-2.3,generator.y-0.6,generator.z+0.7,false,false,false)
-	local toilet = CreateObject(`Prop_LD_Toilet_01`,generator.x+2.1,generator.y+2.9,generator.z,false,false,false)
-	local clock = CreateObject(`Prop_Game_Clock_02`,generator.x-2.55,generator.y-0.6,generator.z+2.0,false,false,false)
-	local phone = CreateObject(`v_res_j_phone`,generator.x+2.4,generator.y-1.9,generator.z+0.64,false,false,false)
-	local ironBoard = CreateObject(`v_ret_fh_ironbrd`,generator.x-1.7,generator.y+3.5,generator.z+0.15,false,false,false)
-	local iron = CreateObject(`prop_iron_01`,generator.x-1.9,generator.y+2.85,generator.z+0.63,false,false,false)
-	local mug1 = CreateObject(`V_Ret_TA_Mug`,generator.x-2.3,generator.y+0.95,generator.z+0.9,false,false,false)
-	local mug2 = CreateObject(`V_Ret_TA_Mug`,generator.x-2.2,generator.y+0.9,generator.z+0.9,false,false,false)
-	CreateObject(`v_res_binder`,generator.x-2.2,generator.y+1.3,generator.z+0.87,false,false,false)
+	CreateObject(GetHashKey("v_res_fa_trainer02r"),generator.x-1.9,generator.y+3.0,generator.z+0.38,false,false,false)
+	CreateObject(GetHashKey("v_res_fa_trainer02l"),generator.x-2.1,generator.y+2.95,generator.z+0.38,false,false,false)
+
+	local sink = CreateObject(GetHashKey("prop_sink_06"),generator.x+1.1,generator.y+4.0,generator.z,false,false,false)
+	local chair1 = CreateObject(GetHashKey("prop_chair_04a"),generator.x+2.1,generator.y-2.4,generator.z,false,false,false)
+	local chair2 = CreateObject(GetHashKey("prop_chair_04a"),generator.x+0.7,generator.y-3.5,generator.z,false,false,false)
+	local kettle = CreateObject(GetHashKey("prop_kettle"),generator.x-2.3,generator.y+0.6,generator.z+0.9,false,false,false)
+	local tvCabinet = CreateObject(GetHashKey("Prop_TV_Cabinet_03"),generator.x-2.3,generator.y-0.6,generator.z,false,false,false)
+	local tv = CreateObject(GetHashKey("prop_tv_06"),generator.x-2.3,generator.y-0.6,generator.z+0.7,false,false,false)
+	local toilet = CreateObject(GetHashKey("Prop_LD_Toilet_01"),generator.x+2.1,generator.y+2.9,generator.z,false,false,false)
+	local clock = CreateObject(GetHashKey("Prop_Game_Clock_02"),generator.x-2.55,generator.y-0.6,generator.z+2.0,false,false,false)
+	local phone = CreateObject(GetHashKey("v_res_j_phone"),generator.x+2.4,generator.y-1.9,generator.z+0.64,false,false,false)
+	local ironBoard = CreateObject(GetHashKey("v_ret_fh_ironbrd"),generator.x-1.7,generator.y+3.5,generator.z+0.15,false,false,false)
+	local iron = CreateObject(GetHashKey("prop_iron_01"),generator.x-1.9,generator.y+2.85,generator.z+0.63,false,false,false)
+	local mug1 = CreateObject(GetHashKey("V_Ret_TA_Mug"),generator.x-2.3,generator.y+0.95,generator.z+0.9,false,false,false)
+	local mug2 = CreateObject(GetHashKey("V_Ret_TA_Mug"),generator.x-2.2,generator.y+0.9,generator.z+0.9,false,false,false)
+	CreateObject(GetHashKey("v_res_binder"),generator.x-2.2,generator.y+1.3,generator.z+0.87,false,false,false)
 	
-	FreezeEntityPosition(door, true)
 	FreezeEntityPosition(sink,true)
 	FreezeEntityPosition(chair1,true)	
 	FreezeEntityPosition(chair2,true)
@@ -868,7 +890,6 @@ function buildRoom(numMultiplier,roomType)
 	FreezeEntityPosition(tv,true)		
 	SetEntityHeading(chair1,GetEntityHeading(chair1)+270)
 	SetEntityHeading(chair2,GetEntityHeading(chair2)+180)
-	SetEntityHeading(door,GetEntityHeading(door)-180)
 	SetEntityHeading(kettle,GetEntityHeading(kettle)+90)
 	SetEntityHeading(tvCabinet,GetEntityHeading(tvCabinet)+90)
 	SetEntityHeading(tv,GetEntityHeading(tv)+90)
@@ -879,6 +900,10 @@ function buildRoom(numMultiplier,roomType)
 	SetEntityHeading(iron,GetEntityHeading(iron)+230)
 	SetEntityHeading(mug1,GetEntityHeading(mug1)+20)
 	SetEntityHeading(mug2,GetEntityHeading(mug2)+230)
+  	SetEntityCoords(PlayerPedId(), generator.x-1.0755,generator.y-4.20,generator.z+0.10)
+  	SetEntityHeading(PlayerPedId(), 350.25)
+  	Wait(2000)
+  	FreezeEntityPosition(PlayerPedId(), false)
 
 
 	if not isForced then
@@ -902,36 +927,38 @@ local Keys = {
 	["NENTER"] = 201, ["N4"] = 108, ["N5"] = 60, ["N6"] = 107, ["N+"] = 96, ["N-"] = 97, ["N7"] = 117, ["N8"] = 61, ["N9"] = 118
 }
 
-
--- Citizen.CreateThread(function()
+--[[
+Citizen.CreateThread(function()
 	
---  	while true do
---  		if IsControlJustPressed(1, Controlkey["housingSecondary"][1]) then
--- 			tp =  GetOffsetFromEntityInWorldCoords(PlayerPedId(), 1.0, 0.0,-90.0)
--- 			local detector = CreateObject(`xm_detector`,tp.x,tp.y,tp.z,true,true,true)
--- 			FreezeEntityPosition(detector,true)
--- 		end
---  		FreezeEntityPosition(PlayerPedId(),false)
--- 		Citizen.Wait(0)
--- 		DrawMarker(27,-221.544921875,-1012.197265625,29.298439025879, 0, 0, 0, 0, 0, 0, 5.001, 5.0001, 0.5001, 0, 155, 255, 200, 0, 0, 0, 0)	
--- 		if #(vector3(-221.544921875,-1012.197265625,29.298439025879) - GetEntityCoords(PlayerPedId())) < 5 then
--- 				DisplayHelpText('Press ~b~H~s~ to teleport to base model , press ~b~'..Controlkey["housingSecondary"][2]..'~s~ to spawn into new model')
--- 			if IsControlJustPressed(1, Controlkey["housingMain"][1]) then
--- 				SetEntityCoords(PlayerPedId(),9000.0,0.0,110.0)
--- 			end
--- 		end
--- 	end
--- end)
-
+ 	while true do
+ 		if IsControlJustPressed(1, Controlkey["housingSecondary"][1]) then
+			tp =  GetOffsetFromEntityInWorldCoords(PlayerPedId(), 1.0, 0.0,-90.0)
+			local detector = CreateObject(`xm_detector`,tp.x,tp.y,tp.z,true,true,true)
+			FreezeEntityPosition(detector,true)
+		end
+ 		FreezeEntityPosition(PlayerPedId(),false)
+		Citizen.Wait(0)
+		DrawMarker(27,-221.544921875,-1012.197265625,29.298439025879, 0, 0, 0, 0, 0, 0, 5.001, 5.0001, 0.5001, 0, 155, 255, 200, 0, 0, 0, 0)	
+		if #(vector3(-221.544921875,-1012.197265625,29.298439025879) - GetEntityCoords(PlayerPedId())) < 5 then
+				DisplayHelpText('Press ~g~H~s~ to teleport to base model , press ~g~'..Controlkey["housingSecondary"][2]..'~s~ to spawn into new model')
+			if IsControlJustPressed(1, Controlkey["housingMain"][1]) then
+				SetEntityCoords(PlayerPedId(),9000.0,0.0,110.0)
+			end
+		end
+	end
+end)
+]]
 
 function getRotation(input)
 	return 360/(10*input)
 end
 
 function buildRoom2(numMultiplier,roomType)
-	SetEntityCoords(PlayerPedId(),347.04724121094,-1000.2844848633,-99.194671630859)
-	FreezeEntityPosition(PlayerPedId(),true)
+
+	SetEntityCoords(PlayerPedId(), 347.04724121094, -1000.2844848633, -99.194671630859)
+ 	FreezeEntityPosition(PlayerPedId(), true)
 	Citizen.Wait(5000)
+
 	local generator = { x = 175.09986877441 , y = -904.7946166992, z = -98.999984741211}
 	generator.x = (175.09986877441) + ((numMultiplier * 25.0))
 	generator.y = (-774.7946166992) -- ((numMultiplier * 25.0))
@@ -943,15 +970,178 @@ function buildRoom2(numMultiplier,roomType)
 		curRoom = generator
 	end
 
-	SetEntityCoords(PlayerPedId(), 	generator.x + 3.9, generator.y - 11.2, generator.z, generator.h)
-	local building = CreateObject(`furnitured_midapart`,generator.x+2.29760700,generator.y-1.33191200,generator.z+1.26253700,false,false,false)
-	FreezeEntityPosition(building,true)
-	Citizen.Wait(100)
-	FloatTilSafe(numMultiplier,roomType,building)
+	RequestModel(GetHashKey("clrp_house_1"))
+	while not HasModelLoaded(GetHashKey("clrp_house_1")) do
+		RequestModel(GetHashKey("clrp_house_1"))
+   		Citizen.Wait(100)
+	end
+
+	local building = CreateObject(GetHashKey("clrp_house_1"), generator.x, generator.y-0.05, generator.z+1.26253700-89.825, false, false, false)
+	FreezeEntityPosition(building, true)
+	Citizen.Wait(500)
+	SetEntityCoords(PlayerPedId(), generator.x+3.6, generator.y-14.8, generator.z+2.9)
+	SetEntityHeading(PlayerPedId(), 358.106)
+
+	local dt = CreateObject(GetHashKey("V_16_DT"), generator.x-1.21854400, generator.y-1.04389600, generator.z+1.39068600, false, false, false)
+	local mpmid01 = CreateObject(GetHashKey("V_16_mpmidapart01"), generator.x+0.52447510, generator.y-5.04953700, generator.z+1.32, false, false, false)
+	local mpmid09 = CreateObject(GetHashKey("V_16_mpmidapart09"), generator.x+0.82202150, generator.y+2.29612000, generator.z+1.88, false, false, false)
+	local mpmid07 = CreateObject(GetHashKey("V_16_mpmidapart07"), generator.x-1.91445900, generator.y-6.61911300, generator.z+1.45, false, false, false)
+	local mpmid03 = CreateObject(GetHashKey("V_16_mpmidapart03"), generator.x-4.82565300, generator.y-6.86803900, generator.z+1.14, false, false, false)
+	local midData = CreateObject(GetHashKey("V_16_midapartdeta"), generator.x+2.28558400, generator.y-1.94082100, generator.z+1.32, false, false, false)
+	local glow = CreateObject(GetHashKey("V_16_treeglow"), generator.x-1.37408500, generator.y-0.95420070, generator.z+1.135, false, false, false)
+	local curtins = CreateObject(GetHashKey("V_16_midapt_curts"), generator.x-1.96423300, generator.y-0.95958710, generator.z+1.280, false, false, false)
+	local mpmid13 = CreateObject(GetHashKey("V_16_mpmidapart13"), generator.x-4.65580700, generator.y-6.61684000, generator.z+1.259, false, false, false)
+	local mpcab = CreateObject(GetHashKey("V_16_midapt_cabinet"), generator.x-1.16177400, generator.y-0.97333810, generator.z+1.27, false, false, false)
+	local mpdecal = CreateObject(GetHashKey("V_16_midapt_deca"), generator.x+2.311386000, generator.y-2.05385900, generator.z+1.297, false, false, false)
+	local mpdelta = CreateObject(GetHashKey("V_16_mid_hall_mesh_delta"), generator.x+3.69693000, generator.y-5.80020100, generator.z+1.293, false, false, false)
+	local beddelta = CreateObject(GetHashKey("V_16_mid_bed_delta"), generator.x+7.95187400, generator.y+1.04246500, generator.z+1.28402300, false, false, false)
+	local bed = CreateObject(GetHashKey("V_16_mid_bed_bed"), generator.x+6.86376900, generator.y+1.20651200, generator.z+1.33589100, false, false, false)
+	local beddecal = CreateObject(GetHashKey("V_16_MID_bed_over_decal"), generator.x+7.82861300, generator.y+1.04696700, generator.z+1.34753700, false, false, false)
+	local bathDelta = CreateObject(GetHashKey("V_16_mid_bath_mesh_delta"), generator.x+4.45460500, generator.y+3.21322800, generator.z+1.21116100, false, false, false)
+	local bathmirror = CreateObject(GetHashKey("V_16_mid_bath_mesh_mirror"), generator.x+3.57740800, generator.y+3.25032000, generator.z+1.48871300, false, false, false)
+
+		--props
+	local beerbot = CreateObject(GetHashKey("Prop_CS_Beer_Bot_01"), generator.x+1.73134600, generator.y-4.88520200, generator.z+1.91083000, false, false, false)
+	local couch = CreateObject(GetHashKey("v_res_mp_sofa"), generator.x-1.48765600, generator.y+1.68100600, generator.z+1.33640500, false, false, false)
+	local chair = CreateObject(GetHashKey("v_res_mp_stripchair"), generator.x-4.44770800, generator.y-1.78048800, generator.z+1.21640500, false, false, false)
+	local chair2 = CreateObject(GetHashKey("v_res_tre_chair"), generator.x+2.91325400, generator.y-5.27835100, generator.z+1.22746400, false, false, false)
+	local plant = CreateObject(GetHashKey("Prop_Plant_Int_04a"), generator.x+2.78941300, generator.y-4.39133900, generator.z+2.12746400, false, false, false)
+	local lamp = CreateObject(GetHashKey("v_res_d_lampa"), generator.x-3.61473100, generator.y-6.61465100, generator.z+2.09373700, false, false, false)
+	local fridge = CreateObject(GetHashKey("v_res_fridgemodsml"), generator.x+1.90339700, generator.y-3.80026800, generator.z+1.29917900, false, false, false)
+	local micro = CreateObject(GetHashKey("prop_micro_01"), generator.x+2.03442400, generator.y-4.64585100, generator.z+2.28995600, false, false, false)
+	local sideBoard = CreateObject(GetHashKey("V_Res_Tre_SideBoard"), generator.x+2.84053000, generator.y-4.30947100, generator.z+1.24577300, false, false, false)
+	local bedSide = CreateObject(GetHashKey("V_Res_Tre_BedSideTable"), generator.x-3.50363200, generator.y-6.55289400, generator.z+1.30625800, false, false, false)
+	local lamp2 = CreateObject(GetHashKey("v_res_d_lampa"), generator.x+2.69674700, generator.y-3.83123500, generator.z+2.09373700, false, false, false)
+	local plant2 = CreateObject(GetHashKey("v_res_tre_tree"), generator.x-4.96064800, generator.y-6.09898500, generator.z+1.31631400, false, false, false)
+	local table = CreateObject(GetHashKey("V_Res_M_DineTble_replace"), generator.x-3.50712600, generator.y-4.13621600, generator.z+1.29625800, false, false, false)
+	local tv = CreateObject(GetHashKey("Prop_TV_Flat_01"), generator.x-5.53120400, generator.y+0.76299670, generator.z+2.17236000, false, false, false)
+	local plant3 = CreateObject(GetHashKey("v_res_tre_plant"), generator.x-5.14112800, generator.y-2.78951000, generator.z+1.25950800, false, false, false)
+	local chair3 = CreateObject(GetHashKey("v_res_m_dinechair"), generator.x-3.04652400, generator.y-4.95971200, generator.z+1.19625800, false, false, false)
+	local lampStand = CreateObject(GetHashKey("v_res_m_lampstand"), generator.x+1.26588400, generator.y+3.68883900, generator.z+1.35556700, false, false, false)
+	local stool = CreateObject(GetHashKey("V_Res_M_Stool_REPLACED"), generator.x-3.23216300, generator.y+2.06159000, generator.z+1.20556700, false, false, false)
+	local chair4 = CreateObject(GetHashKey("v_res_m_dinechair"), generator.x-2.82237200, generator.y-3.59831300, generator.z+1.25950800, false, false, false)
+	local chair5 = CreateObject(GetHashKey("v_res_m_dinechair"), generator.x-4.14955100, generator.y-4.71316600, generator.z+1.19625800, false, false, false)
+	local chair6 = CreateObject(GetHashKey("v_res_m_dinechair"), generator.x-3.80622900, generator.y-3.37648300, generator.z+1.19625800, false, false, false)
+	local plant4 = CreateObject(GetHashKey("v_res_fa_plant01"), generator.x+2.97859200, generator.y+2.55307400, generator.z+1.85796300, false, false, false)
+	local storage = CreateObject(GetHashKey("v_res_tre_storageunit"), generator.x+8.47819500, generator.y-2.50979300, generator.z+1.19712300, false, false, false)
+	local storage2 = CreateObject(GetHashKey("v_res_tre_storagebox"), generator.x+9.75982700, generator.y-1.35874100, generator.z+1.29625800, false, false, false)
+	local basketmess = CreateObject(GetHashKey("v_res_tre_basketmess"), generator.x+8.70730600, generator.y-2.55503600, generator.z+1.94059590, false, false, false)
+	local lampStand2 = CreateObject(GetHashKey("v_res_m_lampstand"), generator.x+9.54306000, generator.y-2.50427700, generator.z+1.30556700, false, false, false)
+	local plant4 = CreateObject(GetHashKey("Prop_Plant_Int_03a"), generator.x+9.87521400, generator.y+3.90917400, generator.z+1.20829700, false, false, false)
+	local basket = CreateObject(GetHashKey("v_res_tre_washbasket"), generator.x+9.39091500, generator.y+4.49676300, generator.z+1.19625800, false, false, false)
+	local wardrobe = CreateObject(GetHashKey("V_Res_Tre_Wardrobe"), generator.x+8.46626300, generator.y+4.53223600, generator.z+1.19425800, false, false, false)
+	local basket2 = CreateObject(GetHashKey("v_res_tre_flatbasket"), generator.x+8.51593000, generator.y+4.55647300, generator.z+3.46737300, false, false, false)
+	local basket3 = CreateObject(GetHashKey("v_res_tre_basketmess"), generator.x+7.57797200, generator.y+4.55198800, generator.z+3.46737300, false, false, false)
+	local basket4 = CreateObject(GetHashKey("v_res_tre_flatbasket"), generator.x+7.12286400, generator.y+4.54689200, generator.z+3.46737300, false, false, false)
+	local wardrobe2 = CreateObject(GetHashKey("V_Res_Tre_Wardrobe"), generator.x+7.24382000, generator.y+4.53423500, generator.z+1.19625800, false, false, false)
+	local basket5 = CreateObject(GetHashKey("v_res_tre_flatbasket"), generator.x+8.03364600, generator.y+4.54835500, generator.z+3.46737300, false, false, false)
+	local switch = CreateObject(GetHashKey("v_serv_switch_2"), generator.x+6.28086900, generator.y-0.68169880, generator.z+2.30326000, false, false, false)
+	local table2 = CreateObject(GetHashKey("V_Res_Tre_BedSideTable"), generator.x+5.84416200, generator.y+2.57377400, generator.z+1.22089100, false, false, false)
+	local lamp3 = CreateObject(GetHashKey("v_res_d_lampa"), generator.x+5.84912100, generator.y+2.58001100, generator.z+1.95311890, false, false, false)
+	--local laundry = CreateObject(GetHashKey("v_res_mlaundry"), generator.x+5.77729800, generator.y+4.60211400, generator.z+1.19674400, false, false, false)
+	local ashtray = CreateObject(GetHashKey("Prop_ashtray_01"), generator.x-1.24716200, generator.y+1.07820500, generator.z+1.87089300, false, false, false)
+	local candle1 = CreateObject(GetHashKey("v_res_fa_candle03"), generator.x-2.89289900, generator.y-4.35329700, generator.z+2.02881310, false, false, false)
+	local candle2 = CreateObject(GetHashKey("v_res_fa_candle02"), generator.x-3.99865700, generator.y-4.06048500, generator.z+2.02530190, false, false, false)
+	local candle3 = CreateObject(GetHashKey("v_res_fa_candle01"), generator.x-3.37733400, generator.y-3.66639800, generator.z+2.02526200, false, false, false)
+	local woodbowl = CreateObject(GetHashKey("v_res_m_woodbowl"), generator.x-3.50787400, generator.y-4.11983000, generator.z+2.02589900, false, false, false)
+	local tablod = CreateObject(GetHashKey("V_Res_TabloidsA"), generator.x-0.80513000, generator.y+0.51389600, generator.z+1.18418800, false, false, false)
+	local tapeplayer = CreateObject(GetHashKey("Prop_Tapeplayer_01"), generator.x-1.26010100, generator.y-3.62966400, generator.z+2.37883200, false, false, false)
+	local woodbowl2 = CreateObject(GetHashKey("v_res_tre_fruitbowl"), generator.x+2.77764900, generator.y-4.138297000, generator.z+2.10340100, false, false, false)
+	local sculpt = CreateObject(GetHashKey("v_res_sculpt_dec"), generator.x+3.03932200, generator.y+1.62726400, generator.z+3.58363900, false, false, false)
+	local jewlry = CreateObject(GetHashKey("v_res_jewelbox"), generator.x+3.04164100, generator.y+0.31671810, generator.z+3.58363900, false, false, false)
+	local basket6 = CreateObject(GetHashKey("v_res_tre_basketmess"), generator.x-1.64906300, generator.y+1.62675900, generator.z+1.39038500, false, false, false)
+	local basket7 = CreateObject(GetHashKey("v_res_tre_flatbasket"), generator.x-1.63938900, generator.y+0.91133310, generator.z+1.39038500, false, false, false)
+	local basket8 = CreateObject(GetHashKey("v_res_tre_flatbasket"), generator.x-1.19923400, generator.y+1.69598600, generator.z+1.39038500, false, false, false)
+	local basket9 = CreateObject(GetHashKey("v_res_tre_basketmess"), generator.x-1.18293800, generator.y+0.91436380, generator.z+1.39038500, false, false, false)
+	local bowl = CreateObject(GetHashKey("v_res_r_sugarbowl"), generator.x-0.26029210, generator.y-6.66716800, generator.z+3.77324900, false, false, false)
+	local breadbin = CreateObject(GetHashKey("Prop_Breadbin_01"), generator.x+2.09788500, generator.y-6.57634000, generator.z+2.24041900, false, false, false)
+	local knifeblock = CreateObject(GetHashKey("v_res_mknifeblock"), generator.x+1.82084700, generator.y-6.58438500, generator.z+2.27399500, false, false, false)
+	local toaster = CreateObject(GetHashKey("prop_toaster_01"), generator.x-1.05790700, generator.y-6.59017400, generator.z+2.26793200, false, false, false)
+	local wok = CreateObject(GetHashKey("prop_wok"), generator.x+2.01728800, generator.y-5.57091500, generator.z+2.31793200, false, false, false)
+	local plant5 = CreateObject(GetHashKey("Prop_Plant_Int_03a"), generator.x+2.55015600, generator.y+4.60183900, generator.z+1.20829700, false, false, false)
+	local tumbler = CreateObject(GetHashKey("p_tumbler_cs2_s"), generator.x-0.90916440, generator.y-4.24099100, generator.z+2.24693200, false, false, false)
+	local wisky = CreateObject(GetHashKey("p_whiskey_bottle_s"), generator.x-0.92809300, generator.y-3.99099100, generator.z+2.24693200, false, false, false)
+	local tissue = CreateObject(GetHashKey("v_res_tissues"), generator.x+7.95889300, generator.y-2.54847100, generator.z+1.94013400, false, false, false)
+	local pants = CreateObject(GetHashKey("V_16_Ap_Mid_Pants4"), generator.x+7.55366500, generator.y-0.25457100, generator.z+1.33009200, false, false, false)
+	local pants2 = CreateObject(GetHashKey("V_16_Ap_Mid_Pants5"), generator.x+7.76753200, generator.y+3.00476500, generator.z+1.33052800, false, false, false)
+	local hairdryer = CreateObject(GetHashKey("v_club_vuhairdryer"), generator.x+8.12616000, generator.y-2.50562000, generator.z+1.96009390, false, false, false)
+
+	FreezeEntityPosition(dt,true)
+	FreezeEntityPosition(mpmid01,true)
+	FreezeEntityPosition(mpmid09,true)
+	FreezeEntityPosition(mpmid07,true)
+	FreezeEntityPosition(mpmid03,true)
+	FreezeEntityPosition(midData,true)
+	FreezeEntityPosition(glow,true)
+	FreezeEntityPosition(curtins,true)
+	FreezeEntityPosition(mpmid13,true)
+	FreezeEntityPosition(mpcab,true)
+	FreezeEntityPosition(mpdecal,true)
+	FreezeEntityPosition(mpdelta,true)
+	FreezeEntityPosition(couch,true)
+	FreezeEntityPosition(chair,true)
+	FreezeEntityPosition(chair2,true)
+	FreezeEntityPosition(plant,true)
+	FreezeEntityPosition(lamp,true)
+	FreezeEntityPosition(fridge,true)
+	FreezeEntityPosition(micro,true)
+	FreezeEntityPosition(sideBoard,true)
+	FreezeEntityPosition(bedSide,true)
+	FreezeEntityPosition(plant2,true)
+	FreezeEntityPosition(table,true)
+	FreezeEntityPosition(tv,true)
+	FreezeEntityPosition(plant3,true)
+	FreezeEntityPosition(chair3,true)
+	FreezeEntityPosition(lampStand,true)
+	FreezeEntityPosition(chair4,true)
+	FreezeEntityPosition(chair5,true)
+	FreezeEntityPosition(chair6,true)
+	FreezeEntityPosition(plant4,true)
+	FreezeEntityPosition(storage2,true)
+	FreezeEntityPosition(basket,true)
+	FreezeEntityPosition(wardrobe,true)
+	FreezeEntityPosition(wardrobe2,true)
+	FreezeEntityPosition(table2,true)
+	FreezeEntityPosition(lamp3,true)
+	-- FreezeEntityPosition(laundry,true)
+	FreezeEntityPosition(beddelta,true)
+	FreezeEntityPosition(bed,true)
+	FreezeEntityPosition(beddecal,true)
+	FreezeEntityPosition(tapeplayer,true)
+	FreezeEntityPosition(basket7,true)
+	FreezeEntityPosition(basket6,true)
+	FreezeEntityPosition(basket8,true)
+	FreezeEntityPosition(basket9,true)
+	SetEntityHeading(beerbot,GetEntityHeading(beerbot)+90)
+	SetEntityHeading(couch,GetEntityHeading(couch)-90)
+	SetEntityHeading(chair,GetEntityHeading(chair)+getRotation(0.28045480))
+	SetEntityHeading(chair2,GetEntityHeading(chair2)+getRotation(0.3276100))
+	SetEntityHeading(fridge,GetEntityHeading(chair2)+160)
+	SetEntityHeading(micro,GetEntityHeading(micro)-90)
+	SetEntityHeading(sideBoard,GetEntityHeading(sideBoard)+90)
+	SetEntityHeading(bedSide,GetEntityHeading(bedSide)+180)
+	SetEntityHeading(tv,GetEntityHeading(tv)+90)
+	SetEntityHeading(plant3,GetEntityHeading(plant3)+90)
+	SetEntityHeading(chair3,GetEntityHeading(chair3)+200)
+	SetEntityHeading(chair4,GetEntityHeading(chair3)+100)
+	SetEntityHeading(chair5,GetEntityHeading(chair5)+135)
+	SetEntityHeading(chair6,GetEntityHeading(chair6)+10)
+	SetEntityHeading(storage,GetEntityHeading(storage)+180)
+	SetEntityHeading(storage2,GetEntityHeading(storage2)-90)
+	SetEntityHeading(table2,GetEntityHeading(table2)+90)
+	SetEntityHeading(tapeplayer,GetEntityHeading(tapeplayer)+90)
+	SetEntityHeading(knifeblock,GetEntityHeading(knifeblock)+180)
+	FreezeEntityPosition(PlayerPedId(),false)
+
 	if not isForced then
 		TriggerServerEvent('hotel:getID')
 	end
+
+
 	curRoomType = 2
+	
+
+
 end
 
 function FloatTilSafe(numMultiplier,roomType,buildingsent)
@@ -989,7 +1179,233 @@ function FloatTilSafe(numMultiplier,roomType,buildingsent)
 	TriggerEvent("reviveFunction")	
 
 end
+--+3,+7 for clothing
+---14, -2, z+6 for entrance / exit
+--
+--generator = { x = 131.0290527343, y = -644.0509033203, z = 68.025619506836}
+--{134.37339782715,-637.86877441406,80.064666748047},
+--{117.24536132813,-645.98254394531,86.261169433594},
 
+
+function buildRoom3(numMultiplier,roomType)
+	garageNumber = numMultiplier
+
+	--
+	SetEntityCoords(PlayerPedId(),305.66970825195,-993.61737060547,-94.195129394531)
+	FreezeEntityPosition(PlayerPedId(),true)
+	Citizen.Wait(5000)
+
+
+	local generator = { x = -265.68209838867 , y = -957.06573486328, z = 145.824577331543}
+
+	if numMultiplier > 0 and numMultiplier < 7 then
+		--generator = { x = -143.16976928711 , y = -596.31140136719, z = 61.95349121093}
+		--generator.z = (61.9534912) + ((numMultiplier * 11.0) * roomType)
+		generator = { x = 131.0290527343, y = -644.0509033203, z = 68.025619506836}
+		generator.z = (68.0534912) + ((numMultiplier * 11.0))
+	end
+
+	if numMultiplier > 6 and numMultiplier < 14 then
+		generator = { x = -134.43560791016 , y = -638.13916015625, z = 68.953491210938}
+		numMultiplier = numMultiplier - 6
+		generator.z = (61.9534912) + ((numMultiplier * 11.0))
+	end
+
+	if numMultiplier > 13 and numMultiplier < 20 then
+		generator = { x = -181.440234375 , y = -584.04815673828, z = 68.95349121093}
+		numMultiplier = numMultiplier - 13
+		generator.z = (61.9534912) + ((numMultiplier * 11.0))
+	end
+
+	if numMultiplier > 19 and numMultiplier < 26 then
+		generator = { x = -109.9752227783, y = -570.272351074, z = 61.9534912}
+		numMultiplier = numMultiplier - 19
+		generator.z = (61.9534912) + ((numMultiplier * 11.0))
+	end
+
+	if numMultiplier > 25 and numMultiplier < 38 then
+		generator = { x = -3.9463002681732, y = -693.2456665039, z = 103.0334701538}
+		numMultiplier = numMultiplier - 25
+		generator.z = (103.0534912) + ((numMultiplier * 11.0))
+	end
+
+	if numMultiplier > 37 and numMultiplier < 49 then
+		generator = { x = 140.0758819580, y = -748.12322998, z = 87.0334701538}
+		numMultiplier = numMultiplier - 37
+		generator.z = (87.0534912) + ((numMultiplier * 11.0))
+	end
+
+	if numMultiplier > 48 and numMultiplier < 60 then
+		generator = { x = 131.0290527343, y = -644.0509033203, z = 68.025619506836}
+		numMultiplier = numMultiplier - 48
+		generator.z = (68.0534912) + ((numMultiplier * 11.0))
+	end
+
+	currentRoom = generator
+
+	if numMultiplier == myRoomNumber then
+		myroomcoords = generator
+	else
+		curRoom = generator
+	end
+
+	SetEntityCoords(PlayerPedId(), generator.x - 12.9,generator.y - 1.5,generator.z+8.00)
+
+	local building = CreateObject(`v_16_mesh_shell`,generator.x+3.62430500,generator.y-1.55553200,generator.z+0.0,false,false,false)
+	FreezeEntityPosition(building,true)
+	FloatTilSafe(numMultiplier,roomType,building)
+
+
+	CreateObject(`V_16_bed_mesh_windows`,generator.x+0.30707600,generator.y-5.44994300,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_bed_mesh_delta`,generator.x-1.76030900,generator.y-0.67466500,generator.z-0.0,false,false,false)
+	CreateObject(`V_16_bed_mesh_delta`,generator.x-1.76030900,generator.y-0.67466500,generator.z+0.02,false,false,false)
+	CreateObject(`V_16_high_bed_over_normal`,generator.x-1.75513100,generator.y+1.65130700,generator.z-0.0,false,false,false)
+	CreateObject(`V_16_bdrm_mesh_bath`,generator.x+5.70348400,generator.y-0.86338900,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_bdr_mesh_bed`,generator.x+4.96819100,generator.y-0.72599610,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_bdRm_paintings002`,generator.x-0.41010200,generator.y-0.58682690,generator.z+0.15,false,false,false)
+	CreateObject(`V_16_high_bed_mesh_lights`,generator.x+0.59020600,generator.y+2.21927200,generator.z-0.01,false,false,false)
+	CreateObject(`V_16_high_bed_over_shadow`,generator.x+2.22250100,generator.y+1.72320200,generator.z-0.12,false,false,false)
+	CreateObject(`V_16_lgb_rock001`,generator.x+0.30704400,generator.y-5.44356400,generator.z+2.65031600,false,false,false)
+	CreateObject(`V_16_lnb_mesh_coffee`,generator.x+0.55458700,generator.y-2.51553800,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_bed_over_dirt`,generator.x+3.62430500,generator.y-1.55553200,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_bed_mesh_unit`,generator.x+3.64581600,generator.y+2.85395100,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_lng_mesh_stairGlass`,generator.x-7.56569000,generator.y-0.83904900,generator.z+5.030,false,false,false)
+	CreateObject(`V_16_lng_mesh_delta`,generator.x-5.13722400,generator.y+0.09224100,generator.z+2.580,false,false,false)
+	CreateObject(`V_16_lng_over_normal`,generator.x-1.36473800,generator.y+0.80418800,generator.z+2.580,false,false,false)
+	CreateObject(`V_16_lng_mesh_blinds`,generator.x+4.04209900,generator.y-0.44575400,generator.z+7.680,false,false,false)
+	CreateObject(`V_16_lng_mesh_windows`,generator.x+4.13028000,generator.y-0.57411700,generator.z+4.800,false,false,false)
+	CreateObject(`V_16_high_lng_details`,generator.x+8.45114900,generator.y-0.81883400,generator.z+5.390,false,false,false)
+	CreateObject(`V_16_lgb_mesh_lngProp`,generator.x+8.37186000,generator.y-1.07978700,generator.z+4.880,false,false,false)
+	CreateObject(`V_16_high_lng_mesh_shelf`,generator.x-1.95027700,generator.y-3.14528700,generator.z+5.100,false,false,false)
+	CreateObject(`V_16_knt_c`,generator.x+6.42180800,generator.y-0.99209900,generator.z+4.810,false,false,false)
+	CreateObject(`V_16_rpt_mesh_pictures`,generator.x-8.01097500,generator.y-2.66429500,generator.z+5.450,false,false,false)
+	CreateObject(`V_16_high_lng_mesh_delta`,generator.x-9.39279700,generator.y+0.07170800,generator.z+2.380,false,false,false)
+
+		
+	local table = CreateObject(`V_16_FH_SideBrdLngB_RSref001`,generator.x+5.00673200,generator.y-0.30080600,generator.z+4.890,false,false,false)
+	--CreateObject(`V_16_knt_f`,generator.x-11.58236000,generator.y+1.10087100,generator.z+4.890,false,false,false)
+	CreateObject(`V_16_high_lng_mesh_plant`,generator.x-3.68126800,generator.y+4.03672500,generator.z+4.590,false,false,false)
+	CreateObject(`V_16_high_lng_mesh_tvUnit`,generator.x+9.03048800,generator.y-4.68231400,generator.z+4.900,false,false,false)
+	CreateObject(`V_16_high_lng_over_shadow`,generator.x+10.16043000,generator.y-4.83294600,generator.z+4.840,false,false,false)
+	CreateObject(`V_16_high_lng_over_shadow2`,generator.x-8.00688600,generator.y-1.29692100,generator.z+3.6,false,false,false)
+	local armChairs = CreateObject(`V_16_high_lng_armChairs`,generator.x+1.49934300,generator.y-1.34954600,generator.z+4.85,false,false,false)
+	CreateObject(`V_16_high_stp_mesh_unit`,generator.x-13.39290000,generator.y-0.17506300,generator.z+2.35,false,false,false)
+	CreateObject(`v_16_v_sofa`,generator.x+7.80983000,generator.y+0.06534800,generator.z+4.85,false,false,false)
+	CreateObject(`V_16_lng_mesh_stairGlassB`,generator.x-9.96113500,generator.y-2.60950900,generator.z+6.39,false,false,false)
+	local kitchenShadow = CreateObject(`V_16_high_ktn_over_shadows`,generator.x+5.58696700,generator.y+5.58839800,generator.z+4.85,false,false,false)
+	local kitchenStuff = CreateObject(`V_16_knt_mesh_stuff`,generator.x-4.19894500,generator.y+8.82334300,generator.z+4.9,false,false,false)
+	CreateObject(`V_16_rpt_mesh_pictures003`,generator.x+12.47420000,generator.y+6.88947700,generator.z+5.76,false,false,false)
+	CreateObject(`V_16_dnr_a`,generator.x+9.33427000,generator.y+12.73493000,generator.z+6.25,false,false,false)
+	CreateObject(`V_16_high_ktn_over_decal`,generator.x+1.23671000,generator.y+8.76967200,generator.z+4.82,false,false,false)
+	CreateObject(`V_16_high_ktn_over_shadow`,generator.x+9.23939100,generator.y+12.44786000,generator.z+4.82,false,false,false)
+	CreateObject(`V_16_high_kit_mesh_unit`,generator.x-1.81104800,generator.y+9.17513200,generator.z+4.82,false,false,false)
+	CreateObject(`V_16_lnb_mesh_tableCenter001`,generator.x+9.90664500,generator.y+6.71798600,generator.z+5.7,false,false,false)
+	CreateObject(`V_16_high_ktn_mesh_delta`,generator.x+4.43419300,generator.y+9.17583700,generator.z+4.81,false,false,false)
+	CreateObject(`V_16_high_ktn_mesh_windows`,generator.x+4.12927300,generator.y+12.89458000,generator.z+4.81,false,false,false)
+	CreateObject(`V_16_high_ktn_mesh_fire`,generator.x+6.25015900,generator.y+5.34384200,generator.z+5.1,false,false,false)
+	local tableDin = CreateObject(`v_res_fh_diningtable`,generator.x+9.90193900,generator.y+6.85432300,generator.z+4.84,false,false,false)
+	CreateObject(`V_16_dnr_c`,generator.x+9.99221000,generator.y+12.55397000,generator.z+4.84,false,false,false)
+	CreateObject(`V_16_lngAS_mesh_delta003`,generator.x+0.69565000,generator.y+13.05990000,generator.z+4.84,false,false,false)
+	CreateObject(`V_16_hiigh_ktn_over_normal`,generator.x+3.76106900,generator.y+9.03640600,generator.z+4.84,false,false,false)
+	CreateObject(`V_16_high_hall_mesh_delta`,generator.x-18.46974000,generator.y-0.07385800,generator.z+6.2,false,false,false)
+	CreateObject(`V_16_high_hall_over_normal`,generator.x-18.30516000,generator.y+1.78606500,generator.z+6.2,false,false,false)
+	CreateObject(`V_16_high_hall_over_dirt`,generator.x-18.19183000,generator.y-0.05498100,generator.z+6.2,false,false,false)
+	CreateObject(`V_16_high_hall_over_shadow`,generator.x-16.98634000,generator.y-0.46674400,generator.z+6.2,false,false,false)
+	CreateObject(`V_16_high_hal_mesh_plant`,generator.x-15.28974000,generator.y+4.79591600,generator.z+6.0,false,false,false)
+	CreateObject(`V_16_high_bath_mesh_mirror`,generator.x-4.29534100,generator.y+3.74431100,generator.z+1.2,false,false,false)
+	CreateObject(`V_16_high_bath_over_shadow`,generator.x-4.25607300,generator.y+6.22950200,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_bath_over_normals`,generator.x-4.32515600,generator.y+5.55146000,generator.z+0.0,false,false,false)
+	--CreateObject(`V_16_high_bath_showerDoor`,generator.x-4.32213500,generator.y+6.22829300,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_bath_delta`,generator.x-4.32213500,generator.y+6.22829300,generator.z+0.0,false,false,false)
+
+	--- Study Room ?
+	CreateObject(`V_16_mags`,generator.x-10.44022000,generator.y+8.14852500,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_HIFI`,generator.x-10.23440000,generator.y+8.07973100,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_goldRecords`,generator.x-6.60447500,generator.y+8.12033200,generator.z+7.6,false,false,false)
+	CreateObject(`V_16_BasketBall`,generator.x-9.66279400,generator.y+5.33664100,generator.z+7.0,false,false,false)
+	CreateObject(`V_16_study_rug`,generator.x-10.4173000,generator.y+8.21256100,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_study_sofa`,generator.x-8.57377800,generator.y+6.95918400,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_hi_apt_S_Books`,generator.x-10.46981000,generator.y+7.54295200,generator.z+6.62,false,false,false)
+
+
+	--Heist Room ?
+	--CreateObject(`V_16_hi_apt_planningrmstf`,generator.x-10.23550000,generator.y+7.98658200,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_high_plan_mesh_delta`,generator.x-10.72429000,generator.y+8.18422700,generator.z+8.5,false,false,false)
+	CreateObject(`V_16_high_plan_over_normal`,generator.x-10.24225000,generator.y+8.13986200,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_high_pln_mesh_lights`,generator.x-10.38581000,generator.y+8.22193600,generator.z+9.24,false,false,false)
+	CreateObject(`V_16_high_pln_over_shadow`,generator.x-14.40226000,generator.y+7.20166000,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_high_pln_m_map`,generator.x-10.86284000,generator.y+10.98704000,generator.z+6.55,false,false,false)
+	CreateObject(`V_16_highStudWallDirt`,generator.x-7.45147700,generator.y+11.00713000,generator.z+6.23,false,false,false)
+	CreateObject(`V_16_hi_studdorrtrim`,generator.x-12.58800000,generator.y+1.08456500,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_hi_apt_planningrmstf`,generator.x-10.23550000,generator.y+7.98658200,generator.z+6.23,false,false,false)
+
+	CreateObject(`V_16_Wardrobe`,generator.x+4.04197800,generator.y+6.41092600,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_ward_over_decal`,generator.x+3.53625300,generator.y+6.29680900,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_ward_over_shadow`,generator.x+3.89552500,generator.y+6.29853200,generator.z+0.0,false,false,false)
+	CreateObject(`V_16_high_ward_over_normal`,generator.x+3.70096300,generator.y+6.29901000,generator.z+0.0,false,false,false)
+
+
+
+
+	---- Props
+
+
+	local door = CreateObject(`V_ILev_MP_high_FrontDoor`,generator.x-14.59187000,generator.y-1.30682500,generator.z+6.25,false,false,true)
+	local lamp = CreateObject(`v_res_fh_lampa_on`,generator.x+5.86731700,generator.y-2.72296000,generator.z+0.5,false,false,false)
+	local chair1 = CreateObject(`v_res_fh_easychair`,generator.x+0.64114900,generator.y-4.38969100,generator.z+0.1,false,false,false)
+	CreateObject(`v_res_fh_benchshort`,generator.x-3.74095700,generator.y-4.90060600,generator.z+0.1,false,false,false)
+	CreateObject(`V_16_shitbench`,generator.x-0.45795000,generator.y+8.45196000,generator.z+0.1,false,false,false)
+	local pouf = CreateObject(`v_res_fh_pouf`,generator.x+2.76928800,generator.y-1.43858200,generator.z+0.05,false,false,false)
+	local tv = CreateObject(`Prop_TV_Flat_01`,generator.x+10.30526000,generator.y-4.7350230,generator.z+5.8,false,false,false)
+	local table2 = CreateObject(`V_Res_FH_CofTblDisp`,generator.x+8.42698100,generator.y-0.80205100,generator.z+4.9,false,false,false)
+	local scope = CreateObject(`Prop_T_Telescope_01b`,generator.x+11.87588000,generator.y+3.78066000,generator.z+4.8,false,false,false)
+	local plant = CreateObject(`v_res_mplanttongue`,generator.x-0.89350100,generator.y+12.45097000,generator.z+4.8,false,false,false)
+	local stool = CreateObject(`v_res_fh_kitnstool`,generator.x+1.50922800,generator.y+5.23503600,generator.z+4.8,false,false,false)
+	local stool2 = CreateObject(`v_res_fh_kitnstool`,generator.x+0.71056300,generator.y+5.23717500,generator.z+4.8,false,false,false)
+	local stool3 = CreateObject(`v_res_fh_kitnstool`,generator.x+0.00570800,generator.y+5.23717500,generator.z+4.8,false,false,false)
+	local table3 = CreateObject(`v_res_fh_sidebrddine`,generator.x+10.23037000,generator.y+12.51273000,generator.z+4.8,false,false,false)
+
+
+
+
+	
+	FreezeEntityPosition(tableDin,true)
+	FreezeEntityPosition(door,true)
+	FreezeEntityPosition(lamp,true)
+	FreezeEntityPosition(chair1,true)
+	FreezeEntityPosition(pouf,true)
+	FreezeEntityPosition(table2,true)
+	FreezeEntityPosition(plant,true)
+	FreezeEntityPosition(stool,true)
+	FreezeEntityPosition(stool2,true)
+	FreezeEntityPosition(stool3,true)
+	FreezeEntityPosition(table3,true)
+
+	SetEntityHeading(table,GetEntityHeading(table)-90)
+	SetEntityHeading(armChairs,GetEntityHeading(armChairs)-25)
+	SetEntityHeading(kitchenShadow,GetEntityHeading(kitchenShadow)+90)
+	SetEntityHeading(kitchenStuff,GetEntityHeading(kitchenStuff)-34)
+	SetEntityHeading(door,GetEntityHeading(door)+90)
+	SetEntityHeading(lamp,GetEntityHeading(lamp)+90)
+	SetEntityHeading(chair1,GetEntityHeading(chair1)+180)
+	SetEntityHeading(pouf,GetEntityHeading(pouf)+15)
+	SetEntityHeading(tv,GetEntityHeading(tv)+180)
+	SetEntityHeading(table2,GetEntityHeading(table2)+90)
+	SetEntityHeading(scope,GetEntityHeading(scope)+180)
+	if not isForced then
+		TriggerServerEvent('hotel:getID')
+	end
+
+
+
+	FreezeEntityPosition(PlayerPedId(),false)
+
+	
+
+	curRoomType = 3
+
+
+end
 
 function renderPropsWhereHouse()
 	CreateObject(`ex_prop_crate_bull_sc_02`,1003.63013,-3108.50415,-39.9669662,false,false,false)
@@ -1142,6 +1558,983 @@ AddEventHandler("hotel:clearWarehouse", function()
     CleanUpArea()
 end)
 
+
+
+
+
+
+
+function buildGarage(numMultiplier) -- This will be room '111'
+
+	numMultiplier = garageNumber
+	ingarage = true
+
+
+	TriggerEvent("Garages:ToggleHouse",true)
+	SetEntityCoords(PlayerPedId(),228.54,-999.84,-98.99) -- Default Garage location
+
+	FreezeEntityPosition(PlayerPedId(),true)
+	Citizen.Wait(5000)
+
+	
+
+	local generator = { x = 227.39 , y =-1035.0, z = -98.99} -- spawn location
+	generator.x = (175.09986877441) + ((numMultiplier * 25.0))
+	generator.y = (-774.7946166992) -- ((numMultiplier * 25.0))
+	currentGarage = generator
+
+
+	SetEntityCoords(PlayerPedId(), generator.x+9.5 , generator.y-12.7, generator.z+2.0)
+	local building = CreateObject(`v_72_garagel_shell`,generator.x-0.32784650,generator.y+1.71953800,generator.z,false,false,false)
+	FreezeEntityPosition(building,true)
+	Citizen.Wait(100)
+	FloatTilSafe(numMultiplier,roomType,building)
+
+
+
+
+	
+
+	
+	CreateObject(`v_72_UnitLarge`,generator.x+4.19773900,generator.y+15.53382000,generator.z,false,false,false)
+	CreateObject(`v_72_MirrorL`,generator.x-0.32785030,generator.y+1.71953800,generator.z,false,false,false)
+	local shelf = CreateObject(`V_Ret_ML_ShelfRk`,generator.x-0.26511000,generator.y+27.23191000,generator.z,false,false,false)
+	CreateObject(`V_72_CeilingLights02`,generator.x+0.25968170,generator.y-8.51434300,generator.z+3.81176300,false,false,false)
+	CreateObject(`v_72_CeilingDet`,generator.x-0.11651610,generator.y+1.28138000,generator.z+3.89960800,false,false,false)
+	CreateObject(`V_72_GaragePartition`,generator.x-4.77089700,generator.y+17.78751000,generator.z,false,false,false)
+	local bmount = CreateObject(`V_72_BIKE_MOUNT01`,generator.x-8.36096200,generator.y+13.52185000,generator.z+1.89970200,false,false,false)
+	local bmount2 = CreateObject(`V_72_BIKE_MOUNT002`,generator.x-8.36096200,generator.y+12.88856000,generator.z+1.89970200,false,false,false)
+	local bmount3 = CreateObject(`V_72_BIKE_MOUNT003`,generator.x-8.36096200,generator.y+12.25526000,generator.z+1.89970200,false,false,false)
+	CreateObject(`V_72_LED_FLOOR`,generator.x-8.10127200,generator.y+3.44487400,generator.z,false,false,false)
+	local light = CreateObject(`V_72_LED_FLOOR001`,generator.x+7.84043900,generator.y-0.55789570,generator.z,false,false,false)
+	local bmount4 = CreateObject(`V_72_BIKE_MOUNT010`,generator.x-8.36096200,generator.y+14.15514000,generator.z+1.89970200,false,false,false)
+	local bmount5 = CreateObject(`V_72_BIKE_MOUNT011`,generator.x-8.36096200,generator.y+14.78843000,generator.z+1.89970200,false,false,false)
+	local bmount6 = CreateObject(`V_72_BIKE_MOUNT012`,generator.x-8.36096200,generator.y+15.42173000,generator.z+1.89970200,false,false,false)
+	CreateObject(`V_72_RailsDoor`,generator.x-0.41423040,generator.y-12.89453000,generator.z,false,false,false)
+	local wall = CreateObject(`V_72_WallDetail003`,generator.x-8.35674300,generator.y+16.96778000,generator.z+0.67419500,false,false,false)
+	CreateObject(`V_72_CARPET02`,generator.x+2.83528900,generator.y+14.97386000,generator.z,false,false,false)
+	local carpet = CreateObject(`V_72_CARPET01`,generator.x+5.67560600,generator.y+14.28391000,generator.z,false,false,false)
+	local jack = CreateObject(`V_72_MPGJackFrame`,generator.x-0.73751450,generator.y+22.85103000,generator.z-0.05,false,false,false)
+	CreateObject(`V_72_Emis_only_L_Refl`,generator.x-0.14863590,generator.y+0.32452390,generator.z+3.45054200,false,false,false)
+	CreateObject(`V_72_Emis_wall_L`,generator.x-0.14970400,generator.y+3.44487400,generator.z,false,false,false)
+	CreateObject(`V_72_GarageL_Shell_Proxy`,generator.x-0.32785030,generator.y+1.71953800,generator.z,false,false,false)
+	CreateObject(`V_72_Emis_only_L001`,generator.x-0.14863590,generator.y+0.32452390,generator.z,false,false,false)
+	CreateObject(`V_72_GARDOOR_SM`,generator.x-0.40738680,generator.y-15.01338000,generator.z,false,false,false)
+	local wallDetail = CreateObject(`V_72_WallDetaiPRX`,generator.x+8.25835000,generator.y-14.95063000,generator.z,false,false,false)
+	local elev = CreateObject(`V_72_ELEVATOR`,generator.x+10.30572000,generator.y-12.76745000,generator.z,false,false,false)
+	CreateObject(`V_72_CeilingLights03`,generator.x-0.13168340,generator.y+0.32551190,generator.z+3.94430300,false,false,false)
+	CreateObject(`V_72_ELEVATOR_PANEL`,generator.x+10.56285000,generator.y-11.74362000,generator.z,false,false,false)
+	CreateObject(`V_72_GarLCables01`,generator.x+7.02913700,generator.y-14.93177000,generator.z+1.39328500,false,false,false)
+	CreateObject(`V_72_Emis_only_NoRefl`,generator.x-0.14863590,generator.y+0.32452390,generator.z+3.85054200,false,false,false)
+	CreateObject(`prop_carjack`,generator.x-7.96900900,generator.y+22.44639000,generator.z,false,false,false)
+	local toolChest = CreateObject(`prop_toolchest_03`,generator.x-7.94370600,generator.y+25.40939000,generator.z,false,false,false)
+	local toolChest2 = CreateObject(`prop_toolchest_05`,generator.x+7.68719800,generator.y+12.78481000,generator.z,false,false,false)
+	CreateObject(`prop_toolchest_03`,generator.x+1.24307300,generator.y+17.13576000,generator.z,false,false,false)
+	local sackTruck = CreateObject(`prop_sacktruck_02a`,generator.x-8.07646200,generator.y+24.19437000,generator.z,false,false,false)
+	CreateObject(`v_ind_cs_toolbox3`,generator.x-0.65444570,generator.y+27.24499000,generator.z,false,false,false)
+	CreateObject(`v_ind_cs_toolbox4`,generator.x-0.57600400,generator.y+27.26014000,generator.z+1.20212900,false,false,false)
+	CreateObject(`v_ind_cs_toolbox2`,generator.x-0.01528549,generator.y+27.23587000,generator.z+0.73185900,false,false,false)
+	CreateObject(`v_ret_ta_box`,generator.x+0.13813780,generator.y+27.26524000,generator.z+1.70933000,false,false,false)
+	CreateObject(`v_ind_rc_locker`,generator.x-7.91668000,generator.y+27.11429000,generator.z,false,false,false)
+	local ladder = CreateObject(`v_ind_cm_ladder`,generator.x-8.23228100,generator.y+24.80355000,generator.z,false,false,false)
+	local laptop = CreateObject(`prop_laptop_01a`,generator.x+7.22880600,generator.y+16.44059000,generator.z+1.05979200,false,false,false)
+	local compress = CreateObject(`prop_compressor_02`,generator.x-7.68346800,generator.y+23.41258000,generator.z,false,false,false)
+	CreateObject(`prop_oiltub_05`,generator.x+0.19534300,generator.y+27.35218000,generator.z+1.22948000,false,false,false)
+	CreateObject(`prop_oiltub_04`,generator.x+0.26910780,generator.y+27.13628000,generator.z+1.23299500,false,false,false)
+	CreateObject(`prop_compressor_03`,generator.x-2.65713100,generator.y+26.80330000,generator.z,false,false,false)
+	CreateObject(`v_res_smallplasticbox`,generator.x+7.75391700,generator.y+12.37584000,generator.z+0.96130500,false,false,false)
+	local carCreeper = CreateObject(`prop_carcreeper`,generator.x-3.15590700,generator.y+27.42420000,generator.z,false,false,false)
+	local ebox1 = CreateObject(`prop_elecbox_20`,generator.x-0.89199060,generator.y-14.88680000,generator.z,false,false,false)
+	local ebox2 = CreateObject(`prop_elecbox_20`,generator.x-7.34775500,generator.y-14.89939000,generator.z,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x-0.41422270,generator.y-14.95033000,generator.z+1.24588200,false,false,false)
+
+	CreateObject(`prop_ducktape_01`,generator.x+4.40670800,generator.y+17.12280000,generator.z+1.04588700,false,false,false)
+	CreateObject(`prop_ducktape_01`,generator.x+4.20057700,generator.y+17.27103000,generator.z+1.04588700,false,false,false)
+	CreateObject(`Prop_EtricMotor_01`,generator.x+7.59630200,generator.y+15.25531000,generator.z+1.03267000,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+7.50463500,generator.y+17.40690000,generator.z+1.69612400,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+7.92913400,generator.y+16.99049000,generator.z+2.32103000,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+7.98337900,generator.y+16.77627000,generator.z+2.32103000,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+6.74674600,generator.y+17.28172000,generator.z+1.04092400,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+6.56789800,generator.y+17.31542000,generator.z+1.04092400,false,false,false)
+	CreateObject(`prop_oiltub_04`,generator.x+6.24290100,generator.y+17.25886000,generator.z+1.05588700,false,false,false)
+	CreateObject(`prop_oiltub_05`,generator.x+8.00838800,generator.y+16.87403000,generator.z+1.68083000,false,false,false)
+	CreateObject(`prop_paint_spray01a`,generator.x+6.53995900,generator.y+17.43684000,generator.z+1.68593100,false,false,false)
+	CreateObject(`prop_paint_spray01a`,generator.x+6.63757000,generator.y+17.45368000,generator.z+1.68593100,false,false,false)
+	CreateObject(`prop_paint_spray01a`,generator.x+7.98122000,generator.y+15.91340000,generator.z+1.68593100,false,false,false)
+	CreateObject(`prop_paint_spray01b`,generator.x+6.72750600,generator.y+17.43553000,generator.z+1.68593100,false,false,false)
+	CreateObject(`prop_paints_can03`,generator.x+7.89661800,generator.y+16.06400000,generator.z+2.36213700,false,false,false)
+	CreateObject(`prop_paints_can05`,generator.x+7.89883000,generator.y+17.31401000,generator.z+2.39608600,false,false,false)
+	CreateObject(`prop_stool_01`,generator.x+7.17796700,generator.y+13.44759000,generator.z,false,false,false)
+	CreateObject(`prop_tool_box_01`,generator.x+6.72750600,generator.y+17.33357000,generator.z+2.31103000,false,false,false)
+	CreateObject(`prop_tool_box_02`,generator.x+7.08126400,generator.y+17.40779000,generator.z+1.68612400,false,false,false)
+	CreateObject(`prop_tool_cable01`,generator.x+7.29851900,generator.y+17.33357000,generator.z+2.31403000,false,false,false)
+	CreateObject(`prop_tool_cable01`,generator.x+7.57247500,generator.y+17.36197000,generator.z+2.31403000,false,false,false)
+	CreateObject(`prop_tool_cable01`,generator.x+7.81509000,generator.y+13.19809000,generator.z+0.96284100,false,false,false)
+	local toolbox = CreateObject(`v_ind_cs_toolbox4`,generator.x+7.90325500,generator.y+16.34276000,generator.z+1.70462000,false,false,false)
+	CreateObject(`v_ret_ta_box`,generator.x+7.84934600,generator.y+17.23244000,generator.z+1.70842900,false,false,false)
+	CreateObject(`prop_paint_spray01a`,generator.x+2.31462100,generator.y+17.4383300,generator.z+2.49709700,false,false,false)
+	CreateObject(`prop_paint_spray01a`,generator.x+2.41223100,generator.y+17.45518000,generator.z+2.49709700,false,false,false)
+	CreateObject(`prop_paint_spray01b`,generator.x+2.50216700,generator.y+17.43703000,generator.z+2.49709700,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+4.00710300,generator.y+17.40818000,generator.z+2.49729000,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+4.18595100,generator.y+17.37448000,generator.z+2.49729000,false,false,false)
+	CreateObject(`prop_oiltub_05`,generator.x+7.95839000,generator.y+13.79140000,generator.z+2.49356400,false,false,false)
+	CreateObject(`prop_compressor_02`,generator.x-1.41294500,generator.y+26.81413000,generator.z,false,false,false)
+	CreateObject(`prop_toolchest_05`,generator.x-0.14379500,generator.y+17.11545000,generator.z,false,false,false)
+	CreateObject(`prop_toolchest_03`,generator.x-1.98844500,generator.y+26.92768000,generator.z,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+4.37259700,generator.y+17.25935000,generator.z+1.02092400,false,false,false)
+	CreateObject(`prop_tool_box_02`,generator.x+2.77144600,generator.y+17.26706000,generator.z+1.02023100,false,false,false)
+	CreateObject(`Prop_Boombox_01`,generator.x+2.03641900,generator.y+17.18845000,generator.z+1.05717400,false,false,false)
+	CreateObject(`v_ind_rc_locker`,generator.x-7.10683100,generator.y+27.11429000,generator.z,false,false,false)
+	CreateObject(`v_ind_rc_locker`,generator.x-6.29698200,generator.y+27.11429000,generator.z,false,false,false)
+	CreateObject(`prop_toolchest_05`,generator.x-4.93408200,generator.y+27.12215000,generator.z,false,false,false)
+	CreateObject(`prop_carjack`,generator.x-3.43050400,generator.y+26.71018000,generator.z,false,false,false)
+	local speaker1 = CreateObject(`v_res_fh_speaker`,generator.x-8.19913900,generator.y+9.47816500,generator.z+3.35892800,false,false,false)
+	local speaker2 = CreateObject(`v_res_fh_speaker`,generator.x-8.19913900,generator.y+1.47923500,generator.z+3.35892800,false,false,false)
+	local speaker3 = CreateObject(`v_res_fh_speaker`,generator.x-8.19913900,generator.y-6.53624900,generator.z+3.35892800,false,false,false)
+	local speaker4 = CreateObject(`v_res_fh_speaker`,generator.x+7.90285900,generator.y+9.47816500,generator.z+3.35892800,false,false,false)
+	local speaker5 = CreateObject(`v_res_fh_speaker`,generator.x+7.90285900,generator.y+1.47923500,generator.z+3.35892800,false,false,false)
+	local speaker6 = CreateObject(`v_res_fh_speaker`,generator.x+7.90285900,generator.y-6.53624900,generator.z+3.35892800,false,false,false)
+	CreateObject(`prop_engine_hoist`,generator.x-6.10173000,generator.y+21.65605000,generator.z,false,false,false)
+	local locker1 = CreateObject(`v_ind_rc_locker`,generator.x+2.33318300,generator.y+27.07120000,generator.z,false,false,false)
+	local locker2 =  CreateObject(`v_ind_rc_locker`,generator.x+2.33318300,generator.y+26.26135000,generator.z,false,false,false)
+
+
+	FreezeEntityPosition(building,true)
+	FreezeEntityPosition(shelf,true)
+	FreezeEntityPosition(ebox1,true)
+	FreezeEntityPosition(ebox2,true)
+	SetEntityHeading(bmount,GetEntityHeading(bmount)+90)
+	SetEntityHeading(bmount2,GetEntityHeading(bmount2)+90)
+	SetEntityHeading(bmount3,GetEntityHeading(bmount3)+90)
+	SetEntityHeading(bmount4,GetEntityHeading(bmount4)+90)
+	SetEntityHeading(bmount5,GetEntityHeading(bmount5)+90)
+	SetEntityHeading(bmount6,GetEntityHeading(bmount6)+90)
+	SetEntityHeading(carpet,GetEntityHeading(carpet)+90)
+	SetEntityHeading(jack,GetEntityHeading(jack)+90)
+	SetEntityHeading(wall,GetEntityHeading(wall)+180)
+	SetEntityHeading(elev,GetEntityHeading(elev)+180)
+	SetEntityHeading(toolChest,GetEntityHeading(toolChest)+90)
+	SetEntityHeading(wallDetail,GetEntityHeading(wallDetail)-90)
+	SetEntityHeading(toolChest2,GetEntityHeading(toolChest2)-90)
+	SetEntityHeading(sackTruck,GetEntityHeading(sackTruck)+90)
+	SetEntityHeading(ladder,GetEntityHeading(ladder)-90)
+	SetEntityHeading(laptop,GetEntityHeading(laptop)-50)
+	SetEntityHeading(compress,GetEntityHeading(compress)+90)
+	SetEntityHeading(carCreeper,GetEntityHeading(carCreeper)-90)
+	SetEntityHeading(toolbox,GetEntityHeading(toolbox)-90)
+	SetEntityHeading(locker1,GetEntityHeading(locker1)-90)
+	SetEntityHeading(locker2,GetEntityHeading(locker2)-90)
+
+
+
+	SetEntityRotation(speaker1,85.0,0.0,0.0,2,1)
+	SetEntityRotation(speaker2,85.0,0.0,0.0,2,1)
+	SetEntityRotation(speaker3,85.0,0.0,0.0,2,1)
+	SetEntityRotation(speaker4,90.0,180.0,0.0,2,1)
+	SetEntityRotation(speaker5,90.0,180.0,0.0,2,1)
+	SetEntityRotation(speaker6,90.0,180.0,0.0,2,1)
+
+	FreezeEntityPosition(PlayerPedId(),false)
+
+	if garageNumber == myRoomNumber then
+		TriggerEvent("Garages:SpawnHouseGarage",currentGarage)
+	end
+	TriggerEvent("attachWeapons")
+end
+
+
+function buildMansion() -- This will be room '4'
+	SetEntityCoords(PlayerPedId(),-801.5,178.69,72.84) -- Default Garage location
+	Citizen.Wait(5000)
+  	SetEntityCoords(PlayerPedId(),-811.5,178.69,10.84)
+  	
+	local generator = { x = -811.5, y =178.69, z = 10.84} -- spawn location-
+	local building = CreateObject(`v_44_shell`,generator.x+3.57921200,generator.y+3.70079500,generator.z-0.1,false,false,false)
+	local building2 = CreateObject(`V_44_Shell2`,generator.x+3.57921200,generator.y+3.70079500,generator.z+4.54096300,false,false,false)
+	CreateObject(`V_44_Shell_DT`,generator.x+3.53319000,generator.y+0.63158610,generator.z+0.05,false,false,false)
+	CreateObject(`V_44_Shell_kitchen`,generator.x+10.43252000,generator.y+6.99729500,generator.z+0.50649800,false,false,false)
+	CreateObject(`V_44_1_Hall_Deta`,generator.x+3.37417900,generator.y+1.67813900,generator.z+4.64078700,false,false,false)
+	CreateObject(`V_44_Lounge_Deca`,generator.x+3.46935500,generator.y-2.95353700,generator.z+0.19696300,false,false,false)
+	CreateObject(`V_44_Lounge_Items`,generator.x+3.51090600,generator.y-1.92194400,generator.z+0.99696300,false,false,false)
+	CreateObject(`V_44_Lounge_DecaL`,generator.x+3.26119400,generator.y-2.95349700,generator.z+0.72649800,false,false,false)
+
+	CreateObject(`v_res_m_armchair`,generator.x+2.39658700,generator.y-0.76810070,generator.z+0.68484200,false,false,false)
+	local sofa = CreateObject(`v_ilev_m_sofa`,generator.x+2.49675000,generator.y-4.20500900,generator.z+0.67964300,false,false,false)
+	SetEntityHeading(sofa,GetEntityHeading(sofa)+100)
+	CreateObject(`v_res_m_lampstand2`,generator.x+1.48265400,generator.y-0.84137140,generator.z+0.67608500,false,false,false)
+	CreateObject(`v_res_m_armchair`,generator.x+6.21690200,generator.y-6.11628200,generator.z+0.67484200,false,false,false)
+	CreateObject(`v_res_m_armchair`,generator.x+2.39658700,generator.y-0.76810070,generator.z+0.68484200,false,false,false)
+
+
+	CreateObject(`V_44_Lounge_Deta`,generator.x+3.51090600,generator.y-1.92194300,generator.z+0.04133500,false,false,false)
+	CreateObject(`v_res_mplanttongue`,generator.x+6.71760400,generator.y-2.22743200,generator.z+0.67305700,false,false,false)
+	CreateObject(`v_res_fashmag1`,generator.x+3.57820100,generator.y+1.92808700,generator.z+1.75578100,false,false,false)
+	local projector =  CreateObject(`v_ilev_mm_scre_off`,generator.x+6.20400000,generator.y-3.86164200,generator.z+2.34300000,false,false,false)
+	SetEntityHeading(projector,GetEntityHeading(projector)+90)
+	CreateObject(`v_res_mountedprojector`,generator.x+1.57309300,generator.y-3.85972100,generator.z+4.10981500,false,false,false)
+	CreateObject(`v_res_m_stool`,generator.x+3.44306000,generator.y-2.37584100,generator.z+0.67964300,false,false,false)
+	local desk = CreateObject(`v_res_mconsolemod`,generator.x+3.34306000,generator.y+2.07584100,generator.z+0.67964300,false,false,false)
+	FreezeEntityPosition(desk,true)
+
+	CreateObject(`v_res_msidetblemod`,generator.x+1.61465700,generator.y-1.51442700,generator.z+0.67151600,false,false,false)
+	CreateObject(`v_res_msidetblemod`,generator.x+6.15811500,generator.y-7.04496300,generator.z+0.67151600,false,false,false)
+	CreateObject(`v_res_mconsoletrad`,generator.x+2.26189700,generator.y-8.03078800,generator.z+0.67178400,false,false,false)
+	CreateObject(`v_res_m_l_chair1`,generator.x+1.85258000,generator.y+2.04241000,generator.z+0.68464200,false,false,false)
+	CreateObject(`v_res_m_l_chair1`,generator.x+4.80667200,generator.y+2.04241000,generator.z+0.68464200,false,false,false)
+	CreateObject(`v_res_mplanttongue`,generator.x+6.61146400,generator.y-5.48816700,generator.z+0.67305700,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x+6.15963000,generator.y-7.04415300,generator.z+1.51251600,false,false,false)
+	CreateObject(`v_res_r_fighorsestnd`,generator.x+2.76621100,generator.y-8.16190900,generator.z+1.67301800,false,false,false)
+	CreateObject(`v_res_m_palmplant1`,generator.x+0.08713913,generator.y-7.26929300,generator.z+0.3557600,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x+3.82970200,generator.y+2.15182300,generator.z+1.75605000,false,false,false)
+	CreateObject(`v_res_m_candlelrg`,generator.x+6.27535300,generator.y-2.88023300,generator.z+0.70131200,false,false,false)
+	CreateObject(`v_res_mpotpouri`,generator.x+1.89024700,generator.y-7.97319000,generator.z+1.67301800,false,false,false)
+	CreateObject(`v_res_m_candlelrg`,generator.x+6.27901500,generator.y-4.86268600,generator.z+0.70131200,false,false,false)
+	CreateObject(`v_res_fa_candle04`,generator.x+6.12360800,generator.y-6.89644600,generator.z+1.58551100,false,false,false)
+	CreateObject(`v_res_fa_candle04`,generator.x+1.67240800,generator.y-7.95039100,generator.z+1.74601300,false,false,false)
+	CreateObject(`v_res_m_spanishbox`,generator.x+2.31205000,generator.y-8.02846300,generator.z+1.67301800,false,false,false)
+
+	CreateObject(`v_res_m_statue`,generator.x-1.27413000,generator.y-3.86254400,generator.z+2.98763400,false,false,false)
+	CreateObject(`Prop_Cigar_pack_02`,generator.x+1.78793000,generator.y-1.69860600,generator.z+1.51857000,false,false,false)
+	CreateObject(`prop_ashtray_01`,generator.x+1.67015600,generator.y-1.70531800,generator.z+1.53098900,false,false,false)
+	CreateObject(`v_res_m_pot1`,generator.x-0.77471540,generator.y+0.12082960,generator.z+1.75637100,false,false,false)
+	CreateObject(`v_res_m_pot1`,generator.x-0.84445380,generator.y-0.11595340,generator.z+1.75637100,false,false,false)
+	CreateObject(`v_res_m_spanishbox`,generator.x-1.31776900,generator.y-1.91292500,generator.z+1.94832000,false,false,false)
+
+	CreateObject(`v_res_mbronzvase`,generator.x-1.22181700,generator.y-5.85892400,generator.z+2.96991700,false,false,false)
+	CreateObject(`v_res_mbronzvase`,generator.x-1.22181700,generator.y-1.93053400,generator.z+2.96991700,false,false,false)
+	CreateObject(`P_CS_Lighter_01`,generator.x+1.65356500,generator.y-1.83352900,generator.z+1.51874300,false,false,false)
+	CreateObject(`prop_cs_remote_01`,generator.x+1.91542400,generator.y-3.08195300,generator.z+1.17354000,false,false,false)
+	CreateObject(`Prop_Cigar_03`,generator.x+1.69850500,generator.y-1.87285600,generator.z+1.51726400,false,false,false)
+	CreateObject(`v_res_jewelbox`,generator.x-1.28456500,generator.y-1.86961300,generator.z+0.92229600,false,false,false)
+	CreateObject(`v_res_sculpt_decb`,generator.x+6.35535900,generator.y-6.97679200,generator.z+1.51251600,false,false,false)
+	CreateObject(`v_med_smokealarm`,generator.x+2.16099000,generator.y+0.16853520,generator.z+4.27092600,false,false,false)
+	CreateObject(`Prop_MP3_Dock`,generator.x+3.01717900,generator.y+1.91097300,generator.z+1.82875200,false,false,false)
+	CreateObject(`v_res_mplanttongue`,generator.x+6.22999700,generator.y+2.87820200,generator.z+0.67128700,false,false,false)
+	CreateObject(`v_res_m_palmplant1`,generator.x+6.08580900,generator.y-7.32884600,generator.z+0.3557600,false,false,false)
+	CreateObject(`v_res_mconsolemod`,generator.x-0.91939260,generator.y-0.08264160,generator.z+4.57637000,false,false,false)
+	CreateObject(`v_res_jewelbox`,generator.x-0.82748790,generator.y-0.20085050,generator.z+5.66071400,false,false,false)
+	local tbl = CreateObject(`v_res_mconsoletrad`,generator.x+8.11723000,generator.y+1.42394700,generator.z+4.57726500,false,false,false)
+	SetEntityHeading(tbl,GetEntityHeading(tbl)+90)
+	CreateObject(`v_res_m_lamptbl`,generator.x-1.62722200,generator.y-0.13789180,generator.z+5.65792500,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x+8.18071300,generator.y+2.04316300,generator.z+5.57849900,false,false,false)
+	local chair = CreateObject(`v_res_m_l_chair1`,generator.x+7.99242500,generator.y+0.01499653,generator.z+4.57605400,false,false,false)
+	CreateObject(`v_res_m_l_chair1`,generator.x+8.01060600,generator.y+2.76839300,generator.z+4.57605400,false,false,false)
+	SetEntityHeading(chair,GetEntityHeading(chair)+180)
+	CreateObject(`V_44_1_Hall_Deca`,generator.x+3.13426900,generator.y+1.57208700,generator.z+4.17700800,false,false,false)
+
+	CreateObject(`v_res_rosevase`,generator.x-0.26545330,generator.y-0.10977080,generator.z+5.65792600,false,false,false)
+	CreateObject(`v_res_sculpt_decb`,generator.x-0.53595730,generator.y-0.11254690,generator.z+5.64740600,false,false,false)
+	CreateObject(`v_med_smokealarm`,generator.x+1.68776500,generator.y+0.42464830,generator.z+8.42701300,false,false,false)
+	CreateObject(`V_44_1_Hall_Emis`,generator.x+3.07805800,generator.y+1.41576700,generator.z+4.67713900,false,false,false)
+	CreateObject(`v_res_exoticvase`,generator.x+8.19652200,generator.y+0.84531020,generator.z+5.57848900,false,false,false)
+	CreateObject(`v_res_wall_cornertop`,generator.x+5.75375900,generator.y+3.57656500,generator.z+4.64713100,false,false,false)
+	CreateObject(`V_44_G_Hall_Stairs`,generator.x+2.20412200,generator.y+6.63279700,generator.z+0.0591100,false,false,false)
+	CreateObject(`v_res_jewelbox`,generator.x+2.19403800,generator.y+6.81445700,generator.z+0.98931310,false,false,false)
+	CreateObject(`V_44_G_Hall_Deca`,generator.x-1.17366600,generator.y+5.92338700,generator.z+0.0591100,false,false,false)
+
+	CreateObject(`V_44_G_Hall_Detail`,generator.x-1.02243200,generator.y+6.13491800,generator.z-0.10022200,false,false,false)
+	CreateObject(`v_res_m_h_console`,generator.x+1.82824500,generator.y+6.68009400,generator.z-0.01091900,false,false,false)
+	CreateObject(`v_res_m_l_chair1`,generator.x+0.31978320,generator.y+6.61237500,generator.z-0.00766298,false,false,false)
+
+	CreateObject(`v_res_m_lamptbl`,generator.x+2.53901100,generator.y+6.84344500,generator.z+0.98873800,false,false,false)
+	CreateObject(`v_res_r_fighorse`,generator.x+1.51177400,generator.y+6.80384800,generator.z+0.98999990,false,false,false)
+	local fakeWindow = CreateObject(`V_44_fakewindow2`,generator.x+4.21531000,generator.y+10.08412000,generator.z+4.87963000,false,false,false)
+	SetEntityHeading(fakeWindow,GetEntityHeading(fakeWindow)+90)
+	CreateObject(`V_44_G_Hall_Emis`,generator.x+2.20520900,generator.y+6.75564800,generator.z+0.08329000,false,false,false)
+	CreateObject(`v_res_m_palmstairs`,generator.x+4.72221300,generator.y+8.98925600,generator.z+2.54000000,false,false,false)
+
+	CreateObject(`V_44_CableMesh3833165_TStd`,generator.x+1.75523300,generator.y+6.39947000,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd001`,generator.x+1.78448500,generator.y+6.42844600,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd002`,generator.x+1.74144700,generator.y+6.35389700,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd003`,generator.x+1.75072700,generator.y+6.30324000,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd004`,generator.x+1.78820400,generator.y+6.25723600,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd005`,generator.x+1.84311200,generator.y+6.23637000,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd006`,generator.x+1.90750400,generator.y+6.24566200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd007`,generator.x+1.96734300,generator.y+6.28310200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd008`,generator.x+2.00246200,generator.y+6.34640700,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd009`,generator.x+2.00791500,generator.y+6.42378600,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd010`,generator.x+1.97100100,generator.y+6.50082400,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd011`,generator.x+1.90181300,generator.y+6.55381400,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd012`,generator.x+1.81217900,generator.y+6.56836200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd013`,generator.x+1.72014100,generator.y+6.54205000,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd014`,generator.x+1.64590600,generator.y+6.47087100,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd015`,generator.x+1.61379000,generator.y+6.36883200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd016`,generator.x+1.62891000,generator.y+6.25810100,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd017`,generator.x+1.69617000,generator.y+6.16635900,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd018`,generator.x+1.80279100,generator.y+6.11314600,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd019`,generator.x+1.92696300,generator.y+6.11514100,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd020`,generator.x+2.04181100,generator.y+6.17349800,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd021`,generator.x+2.12081100,generator.y+6.28245600,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd022`,generator.x+2.14047900,generator.y+6.41642200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd023`,generator.x+2.09283800,generator.y+6.55434200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd024`,generator.x+1.98836000,generator.y+6.65625400,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd025`,generator.x+1.84142900,generator.y+6.70009800,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd026`,generator.x+1.68961500,generator.y+6.67540200,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd027`,generator.x+1.56111200,generator.y+6.57634700,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd028`,generator.x+1.48924500,generator.y+6.42581500,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd029`,generator.x+1.49306700,generator.y+6.25427400,generator.z+4.76513900,false,false,false)
+	CreateObject(`V_44_CableMesh3833165_TStd030`,generator.x+1.57488200,generator.y+6.10241900,generator.z+4.76513900,false,false,false)
+
+	CreateObject(`prop_kettle_01`,generator.x+14.70269000,generator.y+5.80536400,generator.z+1.49509300,false,false,false)
+	CreateObject(`v_res_mchopboard`,generator.x+14.36221000,generator.y+6.14473800,generator.z+1.44332300,false,false,false)
+	CreateObject(`v_res_ovenhobmod`,generator.x+11.64079000,generator.y+9.26502400,generator.z+0.53966500,false,false,false)
+	CreateObject(`v_res_mcofcupdirt`,generator.x+9.42801900,generator.y+6.43112200,generator.z+1.35738400,false,false,false)
+	local chair3 = CreateObject(`v_res_kitchnstool`,generator.x+8.80919000,generator.y+6.47474700,generator.z+0.44114000,false,false,false)
+	SetEntityHeading(chair3,GetEntityHeading(chair3)+90)
+	local chair2 = CreateObject(`v_res_kitchnstool`,generator.x+10.91919000,generator.y+5.77998600,generator.z+0.44114000,false,false,false)
+	SetEntityHeading(chair2,GetEntityHeading(chair2)-180)
+	CreateObject(`v_res_mcofcupdirt`,generator.x+11.34266000,generator.y+6.24398800,generator.z+1.35738300,false,false,false)
+	CreateObject(`v_res_cherubvase`,generator.x+14.63630000,generator.y+5.11709100,generator.z+3.49411800,false,false,false)
+	local chalk2 = CreateObject(`v_res_mchalkbrd`,generator.x+13.66986000,generator.y+4.39613200,generator.z+1.55808300,false,false,false)
+	SetEntityHeading(chalk2,GetEntityHeading(chalk2)-180)
+	CreateObject(`V_44_G_Kitche_Deta`,generator.x+10.46560000,generator.y+5.93617800,generator.z+0.45652500,false,false,false)
+	CreateObject(`V_44_Kitche_Units`,generator.x+8.25900000,generator.y+8.95200000,generator.z+0.46638600,false,false,false)
+	CreateObject(`V_44_G_Kitche_Deca`,generator.x+10.32270000,generator.y+6.99725600,generator.z+0.19062300,false,false,false)
+	CreateObject(`v_ilev_mm_fridge_r`,generator.x+8.25900000,generator.y+8.95199800,generator.z+0.60638600,false,false,false)
+	CreateObject(`v_ilev_mm_fridge_l`,generator.x+6.88500100,generator.y+8.95199800,generator.z+0.60638600,false,false,false)
+	local fau = CreateObject(`v_ilev_mm_faucet`,generator.x+14.71225000,generator.y+7.05411800,generator.z+1.44085800,false,false,false)
+	SetEntityHeading(fau,GetEntityHeading(fau)-90)
+	CreateObject(`v_res_ovenhobmod`,generator.x+10.74079000,generator.y+9.26502400,generator.z+0.53966500,false,false,false)
+	CreateObject(`V_44_kitc_chand`,generator.x+10.41700000,generator.y+6.60862900,generator.z+3.18510400,false,false,false)
+
+	CreateObject(`v_res_mcofcup`,generator.x+14.45970000,generator.y+9.07571200,generator.z+2.24126100,false,false,false)
+	CreateObject(`v_res_mcofcup`,generator.x+14.54827000,generator.y+8.99532900,generator.z+2.24126100,false,false,false)
+	CreateObject(`v_res_mcofcup`,generator.x+14.71489000,generator.y+9.00675800,generator.z+2.24126100,false,false,false)
+	CreateObject(`v_res_mcofcup`,generator.x+14.83611000,generator.y+9.04519500,generator.z+2.24126100,false,false,false)
+
+	CreateObject(`v_res_mmug`,generator.x+14.78669000,generator.y+9.03503600,generator.z+2.87347100,false,false,false)
+	CreateObject(`v_res_mmug`,generator.x+14.63922000,generator.y+9.06091500,generator.z+2.87347100,false,false,false)
+	CreateObject(`v_res_mmug`,generator.x+14.43891000,generator.y+9.05505500,generator.z+2.87347100,false,false,false)
+	CreateObject(`v_res_mmug`,generator.x+14.42877000,generator.y+9.11096400,generator.z+2.55747100,false,false,false)
+	CreateObject(`v_res_mmug`,generator.x+14.54221000,generator.y+9.00290800,generator.z+2.55747100,false,false,false)
+	CreateObject(`v_res_mmug`,generator.x+14.68125000,generator.y+9.04880700,generator.z+2.55747100,false,false,false)
+	CreateObject(`v_res_mmug`,generator.x+14.81833000,generator.y+9.06052600,generator.z+2.55747100,false,false,false)
+
+	CreateObject(`v_res_mcofcup`,generator.x+14.75149000,generator.y+9.12099900,generator.z+2.24126100,false,false,false)
+	CreateObject(`v_res_mcofcup`,generator.x+14.60091000,generator.y+9.11538300,generator.z+2.24126100,false,false,false)
+	CreateObject(`v_res_bowl_dec`,generator.x+14.60194000,generator.y+5.59344000,generator.z+3.49420900,false,false,false)
+	CreateObject(`prop_coffee_mac_02`,generator.x+14.66308000,generator.y+8.61713000,generator.z+1.68848500,false,false,false)
+	CreateObject(`v_res_r_sugarbowl`,generator.x+14.78637000,generator.y+8.41123000,generator.z+1.44060400,false,false,false)
+	CreateObject(`v_res_r_coffpot`,generator.x+14.53064000,generator.y+8.37244600,generator.z+1.44111000,false,false,false)
+	local util = CreateObject(`v_res_mutensils`,generator.x+10.18923000,generator.y+9.27150500,generator.z+1.64567300,false,false,false)
+	SetEntityHeading(util,GetEntityHeading(util)+90)
+
+	CreateObject(`v_res_mkniferack`,generator.x+14.88481000,generator.y+5.59870400,generator.z+1.66517100,false,false,false)
+	CreateObject(`v_res_r_pepppot`,generator.x+10.19567000,generator.y+9.20170600,generator.z+1.43884000,false,false,false)
+	CreateObject(`v_res_r_pepppot`,generator.x+10.19869000,generator.y+9.06467400,generator.z+1.43884000,false,false,false)
+	CreateObject(`v_res_cherubvase`,generator.x+14.64228000,generator.y+9.01812800,generator.z+3.49411800,false,false,false)
+
+	CreateObject(`v_res_mpotpouri`,generator.x+14.55577000,generator.y+8.50598100,generator.z+3.49411800,false,false,false)
+	local util2 = CreateObject(`v_res_mutensils`,generator.x+12.18506000,generator.y+9.27150500,generator.z+1.64567300,false,false,false)
+	SetEntityHeading(util2,GetEntityHeading(util2)+90)
+	CreateObject(`prop_micro_02`,generator.x+6.14397200,generator.y+9.10795800,generator.z+1.48797600,false,false,false)
+	CreateObject(`prop_lime_jar`,generator.x+10.82650000,generator.y+6.78537100,generator.z+1.39791000,false,false,false)
+	CreateObject(`prop_copper_pan`,generator.x+11.08923000,generator.y+9.36298200,generator.z+1.46961000,false,false,false)
+	CreateObject(`prop_kitch_juicer`,generator.x+5.87455900,generator.y+7.72984300,generator.z+1.52251400,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+5.88074500,generator.y+7.55808400,generator.z+1.44086000,false,false,false)
+	local chalk = CreateObject(`v_ilev_mchalkbrd_1`,generator.x+13.67297000,generator.y+4.37304300,generator.z+1.71720500,false,false,false)
+	SetEntityHeading(chalk,GetEntityHeading(chalk)-180)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+14.50831000,generator.y+4.53625300,generator.z+2.24113200,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+14.50855000,generator.y+4.55157300,generator.z+2.55713100,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+14.49850000,generator.y+4.54775800,generator.z+2.87313100,false,false,false)
+	CreateObject(`prop_metalfoodjar_01`,generator.x+14.66818000,generator.y+4.56423800,generator.z+2.87313100,false,false,false)
+
+	CreateObject(`v_res_m_pot1`,generator.x+14.61287000,generator.y+4.86072500,generator.z+3.49455900,false,false,false)
+	CreateObject(`v_res_m_pot1`,generator.x+14.65746000,generator.y+8.76475400,generator.z+3.49455900,false,false,false)
+	CreateObject(`v_ilev_mm_fridgeint`,generator.x+7.57204700,generator.y+9.50173000,generator.z+1.59127800,false,false,false)
+	CreateObject(`prop_cs_kitchen_cab_l`,generator.x+13.48880000,generator.y+9.39807700,generator.z+1.50317400,false,false,false)
+	CreateObject(`prop_cs_kitchen_cab_r`,generator.x+9.14163700,generator.y+9.39807700,generator.z+1.50319300,false,false,false)
+	CreateObject(`p_w_grass_gls_s`,generator.x+6.30300100,generator.y+8.03400000,generator.z+1.40800000,false,false,false)
+	CreateObject(`v_res_mbronzvase`,generator.x+14.69197000,generator.y+9.00720200,generator.z+1.44086000,false,false,false)
+	CreateObject(`v_res_mbronzvase`,generator.x+14.69197000,generator.y+4.55828000,generator.z+1.44086000,false,false,false)
+	CreateObject(`v_med_smokealarm`,generator.x+12.91037000,generator.y+6.59943400,generator.z+4.12818200,false,false,false)
+	CreateObject(`prop_foodprocess_01`,generator.x+5.95365100,generator.y+8.23214900,generator.z+1.44086000,false,false,false)
+	CreateObject(`v_res_wall`,generator.x+9.48288900,generator.y+3.80587900,generator.z+0.49649800,false,false,false)
+
+	CreateObject(`V_44_Kitche_Cables`,generator.x+15.13288000,generator.y+7.09520900,generator.z+2.93397100,false,false,false)
+
+	CreateObject(`p_whiskey_bottle_s`,generator.x+9.76500100,generator.y+6.22099900,generator.z+1.49900000,false,false,false)
+	CreateObject(`p_tumbler_cs2_s`,generator.x+9.51600000,generator.y+6.20100000,generator.z+1.40700000,false,false,false)
+	CreateObject(`V_44_G_Kitche_Mirror`,generator.x+10.43927000,generator.y+6.61117700,generator.z+1.35984500,false,false,false)
+	CreateObject(`V_44_Kitc_Emmi_Refl`,generator.x+14.88308000,generator.y+7.08548200,generator.z+1.71777900,false,false,false)
+
+	CreateObject(`V_44_1_WC_Deta`,generator.x+1.17765600,generator.y-4.48131400,generator.z+4.63232000,false,false,false)
+	CreateObject(`V_44_1_WC_Deca`,generator.x+1.59504700,generator.y-6.12709600,generator.z+4.63267900,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x+0.70206260,generator.y-4.16378900,generator.z+5.71612900,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x+0.68338590,generator.y-4.52617000,generator.z+5.71612900,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x+0.72427940,generator.y-4.86893600,generator.z+5.71612900,false,false,false)
+	CreateObject(`v_res_mbathpot`,generator.x+0.70345690,generator.y-4.35693900,generator.z+6.48056100,false,false,false)
+	CreateObject(`v_res_glasspot`,generator.x+0.71698950,generator.y-4.14175200,generator.z+6.47866700,false,false,false)
+
+	CreateObject(`v_res_mlaundry`,generator.x+0.76481630,generator.y-4.38597400,generator.z+4.68115500,false,false,false)
+	CreateObject(`v_res_mbbin`,generator.x+0.77170370,generator.y-4.85373500,generator.z+4.68933400,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x+0.71842000,generator.y-4.16739000,generator.z+6.09812900,false,false,false)
+	CreateObject(`prop_toilet_shamp_02`,generator.x+0.68262770,generator.y-4.77760400,generator.z+6.60591400,false,false,false)
+	CreateObject(`v_res_mpotpouri`,generator.x+0.72062970,generator.y-4.56955600,generator.z+6.47866700,false,false,false)
+
+	CreateObject(`prop_toilet_shamp_02`,generator.x+0.78394590,generator.y-4.83148300,generator.z+6.60591400,false,false,false)
+	CreateObject(`v_res_tissues`,generator.x+0.74644000,generator.y-4.58213100,generator.z+6.09788000,false,false,false)
+	CreateObject(`v_res_fa_mag_rumor`,generator.x+0.71411900,generator.y-4.89627400,generator.z+6.19172800,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x+0.70755580,generator.y-4.71013000,generator.z+5.40776400,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x+0.70206260,generator.y-4.31527900,generator.z+5.40776400,false,false,false)
+	CreateObject(`v_res_m_wctoiletroll`,generator.x+1.05170400,generator.y-7.98192900,generator.z+5.28550600,false,false,false)
+
+	CreateObject(`V_44_1_WC_Wall`,generator.x+0.58679010,generator.y-5.92510000,generator.z+4.64117100,false,false,false)
+	local sink = CreateObject(`v_res_m_sinkunit`,generator.x+0.57028010,generator.y-6.54750800,generator.z+4.57696100,false,false,false)
+	SetEntityHeading(sink,GetEntityHeading(sink)+90)
+	CreateObject(`v_res_mbathpot`,generator.x+0.44344710,generator.y-5.86374200,generator.z+5.41919400,false,false,false)
+	CreateObject(`v_res_mbaccessory`,generator.x+0.44116590,generator.y-5.68478200,generator.z+5.40682800,false,false,false)
+
+	CreateObject(`v_res_fashmag1`,generator.x+0.53466320,generator.y-7.69714400,generator.z+5.40757800,false,false,false)
+	CreateObject(`v_res_mpotpouri`,generator.x+0.46240810,generator.y-7.37532400,generator.z+5.40551200,false,false,false)
+	CreateObject(`prop_toilet_brush_01`,generator.x+0.89410590,generator.y-7.78916400,generator.z+4.55693300,false,false,false)
+	CreateObject(`prop_toothpaste_01`,generator.x+0.62113380,generator.y-6.03470400,generator.z+5.39733200,false,false,false)
+	CreateObject(`prop_toilet_shamp_02`,generator.x+0.37264820,generator.y-6.11828800,generator.z+5.53571800,false,false,false)
+	CreateObject(`prop_toilet_shamp_02`,generator.x+0.34396170,generator.y-6.26275800,generator.z+5.53571800,false,false,false)
+	local mirror = CreateObject(`v_ret_mirror`,generator.x+0.31381230,generator.y-6.52928800,generator.z+5.64878300,false,false,false)
+	SetEntityHeading(mirror,GetEntityHeading(mirror)+90)
+	CreateObject(`v_res_desklamp`,generator.x-1.65334600,generator.y-8.03860100,generator.z+5.37723000,false,false,false)
+	CreateObject(`V_44_son_clutter`,generator.x-2.72426300,generator.y-4.61612700,generator.z+4.70186500,false,false,false)
+	CreateObject(`V_44_1_Son_Deta`,generator.x-2.38526100,generator.y-4.51695800,generator.z+4.60237100,false,false,false)
+	CreateObject(`prop_speaker_06`,generator.x-4.37202500,generator.y-3.15667900,generator.z+5.40821800,false,false,false)
+
+	CreateObject(`V_44_1_Son_Deca`,generator.x-2.38558800,generator.y-4.51694800,generator.z+4.70213800,false,false,false)
+	local bed = CreateObject(`v_res_msonbed`,generator.x-1.28441200,generator.y-4.80573900,generator.z+4.57700000,false,false,false)
+	FreezeEntityPosition(bed,true)
+	SetEntityHeading(bed,GetEntityHeading(bed)-90)
+	CreateObject(`des_tvsmash`,generator.x-4.65294700,generator.y-3.06008700,generator.z+6.08225600,false,false,false)
+	CreateObject(`v_res_fa_mag_motor`,generator.x-0.39596750,generator.y-6.14882800,generator.z+4.65708300,false,false,false)
+	CreateObject(`v_res_m_lampstand`,generator.x-0.12011430,generator.y-6.15963500,generator.z+4.57726500,false,false,false)
+	CreateObject(`v_res_tt_pizzaplate`,generator.x-0.72473050,generator.y-6.00035400,generator.z+4.58975600,false,false,false)
+	CreateObject(`v_res_tt_can03`,generator.x-0.07454681,generator.y-3.55089300,generator.z+4.64916200,false,false,false)
+	CreateObject(`v_res_tt_pizzaplate`,generator.x-2.14520900,generator.y-3.73351100,generator.z+4.58975600,false,false,false)
+	CreateObject(`v_res_tt_can03`,generator.x-0.12168120,generator.y-3.84719700,generator.z+4.64916200,false,false,false)
+	CreateObject(`v_res_tt_can03`,generator.x-3.68282300,generator.y-1.50274500,generator.z+4.64916200,false,false,false)
+	CreateObject(`v_res_tt_pizzaplate`,generator.x-3.79727100,generator.y-1.68703200,generator.z+4.58975600,false,false,false)
+	CreateObject(`v_res_tt_can03`,generator.x-0.35707760,generator.y-6.58195200,generator.z+4.64916200,false,false,false)
+	CreateObject(`v_club_roc_gstand`,generator.x-0.24508670,generator.y-6.91720400,generator.z+4.57714300,false,false,false)
+	CreateObject(`v_res_fashmag1`,generator.x-1.77334100,generator.y-3.80492700,generator.z+4.60178600,false,false,false)
+	CreateObject(`v_res_tt_can03`,generator.x-0.10475160,generator.y-0.74553110,generator.z+4.64916200,false,false,false)
+	CreateObject(`V_44_fakewindow6`,generator.x-5.33984800,generator.y-6.60726400,generator.z+4.74075300,false,false,false)
+	CreateObject(`V_44_1_Daught_Deta`,generator.x+5.15501400,generator.y-4.61960500,generator.z+4.65251100,false,false,false)
+	CreateObject(`v_res_tissues`,generator.x+4.23728100,generator.y-7.78753900,generator.z+5.57759400,false,false,false)
+	CreateObject(`V_44_M_Daught_Over`,generator.x+5.06478200,generator.y-4.51694800,generator.z+4.65251100,false,false,false)
+
+	CreateObject(`v_res_mbchair`,generator.x+4.34751900,generator.y-6.83495000,generator.z+4.57700000,false,false,false)
+	CreateObject(`v_res_jewelbox`,generator.x+5.60166200,generator.y-7.84856600,generator.z+5.57709100,false,false,false)
+	CreateObject(`v_res_m_candle`,generator.x+5.63198000,generator.y-8.10918900,generator.z+5.58055000,false,false,false)
+	local dresser = CreateObject(`v_res_mddresser`,generator.x+4.96540800,generator.y-7.90087300,generator.z+4.57736500,false,false,false)
+	FreezeEntityPosition(dresser,true)
+	SetEntityHeading(dresser,GetEntityHeading(dresser)+180)
+	CreateObject(`v_res_mdbedlamp`,generator.x+3.43900000,generator.y-3.66071800,generator.z+5.27747500,false,false,false)
+	local bed2 = CreateObject(`v_res_mdbed`,generator.x+4.26333300,generator.y-5.19171000,generator.z+4.57726400,false,false,false)
+	FreezeEntityPosition(bed2,true)
+	SetEntityHeading(bed2,GetEntityHeading(bed2)+90)
+	local desk = CreateObject(`v_res_mddesk`,generator.x+3.52612600,generator.y-6.93888700,generator.z+4.57726500,false,false,false)
+	FreezeEntityPosition(desk,true)
+	SetEntityHeading(desk,GetEntityHeading(desk)+90)
+	CreateObject(`v_res_fa_mag_rumor`,generator.x+3.25719700,generator.y-7.18534500,generator.z+5.75928800,false,false,false)
+	CreateObject(`v_res_tre_cushionc`,generator.x+3.74167700,generator.y-5.04673700,generator.z+5.23786200,false,false,false)
+	CreateObject(`v_res_jcushionc`,generator.x+3.47843300,generator.y-5.44828800,generator.z+5.34760300,false,false,false)
+	CreateObject(`V_44_1_Daught_Deta_ns`,generator.x+5.15501400,generator.y-4.61960500,generator.z+4.63951100,false,false,false)
+	CreateObject(`v_res_d_dressdummy`,generator.x+3.80953400,generator.y-7.96329600,generator.z+4.57726400,false,false,false)
+	CreateObject(`v_club_vu_drawer`,generator.x+6.33438800,generator.y-7.96820100,generator.z+4.57700000,false,false,false)
+	local flat = CreateObject(`prop_tv_flat_03b`,generator.x+7.02415300,generator.y-5.41506100,generator.z+6.39180400,false,false,false)
+	SetEntityHeading(flat,GetEntityHeading(flat)-90)
+
+
+	CreateObject(`V_44_D_chand`,generator.x+4.94644200,generator.y-5.37181500,generator.z+7.03764900,false,false,false)
+	CreateObject(`v_club_dress1`,generator.x+6.10717800,generator.y-1.56363600,generator.z+6.50635300,false,false,false)
+	CreateObject(`v_res_m_candle`,generator.x+4.30049800,generator.y-8.10229200,generator.z+5.58055000,false,false,false)
+	CreateObject(`v_res_fa_book04`,generator.x+3.78683400,generator.y-7.22723100,generator.z+5.48160700,false,false,false)
+	CreateObject(`v_res_fa_book03`,generator.x+3.78421300,generator.y-7.26617900,generator.z+5.43769900,false,false,false)
+	CreateObject(`V_44_fakewindow007`,generator.x+5.43454700,generator.y-6.13995100,generator.z+5.70870800,false,false,false)
+	CreateObject(`v_res_mdbedtable`,generator.x+3.50600100,generator.y-3.73348200,generator.z+4.57736500,false,false,false)
+	CreateObject(`V_44_D_emis`,generator.x+5.06478000,generator.y-4.51694400,generator.z+4.57726800,false,false,false)
+
+	CreateObject(`V_44_1_Daught_GeomL`,generator.x+6.32631400,generator.y-4.70905700,generator.z+4.66521900,false,false,false)
+
+	CreateObject(`V_44_1_Master_Deca`,generator.x-3.69378700,generator.y+6.42393100,generator.z+4.70213800,false,false,false)
+	CreateObject(`v_res_tissues`,generator.x-0.70506190,generator.y+8.35398300,generator.z+5.41244700,false,false,false)
+	CreateObject(`v_res_fa_book03`,generator.x-5.56946900,generator.y+9.12105200,generator.z+5.19722600,false,false,false)
+	CreateObject(`v_res_fa_book04`,generator.x-5.54973200,generator.y+9.12014800,generator.z+5.15438000,false,false,false)
+	CreateObject(`v_res_fa_book02`,generator.x-6.50122700,generator.y+9.17851300,generator.z+4.59468800,false,false,false)
+	CreateObject(`v_res_fashmagopen`,generator.x-0.98937320,generator.y+8.10803400,generator.z+5.41998300,false,false,false)
+	CreateObject(`v_res_fa_mag_motor`,generator.x-6.78904000,generator.y+9.23604700,generator.z+4.67064800,false,false,false)
+	CreateObject(`v_res_r_bublbath`,generator.x-0.67247480,generator.y+7.95763200,generator.z+5.41998300,false,false,false)
+
+	CreateObject(`V_44_1_Master_Deta`,generator.x-3.78856900,generator.y+5.11689300,generator.z+4.69215000,false,false,false)
+	CreateObject(`des_frenchdoor`,generator.x-8.08411000,generator.y+6.35292000,generator.z+4.54623800,false,false,false)
+	CreateObject(`v_res_m_bananaplant`,generator.x-7.02282700,generator.y+4.15889300,generator.z+4.07726500,false,false,false)
+	CreateObject(`v_res_m_bananaplant`,generator.x-6.98458900,generator.y+8.58176000,generator.z+4.07726500,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x-2.88499400,generator.y+9.32790300,generator.z+5.13576900,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x-5.67367400,generator.y+9.32790300,generator.z+5.13576900,false,false,false)
+	CreateObject(`v_res_m_l_chair1`,generator.x-1.71462300,generator.y+7.92522600,generator.z+4.57605400,false,false,false)
+
+	local mirr =  CreateObject(`v_ret_mirror`,generator.x-0.53916740,generator.y+7.97935500,generator.z+5.45417000,false,false,false)
+	SetEntityHeading(mirr,GetEntityHeading(mirr)-90)
+	CreateObject(`v_res_mconsoletrad`,generator.x-3.59876400,generator.y+3.85237200,generator.z+4.57726500,false,false,false)
+	CreateObject(`V_44_1_Master_Chan`,generator.x-4.28273200,generator.y+8.01677900,generator.z+7.52571900,false,false,false)
+	CreateObject(`v_res_mplanttongue`,generator.x-2.54529100,generator.y+3.77437800,generator.z+4.57856000,false,false,false)
+	CreateObject(`v_res_mplanttongue`,generator.x-4.65680100,generator.y+3.87188100,generator.z+4.57856000,false,false,false)
+	CreateObject(`v_res_mpotpouri`,generator.x-3.01684700,generator.y+3.81856100,generator.z+5.57820200,false,false,false)
+	CreateObject(`v_res_fa_candle04`,generator.x-3.19362500,generator.y+3.93352300,generator.z+5.65119800,false,false,false)
+	CreateObject(`v_res_fa_candle04`,generator.x-3.34104000,generator.y+3.87041400,generator.z+5.65119800,false,false,false)
+	CreateObject(`v_res_fa_candle04`,generator.x-4.03105700,generator.y+3.95793800,generator.z+5.65119800,false,false,false)
+	local dres =  CreateObject(`v_res_mbdresser`,generator.x-0.85383890,generator.y+7.96966400,generator.z+4.57766400,false,false,false)
+	FreezeEntityPosition(dres,true)
+	SetEntityHeading(dres,GetEntityHeading(dres)-90)
+	CreateObject(`v_res_d_lampa`,generator.x-0.79797650,generator.y+8.74071700,generator.z+5.41998300,false,false,false)
+	CreateObject(`v_res_d_lampa`,generator.x-0.77069570,generator.y+7.17489800,generator.z+5.41998300,false,false,false)
+	CreateObject(`v_res_mbbedtable`,generator.x-2.89582400,generator.y+9.22972300,generator.z+4.58609800,false,false,false)
+	CreateObject(`v_res_mbbedtable`,generator.x-5.67645700,generator.y+9.23738900,generator.z+4.58609800,false,false,false)
+	CreateObject(`v_res_fashmag1`,generator.x-6.43877000,generator.y+9.22318300,generator.z+4.61232700,false,false,false)
+	CreateObject(`V_44_fakewindow5`,generator.x-4.23272900,generator.y+10.06902000,generator.z+6.88756600,false,false,false)
+	CreateObject(`prop_d_balcony_l_light`,generator.x-8.07400100,generator.y+7.33400000,generator.z+5.98500000,false,false,false)
+	CreateObject(`prop_d_balcony_r_light`,generator.x-8.07500100,generator.y+5.36899900,generator.z+5.98200100,false,false,false)
+	local sofa3 = CreateObject(`v_res_m_h_sofa_sml`,generator.x-0.04692268,generator.y+4.91675800,generator.z+4.57255100,false,false,false)
+	SetEntityHeading(sofa3,GetEntityHeading(sofa3)-90)
+	FreezeEntityPosition(sofa3,true)
+	CreateObject(`V_44_1_Master_Refl`,generator.x-2.24256700,generator.y+6.12810900,generator.z+7.40200100,false,false,false)
+	local flat = CreateObject(`prop_tv_flat_michael`,generator.x-3.60332300,generator.y+3.59323500,generator.z+6.69362700,false,false,false)
+	SetEntityHeading(flat,GetEntityHeading(flat)+180)
+
+	CreateObject(`V_44_Dine_Deca`,generator.x+11.95362000,generator.y+1.21796200,generator.z+0.73423600,false,false,false)
+	CreateObject(`v_res_m_dinetble`,generator.x+11.65958000,generator.y+1.48803700,generator.z+0.67128700,false,false,false)
+	CreateObject(`v_res_m_palmplant1`,generator.x+14.03610000,generator.y+3.36004000,generator.z+0.1157600,false,false,false)
+	CreateObject(`v_res_m_bananaplant`,generator.x+14.03464000,generator.y-0.53919510,generator.z+0.1157600,false,false,false)
+	CreateObject(`v_res_m_palmplant1`,generator.x+9.87301400,generator.y-0.91560370,generator.z+0.1157600,false,false,false)
+	local dChair = CreateObject(`v_ilev_m_dinechair`,generator.x+11.07593000,generator.y+2.15326300,generator.z+0.67300000,false,false,false)
+	SetEntityHeading(dChair,GetEntityHeading(dChair)+40)
+	local dChair2 = CreateObject(`v_ilev_m_dinechair`,generator.x+12.21606000,generator.y+1.99956100,generator.z+0.67300000,false,false,false)
+	SetEntityHeading(dChair2,GetEntityHeading(dChair2)-60)
+	local dChair3 = CreateObject(`v_ilev_m_dinechair`,generator.x+12.21671000,generator.y+0.96316720,generator.z+0.67300000,false,false,false)
+	SetEntityHeading(dChair3,GetEntityHeading(dChair3)+210)
+	local dChair4 = CreateObject(`v_ilev_m_dinechair`,generator.x+10.97966000,generator.y+1.02813000,generator.z+0.67300000,false,false,false)
+	SetEntityHeading(dChair4,GetEntityHeading(dChair4)+130)
+	CreateObject(`V_44_Dine_Deta`,generator.x+12.00919000,generator.y+1.16270300,generator.z+0.49488500,false,false,false)
+
+	CreateObject(`V_44_Dine_Detail`,generator.x+11.95362000,generator.y+1.21796200,generator.z+2.53423600,false,false,false)
+	CreateObject(`V_44_G_Fron_Deta`,generator.x-6.02225700,generator.y+6.81935900,generator.z+0.12220800,false,false,false)
+	CreateObject(`V_44_G_Fron_Deca`,generator.x-6.02163100,generator.y+6.55411300,generator.z+0.12220900,false,false,false)
+	CreateObject(`v_res_m_bananaplant`,generator.x-6.39008700,generator.y+8.55775700,generator.z-0.39999999,false,false,false)
+	CreateObject(`v_res_m_h_sofa`,generator.x-4.16015100,generator.y+9.05558000,generator.z-0.00826600,false,false,false)
+	CreateObject(`v_res_mconsoletrad`,generator.x-6.08591400,generator.y+4.25902900,generator.z-0.01249600,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x-6.57136300,generator.y+4.19632500,generator.z+0.98873800,false,false,false)
+	CreateObject(`v_res_m_statue`,generator.x-5.90549600,generator.y+4.21699500,generator.z+1.00457700,false,false,false)
+	CreateObject(`v_res_mconsoletrad`,generator.x-2.32082600,generator.y+4.25408500,generator.z-0.01249600,false,false,false)
+	CreateObject(`v_res_m_lamptbl`,generator.x-1.79376400,generator.y+4.19632500,generator.z+0.98873800,false,false,false)
+	CreateObject(`v_res_m_horsefig`,generator.x-2.26889200,generator.y+4.23528100,generator.z+0.98709510,false,false,false)
+	CreateObject(`v_res_rosevase`,generator.x-2.92113700,generator.y+4.18977400,generator.z+0.98873800,false,false,false)
+	CreateObject(`v_med_smokealarm`,generator.x-2.08868800,generator.y+6.37618500,generator.z+4.25485000,false,false,false)
+	CreateObject(`v_res_exoticvase`,generator.x-4.24948700,generator.y+3.70693700,generator.z+1.08849900,false,false,false)
+	CreateObject(`v_res_picture_frame`,generator.x-4.14919900,generator.y+9.59165000,generator.z+1.83966000,false,false,false)
+
+	CreateObject(`V_44_G_Fron_Refl`,generator.x-4.58479900,generator.y+6.54761000,generator.z+3.05482600,false,false,false)
+	CreateObject(`v_res_mlaundry`,generator.x-4.80988900,generator.y+0.47404100,generator.z+4.57726400,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144300,generator.y+0.43847470,generator.z+4.67645100,false,false,false)
+	CreateObject(`v_res_mbbin`,generator.x-4.24965800,generator.y+2.95531300,generator.z+4.57726400,false,false,false)
+	CreateObject(`V_44_1_Master_Ward`,generator.x-6.40655500,generator.y+1.73388900,generator.z+4.57834600,false,false,false)
+	CreateObject(`V_44_1_Master_WCha`,generator.x-4.09320100,generator.y+1.72192600,generator.z+7.00458700,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144300,generator.y+0.43847470,generator.z+4.79156300,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144200,generator.y+0.43847560,generator.z+5.41287100,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144200,generator.y+0.43847560,generator.z+5.29775800,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144300,generator.y+0.43847470,generator.z+4.91203100,false,false,false)
+
+	CreateObject(`v_res_mpotpouri`,generator.x-4.29746100,generator.y+0.48316380,generator.z+5.89753800,false,false,false)
+	CreateObject(`prop_toilet_shamp_02`,generator.x-4.48238100,generator.y+0.62180140,generator.z+6.02429700,false,false,false)
+	CreateObject(`prop_toilet_shamp_02`,generator.x-4.48615000,generator.y+0.49110990,generator.z+6.02429700,false,false,false)
+	CreateObject(`v_res_mbathpot`,generator.x-2.87927600,generator.y+1.44019500,generator.z+6.19828700,false,false,false)
+	CreateObject(`v_res_glasspot`,generator.x-2.94354800,generator.y+1.24733200,generator.z+6.19828700,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144300,generator.y+0.41808890,generator.z+5.02752500,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34144200,generator.y+0.42529200,generator.z+5.52627400,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.35752500,generator.y+0.42529200,generator.z+5.64102000,false,false,false)
+	CreateObject(`v_club_dress1`,generator.x-3.17459400,generator.y+2.65436600,generator.z+6.60635300,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34182500,generator.y+0.43845940,generator.z+6.61331000,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34182500,generator.y+0.43845940,generator.z+6.49819700,false,false,false)
+	CreateObject(`v_res_mbtowelfld`,generator.x-4.34067500,generator.y+0.42532540,generator.z+6.72671200,false,false,false)
+	CreateObject(`v_res_jewelbox`,generator.x-2.88840100,generator.y+1.73250300,generator.z+6.19802900,false,false,false)
+	CreateObject(`v_ret_box`,generator.x-2.89328200,generator.y+2.04067000,generator.z+6.19828700,false,false,false)
+
+	CreateObject(`V_44_1_Mast_WaDeca`,generator.x-5.12681000,generator.y+1.68215100,generator.z+4.53070600,false,false,false)
+	local sofa5 = CreateObject(`v_res_m_h_sofa_sml`,generator.x-7.23159200,generator.y+1.74248200,generator.z+4.57207500,false,false,false)
+	SetEntityHeading(sofa5,GetEntityHeading(sofa5)+90)
+	FreezeEntityPosition(sofa5,true)
+	CreateObject(`v_ret_ps_bag_01`,generator.x-3.61668600,generator.y+3.13254600,generator.z+4.99871100,false,false,false)
+	CreateObject(`v_ret_ps_toiletbag`,generator.x-2.76861400,generator.y+1.39369200,generator.z+5.89606400,false,false,false)
+	CreateObject(`v_ret_ps_box_01`,generator.x-2.97353500,generator.y+1.29670200,generator.z+5.89606400,false,false,false)
+	CreateObject(`V_44_1_Master_WRefl`,generator.x-4.09332200,generator.y+1.72202400,generator.z+7.60138100,false,false,false)
+	CreateObject(`v_ret_ps_bag_01`,generator.x-3.01495300,generator.y+0.96563630,generator.z+6.19942300,false,false,false)
+	CreateObject(`v_ret_ps_toiletbag`,generator.x-3.46218600,generator.y+0.41771320,generator.z+6.19835800,false,false,false)
+	CreateObject(`v_res_mbathpot`,generator.x-3.90824200,generator.y+0.45705510,generator.z+6.19828700,false,false,false)
+	CreateObject(`v_ret_ps_cologne_01`,generator.x-3.73762700,generator.y+0.33720970,generator.z+6.19861200,false,false,false)
+	CreateObject(`v_ret_ps_cologne`,generator.x-3.71301800,generator.y+0.51087090,generator.z+6.19861200,false,false,false)
+	CreateObject(`v_ret_ps_toiletry_02`,generator.x-3.57097800,generator.y+0.58250620,generator.z+6.19861200,false,false,false)
+	CreateObject(`V_44_1_Hall2_Deca`,generator.x+1.57198900,generator.y-2.18456100,generator.z+4.65403500,false,false,false)
+	CreateObject(`V_44_1_Hall2_Deta`,generator.x+1.56736800,generator.y-2.06291400,generator.z+4.65576400,false,false,false)
+	CreateObject(`V_44_1_Hall2_Emis`,generator.x+1.56687600,generator.y-2.20749900,generator.z+4.60605400,false,false,false)
+
+
+	CreateObject(`v_ilev_mm_windowwc`,generator.x+1.62417000,generator.y-8.63196500,generator.z+5.1711000,false,false,false)
+	CreateObject(`prop_laptop_01a`,generator.x+3.56317100,generator.y-6.85662900,generator.z+5.42643200,false,false,false)
+	CreateObject(`Prop_MP3_Dock`,generator.x+6.60110600,generator.y-5.41524300,generator.z+5.74843500,false,false,false)
+	CreateObject(`V_44_1_Daught_CDoor`,generator.x+6.38870800,generator.y-2.07008200,generator.z+4.67503500,false,false,false)
+	CreateObject(`V_44_1_Daught_Item`,generator.x+5.15501400,generator.y-4.61960500,generator.z+4.70251100,false,false,false)
+	CreateObject(`V_44_D_Items_Over`,generator.x+5.06478200,generator.y-4.51694800,generator.z+4.70226800,false,false,false)
+	CreateObject(`v_club_brush`,generator.x+5.27156900,generator.y-7.82374500,generator.z+5.57799900,false,false,false)
+	CreateObject(`v_club_comb`,generator.x+5.33156700,generator.y-7.92099000,generator.z+5.57799900,false,false,false)
+	CreateObject(`v_club_roc_jacket1`,generator.x+5.99520300,generator.y-1.56453200,generator.z+6.49564800,false,false,false)
+	CreateObject(`v_club_skirtflare`,generator.x+6.23020200,generator.y-1.56066700,generator.z+6.50772100,false,false,false)
+	CreateObject(`v_club_skirtplt`,generator.x+6.15445000,generator.y-1.56480200,generator.z+6.51050600,false,false,false)
+	CreateObject(`v_club_slip`,generator.x+6.51164300,generator.y-1.56346100,generator.z+6.50603100,false,false,false)
+	CreateObject(`v_club_vu_bear`,generator.x+3.24126400,generator.y-6.64180100,generator.z+5.66661100,false,false,false)
+	CreateObject(`v_club_vuhairdryer`,generator.x+4.60364600,generator.y-7.89662200,generator.z+4.57700000,false,false,false)
+	CreateObject(`v_club_vumakeupbrsh`,generator.x+4.74676800,generator.y-7.83952300,generator.z+5.57799900,false,false,false)
+	CreateObject(`v_club_vutongs`,generator.x+4.69820500,generator.y-7.88481200,generator.z+5.58364700,false,false,false)
+	CreateObject(`v_club_vuvanity`,generator.x+6.33217200,generator.y-7.98365200,generator.z+5.50917400,false,false,false)
+	CreateObject(`v_res_mbathpot`,generator.x+4.93267800,generator.y-8.07459300,generator.z+5.61459300,false,false,false)
+	local chest =  CreateObject(`v_res_mdchest`,generator.x+6.66236100,generator.y-5.40825500,generator.z+4.57736500,false,false,false)
+	SetEntityHeading(chest,GetEntityHeading(chest)-90)
+	FreezeEntityPosition(chest,true)
+	CreateObject(`v_res_r_bublbath`,generator.x+5.07845400,generator.y-8.04203800,generator.z+5.57799900,false,false,false)
+	CreateObject(`v_res_r_perfume`,generator.x+4.75592900,generator.y-8.10680400,generator.z+5.57799900,false,false,false)
+	CreateObject(`v_ret_box`,generator.x+3.56020000,generator.y-3.48869900,generator.z+5.27409700,false,false,false)
+
+	CreateObject(`V_44_G_Cor_Blen`,generator.x+4.49310600,generator.y+8.63649000,generator.z+0.24844800,false,false,false)
+	CreateObject(`V_44_G_Cor_Deta`,generator.x+4.49310600,generator.y+8.63649000,generator.z+0.24844800,false,false,false)
+	CreateObject(`V_44_Garage_Shell`,generator.x+0.79177808,generator.y+13.23049000,generator.z+0.24844800,false,false,false)
+	local shelf = CreateObject(`V_44_1_Mast_WaShel_M`,generator.x-3.78199100,generator.y+1.73383800,generator.z+4.57161100,false,false,false)
+	FreezeEntityPosition(shelf,true)
+
+
+
+	FreezeEntityPosition(building,true)
+	FreezeEntityPosition(building2,true)
+end
+
+
+function buildOffice()
+
+	SetEntityCoords(PlayerPedId(),-139.53950000,-629.07570000,167.82040000)
+	--Citizen.Wait(2000)
+  	SetEntityCoords(PlayerPedId(),-139.53950000,-629.07570000,-58.82040000)
+
+  	local generator = { x = -139.53950000, y =-629.07570000, z = -60.82040000} -- spawn location-
+	local building = CreateObject(`ex_office_03b_shell`,generator.x+0.82022000,generator.y+1.45879100,generator.z-4.22499600,false,false,false)
+
+
+
+	CreateObject(`ex_mp_h_acc_vase_05`,generator.x+3.83883900,generator.y-1.44630700,generator.z+0.80139000,false,false,false)
+	local easyChair1 = CreateObject(`ex_mp_h_off_easychair_01`,generator.x+0.50250100,generator.y-3.06935000,generator.z-0.00704300,false,false,false)
+	local easyChair2 = CreateObject(`ex_mp_h_off_easychair_01`,generator.x+0.49876200,generator.y-4.32264400,generator.z-0.00705000,false,false,false)
+	SetEntityHeading(easyChair1,GetEntityHeading(easyChair1)+90)
+	SetEntityHeading(easyChair2,GetEntityHeading(easyChair2)+90)
+	CreateObject(`ex_mp_h_acc_bowl_ceramic_01`,generator.x+0.35230600,generator.y+3.71305300,generator.z+0.95000000,false,false,false)
+	CreateObject(`ex_office_03b_skirt1`,generator.x+0.82022000,generator.y+1.45879100,generator.z+0.08499600,false,false,false)
+	CreateObject(`ex_off_03b_GEOMLIGHT_Reception`,generator.x+5.59351200,generator.y+0.97565800,generator.z+3.40000800,false,false,false)
+	local mon = CreateObject(`ex_prop_trailer_monitor_01`,generator.x+3.99114800,generator.y+0.66242900,generator.z+0.86899500,false,false,false)
+	SetEntityHeading(mon,GetEntityHeading(mon)+90)
+	CreateObject(`ex_office_03b_recdesk`,generator.x+4.05373600,generator.y-0.02752400,generator.z+0.08000000,false,false,false)
+	
+	CreateObject(`prop_mouse_02`,generator.x+4.37081900,generator.y+0.82507800,generator.z+0.80046800,false,false,false)
+	CreateObject(`prop_off_phone_01`,generator.x+4.10196800,generator.y-0.88896700,generator.z+0.80051900,false,false,false)
+	local l1 = CreateObject(`v_serv_2socket`,generator.x-2.12396500,generator.y-2.06103500,generator.z+0.30746700,false,false,false)
+	local l2 =CreateObject(`v_serv_switch_3`,generator.x-2.21688300,generator.y-2.06089200,generator.z+1.49840300,false,false,false)
+	local l3 =CreateObject(`v_serv_switch_3`,generator.x-2.02786100,generator.y-2.06089200,generator.z+1.49840300,false,false,false)
+	SetEntityHeading(l1,GetEntityHeading(l1)+90)
+	SetEntityHeading(l2,GetEntityHeading(l2)+90)
+	SetEntityHeading(l3,GetEntityHeading(l3)+90)
+
+	local alarm = CreateObject(`v_res_tre_alarmbox`,generator.x-2.74074700,generator.y-1.48556800,generator.z+1.24797900,false,false,false)
+	SetEntityHeading(alarm,GetEntityHeading(alarm)+90)
+	CreateObject(`ex_office_03b_EdgesRecep`,generator.x+4.60805000,generator.y-1.47149300,generator.z+0.01280200,false,false,false)
+	CreateObject(`ex_office_03b_WorldMap`,generator.x+7.09353500,generator.y+5.30796300,generator.z+1.66799300,false,false,false)
+	CreateObject(`ex_office_03b_Shad_Recep`,generator.x+3.65794100,generator.y-0.10437700,generator.z+0.00000000,false,false,false)
+	local pow = CreateObject(`ex_office_03b_sideboardPower_003`,generator.x+0.34884700,generator.y+3.70960600,generator.z+0.10705600,false,false,false)
+	SetEntityHeading(pow,GetEntityHeading(pow)-90)
+	
+	CreateObject(`ex_officedeskcollision`,generator.x+4.00000000,generator.y+0.00000000,generator.z-0.10000000,false,false,false)
+	CreateObject(`v_res_fh_speakerdock`,generator.x+10.04326000,generator.y+10.36692000,generator.z+1.08903000,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass00`,generator.x+17.59416000,generator.y+13.05352000,generator.z+0.51340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass01`,generator.x+17.59416000,generator.y+11.13831000,generator.z+0.51340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass02`,generator.x+17.59416000,generator.y+9.22329500,generator.z+0.51340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass03`,generator.x+17.59416000,generator.y+7.30808600,generator.z+0.51340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass08`,generator.x+17.59421000,generator.y+4.40942000,generator.z+0.51340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass09`,generator.x+17.59416000,generator.y-7.16629200,generator.z+0.49340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass10`,generator.x+17.59416000,generator.y-9.13228000,generator.z+0.49340900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass11`,generator.x+17.59416000,generator.y-11.09808000,generator.z+0.49340900,false,false,false)
+	CreateObject(`v_res_paperfolders`,generator.x+15.23951000,generator.y+11.01277000,generator.z+0.90960600,false,false,false)
+
+	CreateObject(`v_res_binder`,generator.x+15.18253000,generator.y+11.43653000,generator.z+0.82427700,false,false,false)
+	CreateObject(`ex_office_03b_FloorLamp0104`,generator.x+16.83519000,generator.y+14.41163000,generator.z-0.00005500,false,false,false)
+	CreateObject(`ex_office_03b_LampTable_01`,generator.x+12.73544000,generator.y+10.97619000,generator.z+0.79879500,false,false,false)
+	CreateObject(`ex_Office_03b_hskirt3`,generator.x+13.31318000,generator.y+1.32258700,generator.z+0.05000100,false,false,false)
+	CreateObject(`ex_off_03b_GEOLIGHT_FrontOffice`,generator.x+12.77866000,generator.y-11.67066000,generator.z+3.22427500,false,false,false)
+	CreateObject(`ex_office_03b_FloorLamp0103`,generator.x+10.77528000,generator.y+14.41163000,generator.z-0.00005500,false,false,false)
+	local flat = CreateObject(`ex_prop_ex_tv_flat_01`,generator.x+10.48212000,generator.y-0.02673700,generator.z+1.41501200,false,false,false)
+	SetEntityHeading(flat,GetEntityHeading(flat)+90)
+	local telescope = CreateObject(`prop_t_telescope_01b`,generator.x+16.81530000,generator.y+7.60000000,generator.z+0.03700000,false,false,false)
+	SetEntityHeading(telescope,GetEntityHeading(telescope)+180)
+	local c2 = CreateObject(`v_corp_offchair`,generator.x+14.77600000,generator.y+9.43131200,generator.z+0.00000000,false,false,false)
+	local c1 = CreateObject(`v_corp_offchair`,generator.x+13.07700000,generator.y+9.39931100,generator.z+0.00000000,false,false,false)
+	SetEntityHeading(c2,GetEntityHeading(c2)-180)
+	SetEntityHeading(c1,GetEntityHeading(c1)-180)
+	local mon = CreateObject(`ex_prop_monitor_01_ex`,generator.x+13.97009000,generator.y+11.27176000,generator.z+0.86899500,false,false,false)
+	SetEntityHeading(mon,GetEntityHeading(mon)-180)
+	CreateObject(`prop_mouse_02`,generator.x+13.54931000,generator.y+11.64707000,generator.z+0.80050400,false,false,false)
+	CreateObject(`prop_off_phone_01`,generator.x+13.14856000,generator.y+11.42315000,generator.z+0.80050400,false,false,false)
+	CreateObject(`prop_bar_cockshaker`,generator.x+9.50759800,generator.y+8.39425200,generator.z+0.94999900,false,false,false)
+	local spirt = CreateObject(`spiritsrow`,generator.x+9.38967800,generator.y+9.29554300,generator.z+0.94999900,false,false,false)
+	SetEntityHeading(spirt,GetEntityHeading(spirt)+90)
+	
+	CreateObject(`ex_office_03b_desk`,generator.x+13.97011000,generator.y+11.21162000,generator.z+0.06995700,false,false,false)
+	local g1 = CreateObject(`v_res_fa_plant01`,generator.x+9.40017600,generator.y+8.24227200,generator.z+1.15825100,false,false,false)
+	local g2 =CreateObject(`prop_glass_stack_05`,generator.x+9.37649400,generator.y+10.12211000,generator.z+1.80909900,false,false,false)
+	local g3 =CreateObject(`prop_glass_stack_02`,generator.x+9.35501000,generator.y+8.88657900,generator.z+1.81202900,false,false,false)
+	local g4 =CreateObject(`prop_glass_stack_06`,generator.x+9.35501000,generator.y+9.47272600,generator.z+1.54725900,false,false,false)
+	local g5 =CreateObject(`prop_glass_stack_10`,generator.x+9.35501000,generator.y+9.96296000,generator.z+1.54725900,false,false,false)
+	local g6 =CreateObject(`prop_glass_stack_10`,generator.x+9.35501000,generator.y+8.95143200,generator.z+1.54725900,false,false,false)
+	local g7 =CreateObject(`prop_glass_stack_01`,generator.x+9.35501000,generator.y+9.47264200,generator.z+1.81202900,false,false,false)
+	local g8 =CreateObject(`prop_glass_stack_10`,generator.x+9.35501000,generator.y+9.74093600,generator.z+2.08021800,false,false,false)
+	local g9 =CreateObject(`prop_glass_stack_06`,generator.x+9.35501000,generator.y+9.13371200,generator.z+2.07399200,false,false,false)
+	SetEntityHeading(g1,GetEntityHeading(g1)+90)
+	SetEntityHeading(g2,GetEntityHeading(g2)+90)
+	SetEntityHeading(g3,GetEntityHeading(g3)+90)
+	SetEntityHeading(g4,GetEntityHeading(g4)+90)
+	SetEntityHeading(g5,GetEntityHeading(g5)+90)
+	SetEntityHeading(g6,GetEntityHeading(g6)+90)
+	SetEntityHeading(g7,GetEntityHeading(g7)+90)
+	SetEntityHeading(g8,GetEntityHeading(g8)+90)
+	SetEntityHeading(g9,GetEntityHeading(g9)+90)
+
+	
+	CreateObject(`ex_mp_h_acc_bowl_ceramic_01`,generator.x+10.58087000,generator.y-0.98099200,generator.z+0.73129800,false,false,false)
+	local winrow = CreateObject(`winerow`,generator.x+9.41506900,generator.y+10.32958000,generator.z+0.94999900,false,false,false)
+	SetEntityHeading(winrow,GetEntityHeading(winrow)+90)
+	CreateObject(`prop_champ_01a`,generator.x+9.46340900,generator.y+8.61231800,generator.z+0.94999900,false,false,false)
+
+	CreateObject(`prop_champ_jer_01a`,generator.x+9.38967800,generator.y+8.51190000,generator.z+0.94999900,false,false,false)
+	CreateObject(`prop_bar_stirrers`,generator.x+9.67305700,generator.y+10.51067000,generator.z+0.94999900,false,false,false)
+	CreateObject(`ex_office_03b_Boardtable`,generator.x+13.69090000,generator.y-8.69550800,generator.z+0.00030500,false,false,false)
+	CreateObject(`ex_mp_h_acc_plant_palm_01`,generator.x+16.49393000,generator.y+5.80993500,generator.z+0.00000000,false,false,false)
+
+	CreateObject(`v_serv_2socket`,generator.x+10.21870000,generator.y+12.57842000,generator.z+0.30746700,false,false,false)
+	CreateObject(`prop_box_ammo07a`,generator.x+11.91324000,generator.y+14.98271000,generator.z+1.54383200,false,false,false)
+	CreateObject(`prop_box_ammo01a`,generator.x+12.08518000,generator.y+14.95856000,generator.z+1.54383200,false,false,false)
+	CreateObject(`prop_box_ammo01a`,generator.x+12.20990000,generator.y+14.93168000,generator.z+1.54383200,false,false,false)
+	CreateObject(`prop_box_ammo02a`,generator.x+12.01649000,generator.y+14.95856000,generator.z+1.18664200,false,false,false)
+	CreateObject(`prop_box_guncase_02a`,generator.x+12.30792000,generator.y+14.77875000,generator.z+0.33298800,false,false,false)
+	CreateObject(`Prop_Drop_ArmsCrate_01b`,generator.x+12.31815000,generator.y+14.97308000,generator.z+0.39096400,false,false,false)
+	CreateObject(`prop_box_ammo07b`,generator.x+11.70625000,generator.y+14.89851000,generator.z+1.54383200,false,false,false)
+	CreateObject(`prop_box_guncase_01a`,generator.x+12.31427000,generator.y+14.97308000,generator.z+0.94427500,false,false,false)
+	CreateObject(`prop_box_ammo07a`,generator.x+11.51516000,generator.y+15.02956000,generator.z+1.54383200,false,false,false)
+	CreateObject(`prop_box_ammo01a`,generator.x+12.46920000,generator.y+14.96635000,generator.z+1.54383200,false,false,false)
+	CreateObject(`prop_box_ammo01a`,generator.x+12.34637000,generator.y+14.96635000,generator.z+1.54383200,false,false,false)
+
+	CreateObject(`Prop_Drop_ArmsCrate_01b`,generator.x+12.31815000,generator.y+14.97308000,generator.z+0.75934600,false,false,false)
+	CreateObject(`ex_office_03b_StripLamps`,generator.x+13.13106000,generator.y+11.69762000,generator.z+0.80118800,false,false,false)
+	CreateObject(`prop_box_ammo02a`,generator.x+12.43525000,generator.y+14.95856000,generator.z+1.18664200,false,false,false)
+	CreateObject(`prop_box_ammo02a`,generator.x+11.73945000,generator.y+14.92581000,generator.z+1.18664200,false,false,false)
+	CreateObject(`prop_box_ammo02a`,generator.x+11.54390000,generator.y+14.92581000,generator.z+1.18664200,false,false,false)
+	local safe = CreateObject(`ex_office_03b_Safes`,generator.x+10.49555000,generator.y+0.00422400,generator.z+0.00000000,false,false,false)
+	SetEntityHeading(safe,GetEntityHeading(safe)-90)
+	--CreateObject(`ex_prop_safedoor_office3a_l`,generator.x+11.41656000,generator.y+14.50558000,generator.z+1.05049900,false,false,false)
+	CreateObject(`ex_office_03b_Edges_Main`,generator.x+13.61647000,generator.y+1.94954700,generator.z+0.01285300,false,false,false)
+	--CreateObject(`ex_prop_safedoor_office3a_r`,generator.x+16.25136000,generator.y+14.50558000,generator.z+1.05049900,false,false,false)
+	CreateObject(`ex_office_03b_FloorLamp0105`,generator.x+17.09381000,generator.y-11.74412000,generator.z-0.00005500,false,false,false)
+	CreateObject(`ex_office_03b_FloorLamp0101`,generator.x+10.29999000,generator.y-11.74412000,generator.z-0.00005500,false,false,false)
+	CreateObject(`ex_office_03b_tvtable`,generator.x+13.80864000,generator.y-0.14030900,generator.z-0.01227000,false,false,false)
+	
+	CreateObject(`ex_office_03b_MetalShelf`,generator.x+9.22459100,generator.y+9.78214800,generator.z+1.50955900,false,false,false)
+	CreateObject(`ex_office_03b_Shad_Main`,generator.x+13.86071000,generator.y+0.08125000,generator.z+0.00000000,false,false,false)
+	CreateObject(`ex_office_03b_TVUnit`,generator.x+10.57312000,generator.y-0.03527800,generator.z+0.00000000,false,false,false)
+	CreateObject(`ex_mp_h_acc_vase_05`,generator.x+16.99567000,generator.y-5.02271800,generator.z+0.92395100,false,false,false)
+	CreateObject(`ex_mp_h_acc_scent_sticks_01`,generator.x+10.47731000,generator.y-1.23041900,generator.z+0.73129800,false,false,false)
+	local wframe =  CreateObject(`ex_office_03b_wFrame003`,generator.x+12.31777000,generator.y-5.44320100,generator.z+0.10772200,false,false,false)
+	SetEntityHeading(wframe,GetEntityHeading(wframe)-90)
+	
+	CreateObject(`ex_office_03b_SoundBaffles1`,generator.x+14.50548000,generator.y-0.94601400,generator.z+3.39024900,false,false,false)
+	local sc1 = CreateObject(`ex_Office_03b_stripChair1`,generator.x+12.03766000,generator.y+2.14166100,generator.z+0.00000000,false,false,false)
+	local sc2 = CreateObject(`ex_Office_03b_stripChair2`,generator.x+11.96429000,generator.y-2.23546000,generator.z+0.00000000,false,false,false)
+	local window =CreateObject(`ex_prop_office_louvres`,generator.x+18.06730000,generator.y-0.23932300,generator.z+0.10772200,false,false,false)
+	local sc3 = CreateObject(`ex_mp_h_off_sofa_02`,generator.x+15.66240000,generator.y+0.03326700,generator.z+0.00000000,false,false,false)
+	SetEntityHeading(window,GetEntityHeading(window)+90)
+	SetEntityHeading(sc1,GetEntityHeading(sc1)+70)
+	SetEntityHeading(sc2,GetEntityHeading(sc2)+110)
+	SetEntityHeading(sc3,GetEntityHeading(sc3)-90)
+	
+	CreateObject(`ex_office_03b_GlassPane2`,generator.x+11.06012000,generator.y-5.40525200,generator.z+0.22725900,false,false,false)
+	CreateObject(`ex_office_03b_GlassPane004`,generator.x+16.32030000,generator.y-5.41362200,generator.z+0.22725900,false,false,false)
+	CreateObject(`ex_office_03b_GlassPane003`,generator.x+11.06012000,generator.y-5.41357300,generator.z+0.22725900,false,false,false)
+	CreateObject(`ex_office_03b_GlassPane1`,generator.x+16.32030000,generator.y-5.40530200,generator.z+0.22725900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass020`,generator.x+17.59421000,generator.y-2.51997600,generator.z+0.50725900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass019`,generator.x+17.59421000,generator.y-4.25111800,generator.z+0.50725900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass022`,generator.x+17.59421000,generator.y+0.94213700,generator.z+0.50725900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass023`,generator.x+17.59421000,generator.y+2.67310600,generator.z+0.50725900,false,false,false)
+	CreateObject(`ex_office_03b_WinGlass021`,generator.x+17.59421000,generator.y-0.78900700,generator.z+0.50725900,false,false,false)
+	
+	CreateObject(`ex_office_03b_sideboardPower_1`,generator.x+16.32105000,generator.y-5.01578000,generator.z+0.10705600,false,false,false)
+	CreateObject(`ex_office_citymodel_01`,generator.x+13.74981000,generator.y-8.72368000,generator.z+0.80427800,false,false,false)
+	CreateObject(`ex_prop_tv_settop_remote`,generator.x+10.71205000,generator.y+0.19141700,generator.z+0.47649700,false,false,false)
+	CreateObject(`ex_prop_tv_settop_box`,generator.x+10.69669000,generator.y-0.02768300,generator.z+0.48917300,false,false,false)
+	local iw1 = CreateObject(`ex_office_03b_WinGlass014`,generator.x+6.15745700,generator.y-5.41205300,generator.z+0.17772200,false,false,false)
+	local iw2 = CreateObject(`ex_office_03b_WinGlass015`,generator.x+8.12344600,generator.y-5.41205300,generator.z+0.17772200,false,false,false)
+	local iw3 = CreateObject(`ex_office_03b_WinGlass013`,generator.x+4.19166100,generator.y-5.41205300,generator.z+0.17772200,false,false,false)
+	local frame2 = CreateObject(`ex_office_03b_wFrame2`,generator.x+6.14261300,generator.y-5.40933400,generator.z+0.00772200,false,false,false)
+	SetEntityHeading(frame2,GetEntityHeading(frame2)-90)
+	SetEntityHeading(iw1,GetEntityHeading(iw1)-90)
+	SetEntityHeading(iw2,GetEntityHeading(iw2)-90)
+	SetEntityHeading(iw3,GetEntityHeading(iw3)-90)
+	
+	CreateObject(`prop_printer_02`,generator.x+4.44948700,generator.y-5.72865900,generator.z+0.80441900,false,false,false)
+	CreateObject(`prop_kettle`,generator.x+4.13300000,generator.y-11.87105000,generator.z+0.95783400,false,false,false)
+	local micro = CreateObject(`prop_micro_02`,generator.x+3.64373400,generator.y-11.82465000,generator.z+1.09977400,false,false,false)
+	local sink = CreateObject(`ex_office_03b_kitchen`,generator.x+4.23552100,generator.y-11.73340000,generator.z+0.06602100,false,false,false)
+	local cm = CreateObject(`ex_mp_h_acc_coffeemachine_01`,generator.x+4.93680700,generator.y-11.69780000,generator.z+0.95783400,false,false,false)
+	CreateObject(`ex_office_03b_skirt2`,generator.x+4.10593700,generator.y-8.57737300,generator.z+0.04999800,false,false,false)
+	CreateObject(`ex_off_03b_GEOMLIGHT_WaitingArea`,generator.x+3.34384900,generator.y-10.12492000,generator.z+3.40000800,false,false,false)
+	CreateObject(`ex_p_h_acc_artwallm_01`,generator.x+1.01400200,generator.y-11.41125000,generator.z+2.19531300,false,false,false)
+	CreateObject(`ex_mp_h_tab_sidelrg_07`,generator.x-0.76488900,generator.y-10.34824000,generator.z-0.01339100,false,false,false)
+	CreateObject(`prop_glass_stack_02`,generator.x-0.96651900,generator.y-10.26981000,generator.z+0.43167700,false,false,false)
+	CreateObject(`ex_mp_h_acc_bottle_01`,generator.x-0.98562300,generator.y-10.59739000,generator.z+0.43070100,false,false,false)
+	SetEntityHeading(sink,GetEntityHeading(sink)-90)
+	SetEntityHeading(micro,GetEntityHeading(micro)-180)
+	SetEntityHeading(cm,GetEntityHeading(cm)-180)
+	
+	CreateObject(`v_res_fashmag1`,generator.x-0.62925100,generator.y-6.73683400,generator.z+0.42972400,false,false,false)
+	CreateObject(`v_res_fashmagopen`,generator.x+0.96242300,generator.y-8.98048600,generator.z+0.45161400,false,false,false)
+	CreateObject(`v_res_r_silvrtray`,generator.x-0.93600100,generator.y-10.36643000,generator.z+0.43167700,false,false,false)
+	CreateObject(`ex_mp_h_tab_sidelrg_07`,generator.x-0.76488900,generator.y-6.54443400,generator.z-0.01339100,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x+5.17286500,generator.y-9.76032300,generator.z+1.49840300,false,false,false)
+	CreateObject(`v_serv_2socket`,generator.x+5.17288600,generator.y-9.76032300,generator.z+0.30746700,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x+3.34560200,generator.y-6.32599200,generator.z+1.49840300,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x+3.34560200,generator.y-6.13697000,generator.z+1.49840300,false,false,false)
+	CreateObject(`v_serv_2socket`,generator.x+3.34574400,generator.y-6.23307400,generator.z+0.30746700,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x+4.03587600,generator.y-6.92667400,generator.z+1.49840300,false,false,false)
+
+	local edges4 = CreateObject(`ex_office_03b_EdgesWait`,generator.x+9.14111600,generator.y-5.90339900,generator.z+0.00000400,false,false,false)
+	SetEntityHeading(edges4,GetEntityHeading(edges4)-90)
+	CreateObject(`ex_office_03b_FloorLamp0102`,generator.x-0.76488900,generator.y-11.02532000,generator.z+0.01312800,false,false,false)
+	local gdesk = CreateObject(`ex_office_03b_desk004`,generator.x+1.10171100,generator.y-8.50667800,generator.z+0.03023800,false,false,false)
+	SetEntityHeading(gdesk,GetEntityHeading(gdesk)+90)
+	local iw4 = CreateObject(`ex_office_03b_WinGlass018`,generator.x+5.07940000,generator.y-5.42724400,generator.z+0.17772200,false,false,false)
+	local iw5 =CreateObject(`ex_office_03b_WinGlass017`,generator.x+7.04538900,generator.y-5.42724400,generator.z+0.17772200,false,false,false)
+	local iw6 =CreateObject(`ex_office_03b_WinGlass016`,generator.x+9.01118500,generator.y-5.42724400,generator.z+0.17772200,false,false,false)
+	SetEntityHeading(iw4,GetEntityHeading(iw4)+90)
+	SetEntityHeading(iw5,GetEntityHeading(iw5)+90)
+	SetEntityHeading(iw6,GetEntityHeading(iw6)+90)
+	CreateObject(`ex_office_03b_StripLamps_kitchen`,generator.x+4.25069000,generator.y-11.88272000,generator.z+1.67102200,false,false,false)
+	local sof = CreateObject(`ex_mp_h_off_sofa_003`,generator.x-0.76884700,generator.y-8.46005400,generator.z+0.00000000,false,false,false)
+	SetEntityHeading(sof,GetEntityHeading(sof)+90)
+	local armChair = CreateObject(`ex_Office_03b_WaitRmChairs`,generator.x+1.84398500,generator.y-10.90230000,generator.z+0.00000000,false,false,false)
+	SetEntityHeading(armChair,GetEntityHeading(armChair)+180)
+	CreateObject(`prop_laptop_01a`,generator.x+6.83454500,generator.y-5.95000000,generator.z+0.80231100,false,false,false)
+	CreateObject(`prop_laptop_01a`,generator.x+8.33620700,generator.y-5.95000000,generator.z+0.80231100,false,false,false)
+	CreateObject(`prop_laptop_01a`,generator.x+5.30988200,generator.y-5.95000000,generator.z+0.80231100,false,false,false)
+	
+	CreateObject(`ex_office_03b_skirt4`,generator.x+5.87873900,generator.y+9.78554600,generator.z+0.04999900,false,false,false)
+	CreateObject(`ex_office_03b_GEOMLIGHT_Bathroom`,generator.x+5.14397000,generator.y+8.93845400,generator.z+2.91470400,false,false,false)
+	CreateObject(`v_serv_bs_foam1`,generator.x+9.68656100,generator.y+13.41801000,generator.z+0.93879600,false,false,false)
+	CreateObject(`v_res_mlaundry`,generator.x+1.71013600,generator.y+7.30080300,generator.z+0.00000000,false,false,false)
+	CreateObject(`v_res_fh_towelstack`,generator.x+8.67294200,generator.y+5.77780000,generator.z+0.76876200,false,false,false)
+	CreateObject(`v_res_fh_towelstack`,generator.x+7.91499300,generator.y+5.81820500,generator.z+0.21617000,false,false,false)
+	CreateObject(`v_res_fh_towelstack`,generator.x+8.71047600,generator.y+5.81699000,generator.z+0.21617000,false,false,false)
+
+	CreateObject(`v_ret_ps_cologne`,generator.x+9.47080200,generator.y+12.13796000,generator.z+0.79701900,false,false,false)
+	CreateObject(`ex_office_03b_LampTable_02`,generator.x+9.69349400,generator.y+11.74564000,generator.z+0.80134400,false,false,false)
+	CreateObject(`ex_mp_h_acc_candles_01`,generator.x+8.90054500,generator.y+9.01688700,generator.z+0.94888600,false,false,false)
+	CreateObject(`ex_mp_h_acc_candles_04`,generator.x+8.88957000,generator.y+8.72137000,generator.z+0.94888600,false,false,false)
+	CreateObject(`ex_prop_offchair_exec_03`,generator.x+8.55600000,generator.y+13.13900000,generator.z+0.10198100,false,false,false)
+	CreateObject(`ex_mp_h_acc_vase_05`,generator.x+10.03610000,generator.y+11.24539000,generator.z+0.80134400,false,false,false)
+	CreateObject(`ex_mp_h_acc_scent_sticks_01`,generator.x+9.00073400,generator.y+8.85563500,generator.z+0.94888600,false,false,false)
+	CreateObject(`v_serv_bs_gel`,generator.x+9.45322400,generator.y+13.29018000,generator.z+0.83455500,false,false,false)
+
+	CreateObject(`ex_office_03b_FloorLamp01`,generator.x+2.87563600,generator.y+13.78156000,generator.z-0.00005500,false,false,false)
+	local gshelf = CreateObject(`ex_office_03b_GlassShelves2`,generator.x+10.06959000,generator.y+12.40041000,generator.z+0.75042600,false,false,false)
+	CreateObject(`ex_mp_h_acc_scent_sticks_01`,generator.x+10.10841000,generator.y+11.46752000,generator.z+0.80134400,false,false,false)
+	CreateObject(`v_serv_tc_bin3_`,generator.x+9.63415500,generator.y+13.87192000,generator.z+0.25574800,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x+1.51790700,generator.y+6.78857800,generator.z+1.49840300,false,false,false)
+	CreateObject(`v_serv_2socket`,generator.x+1.51944800,generator.y+6.78857800,generator.z+0.30746700,false,false,false)
+	CreateObject(`v_serv_2socket`,generator.x+2.51535200,generator.y+12.63103000,generator.z+0.30746700,false,false,false)
+	CreateObject(`v_serv_switch_3`,generator.x+2.51381100,generator.y+12.63103000,generator.z+1.49840300,false,false,false)
+	CreateObject(`ex_office_03b_Edges_Chng`,generator.x+4.58213600,generator.y+10.05374000,generator.z+0.00000400,false,false,false)
+	CreateObject(`v_club_brush`,generator.x+9.45322400,generator.y+13.54335000,generator.z+0.79894100,false,false,false)
+	CreateObject(`ex_prop_exec_bed_01`,generator.x+5.50940000,generator.y+13.10000000,generator.z-0.00000300,false,false,false)
+	CreateObject(`ex_office_03b_Shad_Bath`,generator.x+5.59655300,generator.y+12.34816000,generator.z+0.00000000,false,false,false)
+	local art = CreateObject(`ex_Office_03b_bathroomArt`,generator.x+10.19056000,generator.y+12.57837000,generator.z+1.66302500,false,false,false)
+	local power4 = CreateObject(`ex_office_03b_sideboardPower_004`,generator.x+8.81734200,generator.y+9.50928800,generator.z+0.10705600,false,false,false)
+	SetEntityHeading(art,GetEntityHeading(art)-90)
+	SetEntityHeading(gshelf,GetEntityHeading(gshelf)-180)
+	SetEntityHeading(power4,GetEntityHeading(power4)+90)
+	
+	local plate = CreateObject(`ex_mp_h_acc_dec_plate_01`,generator.x-16.45605000,generator.y-0.05843100,generator.z+1.00123400,false,false,false)
+	local art3 = CreateObject(`ex_p_h_acc_artwallm_03`,generator.x-16.69037000,generator.y-0.05843100,generator.z+1.76771000,false,false,false)
+	local table0 = CreateObject(`ex_prop_ex_console_table_01`,generator.x-16.33744000,generator.y-0.05843100,generator.z+0.00000000,false,false,false)
+	SetEntityHeading(art3,GetEntityHeading(art3)+90)
+	SetEntityHeading(plate,GetEntityHeading(plate)+90)
+	SetEntityHeading(table0,GetEntityHeading(table0)+90)
+
+	
+	CreateObject(`ex_office_03b_LIGHT_Foyer`,generator.x-3.82964100,generator.y+0.02804200,generator.z+3.10086700,false,false,false)
+	CreateObject(`ex_office_03b_normalonly1`,generator.x-8.42918000,generator.y-0.02619600,generator.z+0.71280200,false,false,false)
+	CreateObject(`ex_office_03b_foyerdetail`,generator.x-9.78775400,generator.y-0.02673700,generator.z+0.09000000,false,false,false)
+	CreateObject(`ex_Office_03b_numbers`,generator.x-9.93670100,generator.y-0.02917200,generator.z+2.40085100,false,false,false)
+	local detail = CreateObject(`ex_office_03b_elevators`,generator.x+10.49555000,generator.y+0.00422400,generator.z+0.08000000,false,false,false)
+	CreateObject(`ex_office_03b_CARPETS`,generator.x+8.07606700,generator.y+1.32258800,generator.z+0.00198900,false,false,false)
+	CreateObject(`ex_office_03b_Shower`,generator.x+0.34558600,generator.y+6.88265700,generator.z-0.06255700,false,false,false)
+	CreateObject(`ex_p_mp_h_showerdoor_s`,generator.x-0.59146200,generator.y+7.00626500,generator.z+1.20006700,false,false,false)
+	SetEntityHeading(detail,GetEntityHeading(detail)-90)
+	
+
+	CreateObject(`ex_p_mp_door_apart_doorbrown_s`,generator.x+1.44672400,generator.y+8.81843100,generator.z+1.24813200,false,false,false)
+	CreateObject(`ex_Office_03b_Proxy_CeilingLight`,generator.x+3.33397300,generator.y-0.02675400,generator.z+3.68248700,false,false,false)
+	CreateObject(`ex_Office_03b_ToiletSkirting`,generator.x+1.13302800,generator.y+11.37978000,generator.z+0.05000000,false,false,false)
+	CreateObject(`ex_Office_03b_Toilet`,generator.x+1.08040800,generator.y+12.24717000,generator.z+0.48479800,false,false,false)
+
+	CreateObject(`ex_Office_03b_ToiletArt`,generator.x+1.13303000,generator.y+12.73267000,generator.z+1.33258700,false,false,false)
+	CreateObject(`prop_toilet_roll_02`,generator.x+0.56858000,generator.y+12.57573000,generator.z+0.58252000,false,false,false)
+	CreateObject(`v_res_mlaundry`,generator.x+0.03584800,generator.y+12.02357000,generator.z+0.00000000,false,false,false)
+	CreateObject(`prop_towel_rail_02`,generator.x-0.12948900,generator.y+11.68217000,generator.z+0.70703100,false,false,false)
+	CreateObject(`v_res_tre_washbasket`,generator.x+2.09027800,generator.y+10.48882000,generator.z+0.00000000,false,false,false)
+	CreateObject(`ex_office_03b_sinks001`,generator.x+0.28737900,generator.y+11.64389000,generator.z+1.19806000,false,false,false)
+	CreateObject(`ex_Office_03b_ToiletTaps`,generator.x+0.01130900,generator.y+11.10180000,generator.z+1.01921500,false,false,false)
+	CreateObject(`ex_office_03b_GEOMLIGHT_Toilet`,generator.x+0.38847900,generator.y+11.50150000,generator.z+2.69625500,false,false,false)
+	CreateObject(`ex_p_mp_door_apart_doorbrown01`,generator.x+2.47054500,generator.y+10.99843000,generator.z+1.15000000,false,false,false)
+	CreateObject(`P_CS_Lighter_01`,generator.x+14.20325000,generator.y+10.73750000,generator.z+0.80564200,false,false,false)
+	CreateObject(`P_CS_Lighter_01`,generator.x+14.08056000,generator.y+0.25372600,generator.z+0.45519900,false,false,false)
+	CreateObject(`prop_beer_stzopen`,generator.x+8.70215000,generator.y-5.71030500,generator.z+0.80369400,false,false,false)
+	CreateObject(`ex_office_03b_room_blocker`,generator.x+6.21348800,generator.y+6.43969200,generator.z-0.29498500,false,false,false)
+
+	
+
+	CreateObject(`ex_prop_offchair_exec_01`,generator.x+14.25161000,generator.y+12.47272000,generator.z+0.02015500,false,false,false)
+
+	local chair4 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+16.08929000,generator.y-8.70579200,generator.z+0.09623700,false,false,false)
+	local chair5 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+5.29666500,generator.y-6.65300000,generator.z+0.09600000,false,false,false)
+	local chair6 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+6.82119500,generator.y-6.65300000,generator.z+0.09600000,false,false,false)
+	local chair7 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+8.34572400,generator.y-6.65300000,generator.z+0.09600000,false,false,false)
+
+	local chair1 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+14.92358000,generator.y-9.81548700,generator.z+0.09623700,false,false,false)
+	local chair2 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+13.73376000,generator.y-9.81548700,generator.z+0.09623700,false,false,false)
+	local chair3 = CreateObject(`ex_prop_offchair_exec_02`,generator.x+12.53418000,generator.y-9.81548700,generator.z+0.09623700,false,false,false)
+	CreateObject(`ex_prop_offchair_exec_02`,generator.x+12.56676000,generator.y-7.66744700,generator.z+0.09623700,false,false,false)
+	CreateObject(`ex_prop_offchair_exec_02`,generator.x+13.73958000,generator.y-7.66744700,generator.z+0.09623700,false,false,false)
+	CreateObject(`ex_prop_offchair_exec_02`,generator.x+14.95615000,generator.y-7.66744700,generator.z+0.09623700,false,false,false)
+
+
+	SetEntityHeading(chair1,GetEntityHeading(chair1)+180)
+	SetEntityHeading(chair2,GetEntityHeading(chair2)+180)
+	SetEntityHeading(chair3,GetEntityHeading(chair3)+180)
+	SetEntityHeading(chair4,GetEntityHeading(chair4)-90)
+	SetEntityHeading(chair5,GetEntityHeading(chair5)+180)
+	SetEntityHeading(chair6,GetEntityHeading(chair6)+180)
+	SetEntityHeading(chair7,GetEntityHeading(chair7)+180)
+	FreezeEntityPosition(building,true)
+  	
+end
+
+
+
 isJudge = true
 RegisterNetEvent("isJudge")
 AddEventHandler("isJudge", function()
@@ -1154,34 +2547,33 @@ end)
 
 
 
-function DrawText3Ds(x, y, z, text)
+function DrawText3Ds(x,y,z, text)
+    local onScreen,_x,_y=World3dToScreen2d(x,y,z)
+    local px,py,pz=table.unpack(GetGameplayCamCoords())
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
     SetTextProportional(1)
     SetTextColour(255, 255, 255, 215)
     SetTextEntry("STRING")
-    SetTextCentre(true)
+    SetTextCentre(1)
     AddTextComponentString(text)
-    SetDrawOrigin(x,y,z, 0)
-    DrawText(0.0, 0.0)
+    DrawText(_x,_y)
     local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
-    ClearDrawOrigin()
+    DrawRect(_x,_y+0.0125, 0.015+ factor, 0.03, 41, 11, 41, 68)
+
 end
 
-RegisterCommand('changechar', function()
-logout()
-end)
-
 function logout()
-    TransitionToBlurred(500)
     DoScreenFadeOut(500)
     Citizen.Wait(1000)
     CleanUpArea()
-    Citizen.Wait(1000)   
-		TriggerEvent("np-base:clearStates")
+	Citizen.Wait(1000)
+	myRoomType = 0   
+	TriggerEvent('inhotel', false)
+	TriggerEvent("np-base:clearStates")
+	TriggerServerEvent('hotel:clearStates', exports['isPed']:isPed('cid'))
     exports["np-base"]:getModule("SpawnManager"):Initialize()
-
+	currentselection = 1
 	Citizen.Wait(1000)
 end
 
@@ -1208,12 +2600,9 @@ end
 
 Controlkey = {
 	["generalUse"] = {38,"E"},
-	["housingMain"] = {38,"E"},
+	["housingMain"] = {74,"H"},
 	["housingSecondary"] = {47,"G"}
 } 
-
-
-
 RegisterNetEvent('event:control:update')
 AddEventHandler('event:control:update', function(table)
 	Controlkey["generalUse"] = table["generalUse"]
@@ -1225,21 +2614,23 @@ AddEventHandler('event:control:update', function(table)
 	end
 end)
 
-
-
+RegisterNetEvent('character:isNew')
+AddEventHandler('character:isNew', function(isNew)
+	isnew = isNew
+end)
 
 Citizen.CreateThread(function()
 
  	while true do
 		Citizen.Wait(0)
-	
+
 		comparedst = 1000
 
 		local plyId = PlayerPedId()
 		local plyCoords = GetEntityCoords(plyId)
 
 
-		local entryUpgradesDst = #(vector3(260.72366333008,-375.27133178711,-44.137680053711) - plyCoords)
+		local entryUpgradesDst = #(vector3(265.82,-629.46,42.02) - plyCoords)
 		local entry6th = #(vector3(apartments1[65]["x"],apartments1[65]["y"],apartments1[65]["z"]) - plyCoords)
 		local entry5rd = #(vector3(apartments1[50]["x"],apartments1[50]["y"],apartments1[50]["z"]) - plyCoords)
 		local entry4rd = #(vector3(4.67, -724.85, 32.18) -  plyCoords)
@@ -1280,7 +2671,7 @@ Citizen.CreateThread(function()
 
 
 			if entryUpgradesDst < 1.0 then
-				DrawText3Ds(260.72366333008,-375.27133178711,-44.137680053711, "~g~"..Controlkey["generalUse"][2].."~s~ Upgrade Housing (25k for tier 2.")
+				DrawText3Ds(265.82,-629.46,42.02, "~g~"..Controlkey["generalUse"][2].."~s~ Upgrade Housing (25k for tier 2.)")
 				if IsControlJustReleased(1,Controlkey["generalUse"][1]) then
 					TriggerEvent("hotel:AttemptUpgrade")
 					Citizen.Wait(2500)
@@ -1294,9 +2685,9 @@ Citizen.CreateThread(function()
 						DrawMarker(20,apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"], 0, 0, 0, 0, 0, 0, 0.701,1.0001,0.3001, 0, 155, 255, 200, 0, 0, 0, 0)
 						if myappdist < 3.0 then
 							if myRoomLock then
-								DrawText3Ds(apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"], "~g~"..Controlkey["housingMain"][2].."~s~ to enter ~b~"..Controlkey["housingSecondary"][2].."~s~ to unlock (" .. myRoomNumber .. ")")
+								DrawText3Ds(apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"], "~g~"..Controlkey["housingMain"][2].."~s~ to enter ~g~"..Controlkey["housingSecondary"][2].."~s~ to unlock (" .. myRoomNumber .. ")")
 							else
-								DrawText3Ds(apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"], "~g~H~s~ to enter ~g~b~s~ to lock (" .. myRoomNumber .. ")")
+								DrawText3Ds(apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"], "~g~H~s~ to enter ~g~G~s~ to lock (" .. myRoomNumber .. ")")
 							end
 						end
 					end
@@ -1334,24 +2725,20 @@ Citizen.CreateThread(function()
 					if #(vector3(apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"]) - plyCoords) < 5 and myRoomType == 1 then	
 						TriggerEvent("dooranim")
 						TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 3.0, 'keydoors', 0.4)
-						if myRoomLock == false then
-						TriggerServerEvent("hotel:updateLockStatus",true)
-				
-						Citizen.Wait(500)
+						if myRoomLock then
+							TriggerServerEvent("hotel:updatelocks", false)
 						else
-							TriggerServerEvent("hotel:updateLockStatus",false)
+							TriggerServerEvent("hotel:updatelocks", true)
 						end
+						Citizen.Wait(500)
 					elseif myRoomType ~= 1 then
 						TriggerEvent("dooranim")
 						TriggerServerEvent('InteractSound_SV:PlayWithinDistance', 3.0, 'keydoors', 0.4)
-						if myRoomLock == false then
-							TriggerServerEvent("hotel:updateLockStatus",true)
-					
-							Citizen.Wait(500)
-							else
-						
-								TriggerServerEvent("hotel:updateLockStatus",false)
-							end
+						if myRoomLock then
+							TriggerServerEvent("hotel:updatelocks", false)
+						else
+							TriggerServerEvent("hotel:updatelocks", true)
+						end
 						Citizen.Wait(500)
 					end
 				end
@@ -1363,6 +2750,7 @@ Citizen.CreateThread(function()
 					Citizen.Wait(300)
 					TriggerEvent("dooranim")
 					TriggerEvent('InteractSound_CL:PlayOnOne','DoorOpen', 0.7)
+					TriggerEvent('raid_clothes:enable', true)
 
 					if #(vector3(apartments1[myRoomNumber]["x"],apartments1[myRoomNumber]["y"],apartments1[myRoomNumber]["z"]) - plyCoords) < 5 and myRoomType == 1 then	
 						processBuildType(myRoomNumber,myRoomType)
@@ -1382,27 +2770,31 @@ Citizen.CreateThread(function()
 				end
 			end
 
-			if #(vector3(myroomcoords.x-2, myroomcoords.y + 2.5, myroomcoords.z+1.5) - plyCoords) < 3.0 and curRoomType == 1 then
-				DrawText3Ds(myroomcoords.x-2, myroomcoords.y + 2.5, myroomcoords.z+1.5, '~g~ G ~s~ to Logout.')
+			if #(vector3(myroomcoords.x-2, myroomcoords.y + 2.5, myroomcoords.z) - plyCoords) < 1.5 and curRoomType == 1 then
+				DrawText3Ds(myroomcoords.x-2, myroomcoords.y + 2.5, myroomcoords.z+1.5, '~g~'..Controlkey["housingSecondary"][2]..'~s~ to swap char or /outfits.')
 				if IsControlJustReleased(1,Controlkey["housingSecondary"][1]) then
 					logout()
 				end
-			elseif #(vector3(myroomcoords.x+8, myroomcoords.y + 4, myroomcoords.z+0.4) - plyCoords) < 3.0 and curRoomType == 2 then
-				DrawText3Ds(myroomcoords.x+8.3, myroomcoords.y + 8, myroomcoords.z+2.4, '~g~ G ~s~ to Logout.')
+			elseif #(vector3(myroomcoords.x+8, myroomcoords.y + 4, myroomcoords.z+0.4) - plyCoords) < 5.5 and curRoomType == 2 then
+				DrawText3Ds(myroomcoords.x+8, myroomcoords.y + 4, myroomcoords.z+2.4, '~g~'..Controlkey["housingSecondary"][2]..'~s~ to swap char or /outfits.')
+				if IsControlJustReleased(1, Controlkey["housingSecondary"][1]) then
+					logout()
+				end
+			elseif #(vector3(myroomcoords.x + 6, myroomcoords.y + 6, myroomcoords.z) - plyCoords) < 2.5 and curRoomType == 3 then
+				DrawText3Ds(myroomcoords.x + 6, myroomcoords.y + 6, myroomcoords.z+1.5, '~g~'..Controlkey["housingSecondary"][2]..'~s~ to swap char or /outfits.')
 				if IsControlJustReleased(1, Controlkey["housingSecondary"][1]) then
 					logout()
 				end
 			end	
 			if 	(#(vector3(myroomcoords.x - 14.3, myroomcoords.y - 02.00, myroomcoords.z + 7.02) - plyCoords) < 3.0 and curRoomType == 3) or 
-				(#(vector3(myroomcoords.x +  4.3, myroomcoords.y - 11.7,myroomcoords.z+2.42) - plyCoords) < 3.0 and curRoomType == 2) or 
-
+				(#(vector3(myroomcoords.x + 4.30, myroomcoords.y - 15.95, myroomcoords.z + 0.42) - plyCoords) < 3.0 and curRoomType == 2) or 
 				(#(vector3(myroomcoords.x - 2.00, myroomcoords.y - 04.00, myroomcoords.z) - plyCoords) < 3.0 and curRoomType == 1) 
 			then
 				
 				if curRoomType == 2 then
-	
-					DrawText3Ds(myroomcoords.x + 4.3,myroomcoords.y - 11.7,myroomcoords.z+2.42, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave')
-							
+					DrawText3Ds(myroomcoords.x + 4.3,myroomcoords.y - 15.95,myroomcoords.z+2.42, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave')
+				elseif curRoomType == 3 then
+					DrawText3Ds(myroomcoords.x - 14.45,myroomcoords.y - 2.5,myroomcoords.z+7.3, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave or ~g~'..Controlkey["housingSecondary"][2]..'~s~ to enter garage.')				
 				elseif curRoomType == 1 then
 					DrawText3Ds(myroomcoords.x - 1.15,myroomcoords.y - 4.2,myroomcoords.z+1.20, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave')
 				end
@@ -1426,6 +2818,7 @@ Citizen.CreateThread(function()
 					Citizen.Wait(100)
 					TriggerEvent("dooranim")
 					TriggerEvent('InteractSound_CL:PlayOnOne','DoorClose', 0.7)
+					TriggerEvent('raid_clothes:enable', false)
 					curRoom = { x = 1420.0, y = 1420.0, z = -900.0 }
 					TriggerEvent("attachWeapons")
 				end
@@ -1445,14 +2838,15 @@ Citizen.CreateThread(function()
  
 			end
 
-			if 	(#(vector3(myroomcoords.x - 1.6, myroomcoords.y + 1.20, myroomcoords.z + 1.00) - plyCoords) < 5.0 and curRoomType == 1) or 
-				(#(vector3(myroomcoords.x+ 9.5, myroomcoords.y + 2.8, myroomcoords.z + 0.15) - plyCoords) < 5.0 and curRoomType == 2) or 
+			if 	(#(vector3(myroomcoords.x - 1.6, myroomcoords.y + 1.20, myroomcoords.z + 1.00) - plyCoords) < 2.0 and curRoomType == 1) or 
+				(#(vector3(myroomcoords.x + 9.8, myroomcoords.y - 1.35, myroomcoords.z + 0.15) - plyCoords) < 5.0 and curRoomType == 2) or 
 				(#(vector3(myroomcoords.x + 1.5, myroomcoords.y + 8.00, myroomcoords.z + 1.00) - plyCoords) < 5.0 and curRoomType == 3) 
 				and canInteract 
 			then
 				if curRoomType == 2 then
-					DrawText3Ds(myroomcoords.x+9.5, myroomcoords.y + 2.8, myroomcoords.z+2.15, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
-		
+					DrawText3Ds(myroomcoords.x+9.8, myroomcoords.y - 1.35, myroomcoords.z+2.15, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
+				elseif curRoomType == 3 then
+					DrawText3Ds(myroomcoords.x + 1.5, myroomcoords.y + 8, myroomcoords.z+1, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
 				elseif curRoomType == 1 then
 					DrawText3Ds(myroomcoords.x - 1.6,myroomcoords.y + 1.2, myroomcoords.z+1, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
 				end
@@ -1462,11 +2856,10 @@ Citizen.CreateThread(function()
 						canInteract = false
 						TriggerEvent('InteractSound_CL:PlayOnOne','StashOpen', 0.6)
 						maxRoomWeight = 100.0 * (curRoomType * 2)
-						local cid = exports["isPed"]:isPed("cid")
 						if not isForced then
 							TriggerServerEvent('hotel:getID')
 						end
-						TriggerEvent("server-inventory-open", "1", "motel"..curRoomType.."-"..cid)
+						TriggerEvent("server-inventory-open", "1", "motel"..curRoomType.."-"..hid)
 
 						TriggerEvent("actionbar:setEmptyHanded")
 					else
@@ -1477,14 +2870,15 @@ Citizen.CreateThread(function()
 			end
 
 		if 	(#(vector3(curRoom.x - 1.6, curRoom.y + 1.20, curRoom.z + 1.00) - plyCoords) < 2.0 and curRoomType == 1) or 
-			(#(vector3(curRoom.x + 9.5, curRoom.y + 2.8, curRoom.z + 0.15) - plyCoords) < 2.0 and curRoomType == 2) or 
+			(#(vector3(curRoom.x + 9.8, curRoom.y - 1.35, curRoom.z + 0.15) - plyCoords) < 2.0 and curRoomType == 2) or 
 			(#(vector3(curRoom.x + 1.5, curRoom.y + 8.00, curRoom.z + 1.00) - plyCoords) < 2.0 and curRoomType == 3) and 
 			canInteract 
 		then
 
 			if curRoomType == 2 then
-				DrawText3Ds(curRoom.x+ 9.5, curRoom.y +  2.8, curRoom.z+2.15, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
-
+				DrawText3Ds(curRoom.x+9.8, curRoom.y - 1.35, curRoom.z+2.15, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
+			elseif curRoomType == 3 then
+				DrawText3Ds(curRoom.x + 1.5, curRoom.y + 8, curRoom.z+1, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
 			elseif curRoomType == 1 then
 				DrawText3Ds(curRoom.x - 1.6,curRoom.y + 1.2, curRoom.z+1, '~g~'..Controlkey["housingMain"][2]..'~s~ to interact')
 			end
@@ -1518,12 +2912,13 @@ Citizen.CreateThread(function()
 
 	
 		if 	(#(vector3(curRoom.x - 14.3,curRoom.y - 2,curRoom.z+7.02) - plyCoords) < 3.0 and curRoomType == 3) or 
-			(#(vector3(curRoom.x +  4.3, curRoom.y - 11.7,curRoom.z+2.42) - plyCoords) < 3.0 and curRoomType == 2) or 
+			(#(vector3(curRoom.x + 4.3,curRoom.y - 15.95,curRoom.z+0.42) - plyCoords) < 3.0 and curRoomType == 2) or 
 			(#(vector3(curRoom.x - 2,curRoom.y - 4,curRoom.z) - plyCoords) < 3.0 and curRoomType == 1) 
 		then
 				if curRoomType == 2 then
-					DrawText3Ds(myroomcoords.x + 4.3,myroomcoords.y - 11.7,myroomcoords.z+2.42, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave')
-				
+					DrawText3Ds(curRoom.x + 4.3,curRoom.y - 15.95,curRoom.z+2.42, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave')
+				elseif curRoomType == 3 then
+					DrawText3Ds(curRoom.x - 14.45,curRoom.y - 2.5,curRoom.z+7.3, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave or ~g~'..Controlkey["housingSecondary"][2]..'~s~ to enter garage.')	
 				elseif curRoomType == 1 then
 					DrawText3Ds(curRoom.x - 1.15,curRoom.y - 4.2,curRoom.z+1.20, '~g~'..Controlkey["housingMain"][2]..'~s~ to leave')
 				end
@@ -1599,12 +2994,12 @@ Citizen.CreateThread(function()
 								ingarage = false
 								
 							else
-								TriggerEvent("DoLongHudText","Vehicle on spawn.",2)
+								TriggerEvent("DoShortHudText","Vehicle on spawn.",2)
 							end
 
 							--leaveappartment
 						else
-							TriggerEvent("DoLongHudText","Enter Vehicle First", 2)
+							TriggerEvent("DoShortHudText","Enter Vehicle First", 2)
 						end
 					end
 				end
@@ -1618,7 +3013,6 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
-
 
 function nearClothingMotel()
 	if #(vector3(myroomcoords.x, myroomcoords.y + 3, myroomcoords.z) - GetEntityCoords(PlayerPedId())) < 5.5 and curRoomType == 1 then
@@ -1635,1842 +3029,42 @@ function nearClothingMotel()
 		return true
 	end	
 
-	local myjob = exports["isPed"]:isPed("myjob")
+	local myjob = exports["isPed"]:isPed("job")
 	--missionrow locker room
-	if myjob == "police" then
+	if myjob == "Police" then
 		return true
 	end
 
-	if myjob == "ems" then
-		return true
-	end
-
-	if myjob == "doctor" then
+	if myjob == "EMS" then
 		return true
 	end
 	return false
 end
 
-RegisterNetEvent('hotel:listSKINSFORCYRTHESICKFUCK')
-AddEventHandler('hotel:listSKINSFORCYRTHESICKFUCK', function(skincheck)
-	for i = 1, #skincheck do
-		TriggerEvent("DoLongHudText", skincheck[i].slot .. " | " .. skincheck[i].name,i)
-	end
-end)
-
 RegisterNetEvent('hotel:outfit')
-AddEventHandler('hotel:outfit', function(args,sentType)
+AddEventHandler('hotel:outfit', function(id, args,sentType)
 
 	if nearClothingMotel() then
+    	local cid = exports['isPed']:isPed('cid')
 		if sentType == 1 then
-			local id = args[2]
+			local id = id
 			table.remove(args, 1)
-			table.remove(args, 1)
-			strng = ""
-			for i = 1, #args do
-				strng = strng .. " " .. args[i]
+			local text = '' -- edit here if you want to change the language : EN: the person / FR: la personne
+			for i = 1,#args do
+				text = text .. '' .. args[i]
 			end
-			TriggerEvent("raid_clothes:outfits", sentType, id, strng)
+			text = text .. ''
+			TriggerEvent("raid_clothes:outfits", sentType, id, text)
 		elseif sentType == 2 then
-			local id = args[2]
+			local id = id
 			TriggerEvent("raid_clothes:outfits", sentType, id)
 		elseif sentType == 3 then
-			local id = args[2]
+			local id = id
 			TriggerEvent('item:deleteClothesDna')
 			TriggerEvent('InteractSound_CL:PlayOnOne','Clothes1', 0.6)
 			TriggerEvent("raid_clothes:outfits", sentType, id)
 		else
-			TriggerServerEvent("raid_clothes:list_outfits")
+			TriggerServerEvent("raid_clothes:list_outfits", cid)
 		end
 	end
 end)
-
-
-
-robberycoordsMansions = {
-	[1] =  { ['x'] = -7.22,['y'] = 409.2,['z'] = 120.13,['h'] = 76.61, ['info'] = ' Didion Drive 1', ["office"] = 2 },
-	[2] =  { ['x'] = -73.12,['y'] = 427.51,['z'] = 113.04,['h'] = 157.75, ['info'] = ' Didion Drive 2', ["office"] = 2 },
-	[3] =  { ['x'] = -166.83,['y'] = 425.11,['z'] = 111.8,['h'] = 15.34, ['info'] = ' Didion Drive 3', ["office"] = 2 },
-	[4] =  { ['x'] = 38.08,['y'] = 365.11,['z'] = 116.05,['h'] = 221.39, ['info'] = ' Didion Drive 4', ["office"] = 2 },
-	[5] =  { ['x'] = -214.09,['y'] = 399.86,['z'] = 111.31,['h'] = 13.43, ['info'] = ' Didion Drive 5', ["office"] = 2 },
-	[6] =  { ['x'] = -239.04,['y'] = 381.64,['z'] = 112.62,['h'] = 111.63, ['info'] = ' Didion Drive 6', ["office"] = 2 },
-	[7] =  { ['x'] = -297.74,['y'] = 380.3,['z'] = 112.1,['h'] = 11.17, ['info'] = ' Didion Drive 7', ["office"] = 2 },
-	[8] =  { ['x'] = -328.28,['y'] = 369.99,['z'] = 110.01,['h'] = 20.95, ['info'] = ' Didion Drive 8', ["office"] = 2 },
-	[9] =  { ['x'] = -371.8,['y'] = 344.28,['z'] = 109.95,['h'] = 3.39, ['info'] = ' Didion Drive 9', ["office"] = 2 },
-	[10] =  { ['x'] = -408.92,['y'] = 341.67,['z'] = 108.91,['h'] = 274.84, ['info'] = ' Didion Drive 10', ["office"] = 2 },
-	[11] =  { ['x'] = -444.27,['y'] = 343.86,['z'] = 105.39,['h'] = 184.95, ['info'] = ' Didion Drive 11', ["office"] = 2 },
-	[12] =  { ['x'] = -468.94,['y'] = 329.99,['z'] = 104.49,['h'] = 241.99, ['info'] = ' Didion Drive 12', ["office"] = 2 },
-	[13] =  { ['x'] = -305.22,['y'] = 431.56,['z'] = 110.31,['h'] = 10.16, ['info'] = ' Cox Way 1', ["office"] = 0 },
-	[14] =  { ['x'] = -371.86,['y'] = 408.06,['z'] = 110.6,['h'] = 115.71, ['info'] = ' Cox Way 2', ["office"] = 0 },
-	[15] =  { ['x'] = -400.54,['y'] = 427.2,['z'] = 112.35,['h'] = 246.04, ['info'] = ' Cox Way 3', ["office"] = 0 },
-	[16] =  { ['x'] = -451.53,['y'] = 395.61,['z'] = 104.78,['h'] = 85.78, ['info'] = ' Cox Way 4', ["office"] = 0 },
-	[17] =  { ['x'] = -477.33,['y'] = 413.03,['z'] = 103.13,['h'] = 185.61, ['info'] = ' Cox Way 5', ["office"] = 0 },
-	[18] =  { ['x'] = -500.49,['y'] = 398.66,['z'] = 98.15,['h'] = 54.31, ['info'] = ' Cox Way 6', ["office"] = 0 },
-	[19] =  { ['x'] = -516.95,['y'] = 433.19,['z'] = 97.81,['h'] = 130.67, ['info'] = ' Cox Way 7', ["office"] = 0 },
-	[20] =  { ['x'] = -561.08,['y'] = 403.19,['z'] = 101.81,['h'] = 17.43, ['info'] = ' Milton Road 1', ["office"] = 2 },
-	[21] =  { ['x'] = -595.7,['y'] = 393.54,['z'] = 101.89,['h'] = 3.1, ['info'] = ' Milton Road 2', ["office"] = 2 },
-	[22] =  { ['x'] = -615.57,['y'] = 399.15,['z'] = 101.24,['h'] = 5.39, ['info'] = ' Milton Road 3', ["office"] = 2 },
-	[23] =  { ['x'] = 223.17,['y'] = 514.43,['z'] = 140.77,['h'] = 38.98, ['info'] = ' Wild Oats Drive 1', ["office"] = 2 },
-
-	[24] =  { ['x'] = -500.27,['y'] = 552.37,['z'] = 120.43,['h'] = 326.56, ['info'] = ' Didion Drive 21', ["office"] = 2 },
-
-	[25] =  { ['x'] = 118.82,['y'] = 494.01,['z'] = 147.35,['h'] = 106.07, ['info'] = ' Wild Oats Drive 3', ["office"] = 2 },
-	[26] =  { ['x'] = 106.9,['y'] = 467.73,['z'] = 147.38,['h'] = 2.1, ['info'] = ' Wild Oats Drive 4', ["office"] = 2 },
-	[27] =  { ['x'] = 80.21,['y'] = 485.85,['z'] = 148.21,['h'] = 208.96, ['info'] = ' Wild Oats Drive 5', ["office"] = 2 },
-	[28] =  { ['x'] = 57.84,['y'] = 450.05,['z'] = 147.04,['h'] = 328.16, ['info'] = ' Wild Oats Drive 6', ["office"] = 2 },
-	[29] =  { ['x'] = 42.98,['y'] = 468.72,['z'] = 148.1,['h'] = 169.75, ['info'] = ' Wild Oats Drive 7', ["office"] = 2 },
-	[30] =  { ['x'] = -7.79,['y'] = 468.12,['z'] = 145.86,['h'] = 341.41, ['info'] = ' Wild Oats Drive 8', ["office"] = 2 },
-	[31] =  { ['x'] = -66.83,['y'] = 490.18,['z'] = 144.89,['h'] = 338.4, ['info'] = ' Wild Oats Drive 9', ["office"] = 2 },
-	[32] =  { ['x'] = -109.87,['y'] = 502.01,['z'] = 143.48,['h'] = 347.61, ['info'] = ' Wild Oats Drive 10', ["office"] = 2 },
-	[33] =  { ['x'] = -174.76,['y'] = 502.6,['z'] = 137.43,['h'] = 91.98, ['info'] = ' Wild Oats Drive 11', ["office"] = 2 },
-	[34] =  { ['x'] = -230.26,['y'] = 488.43,['z'] = 128.77,['h'] = 1.71, ['info'] = ' Wild Oats Drive 12', ["office"] = 2 },
-	[36] =  { ['x'] = 232.01,['y'] = 672.55,['z'] = 189.95,['h'] = 38.31, ['info'] = ' Whispymound Drive 1', ["office"] = 2 },
-	[37] =  { ['x'] = 216.04,['y'] = 620.57,['z'] = 187.64,['h'] = 71.57, ['info'] = ' Whispymound Drive 2', ["office"] = 2 },
-	[38] =  { ['x'] = 184.86,['y'] = 571.73,['z'] = 183.34,['h'] = 284.56, ['info'] = ' Whispymound Drive 3', ["office"] = 2 },
-	[39] =  { ['x'] = 128.18,['y'] = 566.05,['z'] = 183.96,['h'] = 3.58, ['info'] = ' Whispymound Drive 4', ["office"] = 2 },
-	[40] =  { ['x'] = 84.89,['y'] = 561.77,['z'] = 182.78,['h'] = 1.88, ['info'] = ' Whispymound Drive 5', ["office"] = 2 },
-	[41] =  { ['x'] = 45.75,['y'] = 556.64,['z'] = 180.09,['h'] = 18.32, ['info'] = ' Whispymound Drive 6', ["office"] = 2 },
-	[42] =  { ['x'] = 8.41,['y'] = 540.01,['z'] = 176.03,['h'] = 332.48, ['info'] = ' Whispymound Drive 7', ["office"] = 2 },
-	[43] =  { ['x'] = 228.52,['y'] = 765.89,['z'] = 204.79,['h'] = 59.33, ['info'] = ' Kimble Hill Drive 1', ["office"] = 2 },
-	[44] =  { ['x'] = -126.46,['y'] = 588.54,['z'] = 204.72,['h'] = 359.66, ['info'] = ' Kimble Hill Drive 2', ["office"] = 2 },
-	[45] =  { ['x'] = -185.28,['y'] = 591.2,['z'] = 197.83,['h'] = 357.1, ['info'] = ' Kimble Hill Drive 3', ["office"] = 2 },
-	[46] =  { ['x'] = -189.57,['y'] = 617.86,['z'] = 199.67,['h'] = 190.04, ['info'] = ' Kimble Hill Drive 4', ["office"] = 2 },
-	[47] =  { ['x'] = -232.61,['y'] = 589.02,['z'] = 190.54,['h'] = 353.79, ['info'] = ' Kimble Hill Drive 5', ["office"] = 2 },
-	[48] =  { ['x'] = -256.67,['y'] = 632.44,['z'] = 187.81,['h'] = 75.18, ['info'] = ' Kimble Hill Drive 6', ["office"] = 2 },
-	[49] =  { ['x'] = -293.54,['y'] = 600.83,['z'] = 181.58,['h'] = 348.16, ['info'] = ' Kimble Hill Drive 7', ["office"] = 2 },
-	[50] =  { ['x'] = -299.18,['y'] = 635.27,['z'] = 175.69,['h'] = 118.75, ['info'] = ' Kimble Hill Drive 8', ["office"] = 2 },
-	[51] =  { ['x'] = -339.79,['y'] = 668.58,['z'] = 172.79,['h'] = 254.73, ['info'] = ' Kimble Hill Drive 9', ["office"] = 2 },
-	[52] =  { ['x'] = -340.03,['y'] = 625.84,['z'] = 171.36,['h'] = 57.48, ['info'] = ' Kimble Hill Drive 10', ["office"] = 2 },
-	[53] =  { ['x'] = -400.12,['y'] = 664.99,['z'] = 163.84,['h'] = 352.99, ['info'] = ' Kimble Hill Drive 11', ["office"] = 2 },
-	[54] =  { ['x'] = -445.88,['y'] = 685.71,['z'] = 152.96,['h'] = 202.25, ['info'] = ' Kimble Hill Drive 12', ["office"] = 2 },
-	[55] =  { ['x'] = -476.73,['y'] = 648.15,['z'] = 144.39,['h'] = 14.58, ['info'] = ' Kimble Hill Drive 13', ["office"] = 2 },
-	[56] =  { ['x'] = -595.47,['y'] = 530.13,['z'] = 107.76,['h'] = 196.13, ['info'] = ' Picture Perfect Drive 1', ["office"] = 2 },
-	[57] =  { ['x'] = -580.6,['y'] = 492.09,['z'] = 108.91,['h'] = 10.17, ['info'] = ' Picture Perfect Drive 2', ["office"] = 2 },
-	[58] =  { ['x'] = -622.94,['y'] = 489.34,['z'] = 108.85,['h'] = 5.51, ['info'] = ' Picture Perfect Drive 3', ["office"] = 2 },
-	[59] =  { ['x'] = -640.95,['y'] = 519.88,['z'] = 109.69,['h'] = 182.77, ['info'] = ' Picture Perfect Drive 4', ["office"] = 2 },
-	[60] =  { ['x'] = -667.47,['y'] = 472.42,['z'] = 114.14,['h'] = 13.3, ['info'] = ' Picture Perfect Drive 5', ["office"] = 2 },
-	[61] =  { ['x'] = -679.0,['y'] = 512.16,['z'] = 113.53,['h'] = 197.35, ['info'] = ' Picture Perfect Drive 6', ["office"] = 2 },
-	[62] =  { ['x'] = -721.23,['y'] = 490.13,['z'] = 109.39,['h'] = 208.02, ['info'] = ' Picture Perfect Drive 7', ["office"] = 2 },
-	[63] =  { ['x'] = -718.16,['y'] = 449.2,['z'] = 106.91,['h'] = 20.93, ['info'] = ' Picture Perfect Drive 8', ["office"] = 2 },
-	[64] =  { ['x'] = -784.21,['y'] = 459.01,['z'] = 100.18,['h'] = 212.24, ['info'] = ' Picture Perfect Drive 9', ["office"] = 2 },
-	[65] =  { ['x'] = -762.31,['y'] = 431.49,['z'] = 100.2,['h'] = 15.68, ['info'] = ' Picture Perfect Drive 10', ["office"] = 2 },
-	[66] =  { ['x'] = -824.95,['y'] = 422.82,['z'] = 92.13,['h'] = 6.05, ['info'] = ' Picture Perfect Drive 11', ["office"] = 2 },
-	[67] =  { ['x'] = -559.45,['y'] = 663.99,['z'] = 145.49,['h'] = 337.57, ['info'] = ' Normandy Drive 1', ["office"] = 2 },
-	[68] =  { ['x'] = -564.36,['y'] = 684.27,['z'] = 146.42,['h'] = 203.91, ['info'] = ' Normandy Drive 2', ["office"] = 2 },
-	[69] =  { ['x'] = -605.93,['y'] = 672.75,['z'] = 151.6,['h'] = 345.9, ['info'] = ' Normandy Drive 3', ["office"] = 2 },
-	[70] =  { ['x'] = -708.57,['y'] = 712.76,['z'] = 162.21,['h'] = 272.94, ['info'] = ' Normandy Drive 4', ["office"] = 2 },
-	[71] =  { ['x'] = -646.4,['y'] = 740.98,['z'] = 174.29,['h'] = 38.54, ['info'] = ' Normandy Drive 5', ["office"] = 2 },
-	[72] =  { ['x'] = -579.87,['y'] = 733.37,['z'] = 184.22,['h'] = 7.9, ['info'] = ' Normandy Drive 6', ["office"] = 2 },
-	[73] =  { ['x'] = -597.52,['y'] = 763.76,['z'] = 189.13,['h'] = 210.93, ['info'] = ' Normandy Drive 7', ["office"] = 2 },
-	[74] =  { ['x'] = -595.54,['y'] = 780.72,['z'] = 189.12,['h'] = 296.9, ['info'] = ' Normandy Drive 8', ["office"] = 2 },
-	[75] =  { ['x'] = -600.0,['y'] = 807.57,['z'] = 191.53,['h'] = 191.89, ['info'] = ' Normandy Drive 9', ["office"] = 2 },
-	[76] =  { ['x'] = -655.22,['y'] = 803.0,['z'] = 199.0,['h'] = 357.23, ['info'] = ' Normandy Drive 10', ["office"] = 2 },
-	[77] =  { ['x'] = -747.0,['y'] = 808.49,['z'] = 215.04,['h'] = 288.83, ['info'] = ' Normandy Drive 11', ["office"] = 2 },
-	[78] =  { ['x'] = -824.35,['y'] = 806.44,['z'] = 202.79,['h'] = 15.32, ['info'] = ' North Sheldon Ave 1', ["office"] = 2 },
-	[79] =  { ['x'] = -867.25,['y'] = 785.09,['z'] = 191.94,['h'] = 3.26, ['info'] = ' North Sheldon Ave 2', ["office"] = 2 },
-	[80] =  { ['x'] = -912.39,['y'] = 778.25,['z'] = 187.02,['h'] = 2.82, ['info'] = ' North Sheldon Ave 3', ["office"] = 2 },
-	[81] =  { ['x'] = -931.8,['y'] = 808.57,['z'] = 184.79,['h'] = 181.85, ['info'] = ' North Sheldon Ave 4', ["office"] = 2 },
-	[82] =  { ['x'] = -962.78,['y'] = 813.66,['z'] = 177.57,['h'] = 183.43, ['info'] = ' North Sheldon Ave 5', ["office"] = 2 },
-	[83] =  { ['x'] = -998.42,['y'] = 815.67,['z'] = 173.05,['h'] = 224.1, ['info'] = ' North Sheldon Ave 6', ["office"] = 2 },
-	[84] =  { ['x'] = -972.8,['y'] = 752.81,['z'] = 176.39,['h'] = 43.1, ['info'] = ' North Sheldon Ave 7', ["office"] = 2 },
-	[85] =  { ['x'] = -1067.57,['y'] = 795.05,['z'] = 166.93,['h'] = 183.88, ['info'] = ' North Sheldon Ave 8', ["office"] = 2 },
-	[86] =  { ['x'] = -1100.53,['y'] = 797.36,['z'] = 167.26,['h'] = 184.42, ['info'] = ' North Sheldon Ave 9', ["office"] = 2 },
-	[87] =  { ['x'] = -1117.75,['y'] = 761.5,['z'] = 164.29,['h'] = 22.96, ['info'] = ' North Sheldon Ave 10', ["office"] = 2 },
-	[88] =  { ['x'] = -1165.36,['y'] = 727.02,['z'] = 155.61,['h'] = 320.97, ['info'] = ' North Sheldon Ave 11', ["office"] = 2 },
-	[89] =  { ['x'] = -1197.14,['y'] = 693.54,['z'] = 147.43,['h'] = 58.55, ['info'] = ' North Sheldon Ave 12', ["office"] = 2 },
-	[90] =  { ['x'] = -1218.75,['y'] = 665.49,['z'] = 144.54,['h'] = 36.9, ['info'] = ' North Sheldon Ave 13', ["office"] = 2 },
-	[91] =  { ['x'] = -1241.58,['y'] = 674.09,['z'] = 142.82,['h'] = 163.44, ['info'] = ' North Sheldon Ave 14', ["office"] = 2 },
-	[92] =  { ['x'] = -1248.57,['y'] = 643.07,['z'] = 142.7,['h'] = 298.47, ['info'] = ' North Sheldon Ave 15', ["office"] = 2 },
-	[93] =  { ['x'] = -1291.69,['y'] = 649.68,['z'] = 141.51,['h'] = 195.36, ['info'] = ' North Sheldon Ave 16', ["office"] = 2 },
-	[94] =  { ['x'] = -1277.65,['y'] = 630.03,['z'] = 143.19,['h'] = 126.27, ['info'] = ' North Sheldon Ave 17', ["office"] = 2 },
-	[95] =  { ['x'] = -1405.62,['y'] = 526.89,['z'] = 123.84,['h'] = 89.48, ['info'] = ' North Sheldon Ave 18', ["office"] = 2 },
-	[96] =  { ['x'] = -1413.54,['y'] = 462.68,['z'] = 109.21,['h'] = 343.64, ['info'] = ' North Sheldon Ave 19', ["office"] = 2 },
-	[97] =  { ['x'] = -1371.72,['y'] = 444.01,['z'] = 105.86,['h'] = 77.97, ['info'] = ' North Sheldon Ave 20', ["office"] = 2 },
-	[98] =  { ['x'] = -1339.34,['y'] = 471.13,['z'] = 106.41,['h'] = 177.88, ['info'] = ' North Sheldon Ave 21', ["office"] = 2 },
-	[99] =  { ['x'] = -1308.17,['y'] = 449.21,['z'] = 100.97,['h'] = 3.49, ['info'] = ' North Sheldon Ave 22', ["office"] = 2 },
-	[100] =  { ['x'] = -1258.6,['y'] = 447.05,['z'] = 94.74,['h'] = 311.7, ['info'] = ' North Sheldon Ave 23', ["office"] = 2 },
-	[101] =  { ['x'] = -1215.87,['y'] = 458.05,['z'] = 92.07,['h'] = 4.39, ['info'] = ' North Sheldon Ave 24', ["office"] = 2 },
-	[102] =  { ['x'] = -1174.82,['y'] = 440.32,['z'] = 86.85,['h'] = 81.56, ['info'] = ' North Sheldon Ave 25', ["office"] = 2 },
-	[103] =  { ['x'] = -1158.66,['y'] = 480.9,['z'] = 86.1,['h'] = 183.19, ['info'] = ' North Sheldon Ave 26', ["office"] = 2 },
-	[104] =  { ['x'] = -1122.64,['y'] = 485.93,['z'] = 82.17,['h'] = 155.84, ['info'] = ' North Sheldon Ave 27', ["office"] = 2 },
-	[105] =  { ['x'] = -1062.21,['y'] = 475.61,['z'] = 81.33,['h'] = 230.89, ['info'] = ' North Sheldon Ave 28', ["office"] = 2 },
-	[106] =  { ['x'] = -1094.54,['y'] = 427.26,['z'] = 75.89,['h'] = 264.53, ['info'] = ' North Sheldon Ave 29', ["office"] = 2 },
-	[107] =  { ['x'] = -1052.06,['y'] = 432.39,['z'] = 77.21,['h'] = 7.15, ['info'] = ' North Sheldon Ave 30', ["office"] = 2 },
-	[108] =  { ['x'] = -1040.23,['y'] = 507.84,['z'] = 84.39,['h'] = 218.27, ['info'] = ' Cockingend Drive 1', ["office"] = 2 },
-	[109] =  { ['x'] = -1009.28,['y'] = 479.67,['z'] = 79.42,['h'] = 325.07, ['info'] = ' Cockingend Drive 2', ["office"] = 2 },
-	[110] =  { ['x'] = -1007.1,['y'] = 513.14,['z'] = 79.6,['h'] = 192.26, ['info'] = ' Cockingend Drive 3', ["office"] = 2 },
-	[111] =  { ['x'] = -987.16,['y'] = 487.53,['z'] = 82.47,['h'] = 12.96, ['info'] = ' Cockingend Drive 4', ["office"] = 2 },
-	[112] =  { ['x'] = -967.77,['y'] = 509.88,['z'] = 81.87,['h'] = 147.25, ['info'] = ' Cockingend Drive 5', ["office"] = 2 },
-	[113] =  { ['x'] = -968.3,['y'] = 436.62,['z'] = 80.58,['h'] = 243.25, ['info'] = ' Cockingend Drive 6', ["office"] = 2 },
-	[114] =  { ['x'] = -951.21,['y'] = 465.01,['z'] = 80.81,['h'] = 103.16, ['info'] = ' Cockingend Drive 7', ["office"] = 2 },
-	[115] =  { ['x'] = -881.89,['y'] = 364.08,['z'] = 85.37,['h'] = 47.53, ['info'] = ' South Milton Drive 1', ["office"] = 2 },
-	[116] =  { ['x'] = -877.38,['y'] = 306.49,['z'] = 84.16,['h'] = 239.34, ['info'] = ' South Milton Drive 2', ["office"] = 2 },
-	[117] =  { ['x'] = -819.44,['y'] = 267.78,['z'] = 86.4,['h'] = 71.66, ['info'] = ' South Milton Drive 3', ["office"] = 2 },
-	[118] =  { ['x'] = -1673.21,['y'] = 385.62,['z'] = 89.35,['h'] = 348.67, ['info'] = ' Ace Jones Drive 1', ["office"] = 2 },
-	[119] =  { ['x'] = -1733.29,['y'] = 379.28,['z'] = 89.73,['h'] = 26.89, ['info'] = ' Ace Jones Drive 2', ["office"] = 2 },
-	[120] =  { ['x'] = -1807.89,['y'] = 333.46,['z'] = 89.57,['h'] = 18.15, ['info'] = ' Ace Jones Drive 3', ["office"] = 2 },
-	[121] =  { ['x'] = -1840.12,['y'] = 314.21,['z'] = 90.92,['h'] = 97.64, ['info'] = ' Ace Jones Drive 4', ["office"] = 2 },
-	[122] =  { ['x'] = -1896.51,['y'] = 642.31,['z'] = 130.21,['h'] = 136.27, ['info'] = ' North Rockford Drive 1', ["office"] = 0 },
-	[123] =  { ['x'] = -1974.69,['y'] = 630.97,['z'] = 122.56,['h'] = 244.46, ['info'] = ' North Rockford Drive 2', ["office"] = 0 },
-	[124] =  { ['x'] = -1928.92,['y'] = 595.29,['z'] = 122.48,['h'] = 70.38, ['info'] = ' North Rockford Drive 3', ["office"] = 0 },
-	[125] =  { ['x'] = -1995.83,['y'] = 591.1,['z'] = 117.91,['h'] = 255.27, ['info'] = ' North Rockford Drive 4', ["office"] = 0 },
-	[126] =  { ['x'] = -1938.06,['y'] = 551.39,['z'] = 114.83,['h'] = 71.14, ['info'] = ' North Rockford Drive 5', ["office"] = 0 },
-	[127] =  { ['x'] = -2014.74,['y'] = 499.75,['z'] = 107.18,['h'] = 254.8, ['info'] = ' North Rockford Drive 6', ["office"] = 0 },
-	[128] =  { ['x'] = -2010.5,['y'] = 445.16,['z'] = 103.02,['h'] = 287.53, ['info'] = ' North Rockford Drive 7', ["office"] = 0 },
-	[129] =  { ['x'] = -1943.04,['y'] = 449.65,['z'] = 102.93,['h'] = 94.15, ['info'] = ' North Rockford Drive 8', ["office"] = 0 },
-	[130] =  { ['x'] = -1940.6,['y'] = 387.59,['z'] = 96.51,['h'] = 180.44, ['info'] = ' North Rockford Drive 9', ["office"] = 0 },
-	[131] =  { ['x'] = -2008.4,['y'] = 367.49,['z'] = 94.82,['h'] = 271.42, ['info'] = ' North Rockford Drive 10', ["office"] = 0 },
-	[132] =  { ['x'] = -1931.9,['y'] = 362.4,['z'] = 93.79,['h'] = 100.74, ['info'] = ' North Rockford Drive 11', ["office"] = 0 },
-	[133] =  { ['x'] = -1922.71,['y'] = 298.25,['z'] = 89.29,['h'] = 101.68, ['info'] = ' North Rockford Drive 12', ["office"] = 0 },
-	[134] =  { ['x'] = -1995.39,['y'] = 300.71,['z'] = 91.97,['h'] = 194.4, ['info'] = ' North Rockford Drive 13', ["office"] = 0 },
-	[135] =  { ['x'] = -1970.35,['y'] = 246.02,['z'] = 87.82,['h'] = 288.31, ['info'] = ' North Rockford Drive 14', ["office"] = 0 },
-	[136] =  { ['x'] = -1905.85,['y'] = 252.77,['z'] = 86.46,['h'] = 118.33, ['info'] = ' North Rockford Drive 15', ["office"] = 0 },
-	[137] =  { ['x'] = -1960.68,['y'] = 212.18,['z'] = 86.81,['h'] = 292.54, ['info'] = ' North Rockford Drive 16', ["office"] = 0 },
-	[138] =  { ['x'] = -1931.54,['y'] = 163.05,['z'] = 84.66,['h'] = 306.94, ['info'] = ' North Rockford Drive 17', ["office"] = 0 },
-	[139] =  { ['x'] = -1874.07,['y'] = 201.7,['z'] = 84.3,['h'] = 126.1, ['info'] = ' North Rockford Drive 18', ["office"] = 0 },
-	[35] =  { ['x'] = -1898.8,['y'] = 132.56,['z'] = 81.99,['h'] = 304.26, ['info'] = ' North Rockford Drive 19', ["office"] = 0 },
-
-	[140] =  { ['x'] = -1277.93,['y'] = 496.96,['z'] = 97.9,['h'] = 267.14, ['info'] = ' South Milton Drive 4', ["office"] = 2 },
-	[141] =  { ['x'] = -1217.77,['y'] = 506.28,['z'] = 95.67,['h'] = 183.16, ['info'] = ' South Milton Drive 5', ["office"] = 2 },
-	[142] =  { ['x'] = -1193.24,['y'] = 563.98,['z'] = 100.34,['h'] = 177.86, ['info'] = ' South Milton Drive 6', ["office"] = 2 },
-	[143] =  { ['x'] = -1167.09,['y'] = 568.39,['z'] = 101.83,['h'] = 185.02, ['info'] = ' South Milton Drive 7', ["office"] = 2 },
-	[144] =  { ['x'] = -1146.44,['y'] = 545.9,['z'] = 101.91,['h'] = 8.29, ['info'] = ' South Milton Drive 8', ["office"] = 2 },
-	[145] =  { ['x'] = -1125.53,['y'] = 548.84,['z'] = 102.58,['h'] = 15.51, ['info'] = ' South Milton Drive 9', ["office"] = 2 },
-	[146] =  { ['x'] = -1107.35,['y'] = 593.97,['z'] = 104.46,['h'] = 201.56, ['info'] = ' South Milton Drive 10', ["office"] = 2 },
-	[147] =  { ['x'] = -1090.59,['y'] = 547.98,['z'] = 103.64,['h'] = 118.25, ['info'] = ' South Milton Drive 11', ["office"] = 2 },
-	[148] =  { ['x'] = -1022.79,['y'] = 586.92,['z'] = 103.43,['h'] = 1.01, ['info'] = ' South Milton Drive 12', ["office"] = 2 },
-	[149] =  { ['x'] = -974.35,['y'] = 582.06,['z'] = 102.93,['h'] = 348.81, ['info'] = ' South Milton Drive 13', ["office"] = 2 },
-	[150] =  { ['x'] = -958.18,['y'] = 606.44,['z'] = 106.06,['h'] = 351.99, ['info'] = ' South Milton Drive 14', ["office"] = 2 },
-	[151] =  { ['x'] = -947.7,['y'] = 567.89,['z'] = 101.5,['h'] = 338.32, ['info'] = ' South Milton Drive 15', ["office"] = 2 },
-	[152] =  { ['x'] = -924.9,['y'] = 561.31,['z'] = 100.16,['h'] = 336.51, ['info'] = ' South Milton Drive 16', ["office"] = 2 },
-	[153] =  { ['x'] = -904.82,['y'] = 587.84,['z'] = 101.19,['h'] = 147.44, ['info'] = ' South Milton Drive 17', ["office"] = 2 },
-	[154] =  { ['x'] = -907.28,['y'] = 545.09,['z'] = 100.21,['h'] = 315.89, ['info'] = ' South Milton Drive 18', ["office"] = 2 },
-	[155] =  { ['x'] = -873.79,['y'] = 562.75,['z'] = 96.62,['h'] = 128.14, ['info'] = ' South Milton Drive 19', ["office"] = 2 },
-	[156] =  { ['x'] = -884.33,['y'] = 517.9,['z'] = 92.45,['h'] = 285.97, ['info'] = ' South Milton Drive 20', ["office"] = 2 },
-	[157] =  { ['x'] = -848.74,['y'] = 508.88,['z'] = 90.82,['h'] = 14.95, ['info'] = ' South Milton Drive 21', ["office"] = 2 },
-	[158] =  { ['x'] = -875.67,['y'] = 486.18,['z'] = 87.82,['h'] = 9.53, ['info'] = ' South Milton Drive 22', ["office"] = 2 },
-	[159] =  { ['x'] = -843.25,['y'] = 466.64,['z'] = 87.6,['h'] = 278.4, ['info'] = ' South Milton Drive 23', ["office"] = 2 },
-
-	[160] =  { ['x'] = -686.06,['y'] = 596.22,['z'] = 143.65,['h'] = 38.28, ['info'] = ' Hillcrest Avenue 1', ["office"] = 2 },
-	[161] =  { ['x'] = -704.22,['y'] = 588.97,['z'] = 141.94,['h'] = 0.48, ['info'] = ' Hillcrest Avenue 2', ["office"] = 2 },
-	[162] =  { ['x'] = -732.89,['y'] = 593.9,['z'] = 142.24,['h'] = 330.96, ['info'] = ' Hillcrest Avenue 3', ["office"] = 2 },
-	[163] =  { ['x'] = -752.6,['y'] = 620.49,['z'] = 142.5,['h'] = 286.32, ['info'] = ' Hillcrest Avenue 4', ["office"] = 2 },
-	[164] =  { ['x'] = -765.26,['y'] = 650.61,['z'] = 145.51,['h'] = 290.11, ['info'] = ' Hillcrest Avenue 5', ["office"] = 2 },
-	[165] =  { ['x'] = -819.35,['y'] = 696.63,['z'] = 148.11,['h'] = 17.47, ['info'] = ' Hillcrest Avenue 6', ["office"] = 2 },
-	[166] =  { ['x'] = -852.97,['y'] = 695.64,['z'] = 148.79,['h'] = 1.41, ['info'] = ' Hillcrest Avenue 7', ["office"] = 2 },
-	[167] =  { ['x'] = -884.72,['y'] = 699.56,['z'] = 151.28,['h'] = 67.64, ['info'] = ' Hillcrest Avenue 8', ["office"] = 2 },
-	[168] =  { ['x'] = -908.78,['y'] = 693.66,['z'] = 151.44,['h'] = 359.17, ['info'] = ' Hillcrest Avenue 9', ["office"] = 2 },
-	[169] =  { ['x'] = -931.55,['y'] = 691.14,['z'] = 153.47,['h'] = 357.54, ['info'] = ' Hillcrest Avenue 10', ["office"] = 2 },
-	[170] =  { ['x'] = -973.89,['y'] = 684.48,['z'] = 158.04,['h'] = 171.97, ['info'] = ' Hillcrest Avenue 11', ["office"] = 2 },
-	[171] =  { ['x'] = -1032.72,['y'] = 686.05,['z'] = 161.31,['h'] = 88.24, ['info'] = ' Hillcrest Avenue 12', ["office"] = 2 },
-	[172] =  { ['x'] = -1065.09,['y'] = 727.52,['z'] = 165.48,['h'] = 2.2, ['info'] = ' Hillcrest Avenue 13', ["office"] = 2 },
-	[173] =  { ['x'] = -1056.3,['y'] = 761.4,['z'] = 167.32,['h'] = 261.94, ['info'] = ' Hillcrest Avenue 14', ["office"] = 2 },
-
-	[174] =  { ['x'] = -658.48,['y'] = 886.73,['z'] = 229.25,['h'] = 2.13, ['info'] = ' Milton Road 4', ["office"] = 2 },
-	[175] =  { ['x'] = -596.99,['y'] = 851.56,['z'] = 211.47,['h'] = 42.36, ['info'] = ' Milton Road 5', ["office"] = 2 },
-	[176] =  { ['x'] = -536.75,['y'] = 818.37,['z'] = 197.52,['h'] = 339.07, ['info'] = ' Milton Road 6', ["office"] = 2 },
-	[177] =  { ['x'] = -493.97,['y'] = 795.97,['z'] = 184.34,['h'] = 51.78, ['info'] = ' Milton Road 7', ["office"] = 2 },
-	[178] =  { ['x'] = -495.43,['y'] = 738.69,['z'] = 163.04,['h'] = 313.52, ['info'] = ' Milton Road 8', ["office"] = 2 },
-	[179] =  { ['x'] = -533.09,['y'] = 709.41,['z'] = 153.16,['h'] = 191.95, ['info'] = ' Milton Road 9', ["office"] = 2 },
-	[180] =  { ['x'] = -499.07,['y'] = 682.71,['z'] = 151.57,['h'] = 357.59, ['info'] = ' Milton Road 10', ["office"] = 2 },
-	[181] =  { ['x'] = -523.01,['y'] = 628.17,['z'] = 137.98,['h'] = 285.12, ['info'] = ' Milton Road 11', ["office"] = 2 },
-	[182] =  { ['x'] = -474.55,['y'] = 586.04,['z'] = 128.69,['h'] = 90.31, ['info'] = ' Milton Road 12', ["office"] = 2 },
-	[183] =  { ['x'] = -520.33,['y'] = 594.28,['z'] = 120.84,['h'] = 275.76, ['info'] = ' Milton Road 13', ["office"] = 2 },
-	[184] =  { ['x'] = -554.62,['y'] = 540.83,['z'] = 110.71,['h'] = 165.83, ['info'] = ' Milton Road 14', ["office"] = 2 },
-	[185] =  { ['x'] = -526.72,['y'] = 517.48,['z'] = 112.94,['h'] = 40.68, ['info'] = ' Milton Road 15', ["office"] = 2 },
-	[186] =  { ['x'] = -537.25,['y'] = 477.7,['z'] = 103.2,['h'] = 45.23, ['info'] = ' Milton Road 16', ["office"] = 2 },
-
-	[187] =  { ['x'] = 362.99,['y'] = -711.79,['z'] = 29.28,['h'] = 72.84, ['info'] = ' Office Strawberry Ave 1', ["office"] = 1 },
-	[188] =  { ['x'] = 286.51,['y'] = -790.46,['z'] = 29.44,['h'] = 248.43, ['info'] = ' Office Strawberry Ave 2', ["office"] = 1 },
-	[189] =  { ['x'] = 253.7,['y'] = -1012.84,['z'] = 29.27,['h'] = 69.39, ['info'] = ' Office Strawberry Ave 3', ["office"] = 1 },
-	[190] =  { ['x'] = 243.38,['y'] = -1073.33,['z'] = 29.29,['h'] = 358.96, ['info'] = ' Office Strawberry Ave 4', ["office"] = 1 },
-	[191] =  { ['x'] = 185.86,['y'] = -1078.38,['z'] = 29.28,['h'] = 260.31, ['info'] = ' Office Strawberry Ave 5', ["office"] = 1 },
-	[192] =  { ['x'] = 113.47,['y'] = -1038.24,['z'] = 29.32,['h'] = 69.47, ['info'] = ' Office Elgin Ave 1', ["office"] = 1 },
-	[193] =  { ['x'] = 134.54,['y'] = -859.39,['z'] = 30.78,['h'] = 250.49, ['info'] = ' Office Elgin Ave 2', ["office"] = 1 },
-	[194] =  { ['x'] = 143.29,['y'] = -832.4,['z'] = 31.18,['h'] = 293.49, ['info'] = ' Office Elgin Ave 3', ["office"] = 1 },
-	[195] =  { ['x'] = 212.58,['y'] = -593.98,['z'] = 43.87,['h'] = 156.54, ['info'] = ' Office Elgin Ave 4', ["office"] = 1 },
-	[196] =  { ['x'] = 192.92,['y'] = -584.91,['z'] = 43.87,['h'] = 159.22, ['info'] = ' Office Elgin Ave 5', ["office"] = 1 },
-	[197] =  { ['x'] = 213.97,['y'] = -568.45,['z'] = 43.87,['h'] = 326.78, ['info'] = ' Office Elgin Ave 6', ["office"] = 1 },
-	[198] =  { ['x'] = 270.54,['y'] = -433.34,['z'] = 45.25,['h'] = 249.71, ['info'] = ' Office Elgin Ave 7', ["office"] = 1 },
-	[199] =  { ['x'] = 224.58,['y'] = -441.82,['z'] = 45.25,['h'] = 158.33, ['info'] = ' Office Elgin Ave 8', ["office"] = 1 },
-	[200] =  { ['x'] = 195.48,['y'] = -406.31,['z'] = 45.26,['h'] = 68.25, ['info'] = ' Office Elgin Ave 9', ["office"] = 1 },
-	[201] =  { ['x'] = 389.19,['y'] = -75.43,['z'] = 68.19,['h'] = 159.97, ['info'] = ' Office Elgin Ave 10', ["office"] = 1 },
-	[202] =  { ['x'] = 554.9,['y'] = 151.45,['z'] = 99.26,['h'] = 71.95, ['info'] = ' Office Elgin Ave 11', ["office"] = 1 },
-	[203] =  { ['x'] = -286.08,['y'] = 280.58,['z'] = 89.89,['h'] = 176.35, ['info'] = ' Office Eclipse Blvd 1', ["office"] = 1 },
-	[204] =  { ['x'] = -354.76,['y'] = 213.25,['z'] = 86.71,['h'] = 340.74, ['info'] = ' Office Eclipse Blvd 2', ["office"] = 1 },
-	[205] =  { ['x'] = -640.22,['y'] = 296.87,['z'] = 82.46,['h'] = 173.53, ['info'] = ' Office Eclipse Blvd 3', ["office"] = 1 },
-	[206] =  { ['x'] = -680.36,['y'] = 314.17,['z'] = 83.09,['h'] = 175.93, ['info'] = ' Office Eclipse Blvd 4', ["office"] = 1 },
-	[207] =  { ['x'] = -715.76,['y'] = 303.66,['z'] = 85.31,['h'] = 162.59, ['info'] = ' Office Eclipse Blvd 5', ["office"] = 1 },
-	[208] =  { ['x'] = -773.74,['y'] = 312.33,['z'] = 85.7,['h'] = 255.87, ['info'] = ' Office Eclipse Blvd 6', ["office"] = 1 },
-	[209] =  { ['x'] = -742.72,['y'] = 246.4,['z'] = 77.34,['h'] = 203.17, ['info'] = ' Office Eclipse Blvd 7', ["office"] = 1 },
-	[210] =  { ['x'] = -686.4,['y'] = 224.09,['z'] = 81.96,['h'] = 19.57, ['info'] = ' Office Eclipse Blvd 8', ["office"] = 1 },
-
-	[211] =  { ['x'] = -312.37,['y'] = 474.56,['z'] = 111.83,['h'] = 121.53, ['info'] = ' Didion Drive 13', ["office"] = 2 },
-	[212] =  { ['x'] = -355.63,['y'] = 458.57,['z'] = 117.23,['h'] = 166.56, ['info'] = ' Didion Drive 14', ["office"] = 2 },
-	[213] =  { ['x'] = -348.73,['y'] = 514.73,['z'] = 120.63,['h'] = 136.56, ['info'] = ' Didion Drive 15', ["office"] = 2 },
-	[214] =  { ['x'] = -386.72,['y'] = 504.36,['z'] = 120.63,['h'] = 336.56, ['info'] = ' Didion Drive 16', ["office"] = 2 },
-	[215] =  { ['x'] = -377.98,['y'] = 548.42,['z'] = 124.43,['h'] = 196.56, ['info'] = ' Didion Drive 17', ["office"] = 2 },
-	[216] =  { ['x'] = -425.69,['y'] = 535.67,['z'] = 122.83,['h'] = 351.56, ['info'] = ' Didion Drive 18', ["office"] = 2 },
-	[217] =  { ['x'] = -406.66,['y'] = 567.19,['z'] = 124.53,['h'] = 171.56, ['info'] = ' Didion Drive 19', ["office"] = 2 },
-	[218] =  { ['x'] = -459.33,['y'] = 537.41,['z'] = 121.73,['h'] = 354.06, ['info'] = ' Didion Drive 20', ["office"] = 2 },
-
-
-	[219] =  { ['x'] = 960.54,['y'] = -669.38,['z'] = 58.45,['h'] = 122.8, ['info'] = ' West Mirror Drive 18', ['office'] = 0 },
-
-	[220] =  { ['x'] = 903.47,['y'] = -615.87,['z'] = 58.46,['h'] = 48.6, ['info'] = ' West Mirror Drive 15', ['office'] = 0 },
-
-	[221] =  { ['x'] = 979.92,['y'] = -627.24,['z'] = 59.24,['h'] = 215.31, ['info'] = ' West Mirror Drive 22', ['office'] = 0 },
-
-
-	[222] =  { ['x'] = 1302.79,['y'] = -528.61,['z'] = 71.47,['h'] = 339.7, ['info'] = ' Nikola Place 1', ['office'] = 0 },
-	[223] =  { ['x'] = 1372.97,['y'] = -555.69,['z'] = 74.69,['h'] = 244.2, ['info'] = ' Nikola Place 4', ['office'] = 0 },
-	[224] =  { ['x'] = 1388.3,['y'] = -569.93,['z'] = 74.5,['h'] = 293.08, ['info'] = ' Nikola Place 5', ['office'] = 0 },
-	[225] =  { ['x'] = 1385.47,['y'] = -592.93,['z'] = 74.49,['h'] = 231.77, ['info'] = ' Nikola Place 6', ['office'] = 0 },
-	[226] =  { ['x'] = 1367.28,['y'] = -605.44,['z'] = 74.72,['h'] = 169.15, ['info'] = ' Nikola Place 7', ['office'] = 0 },
-	[227] =  { ['x'] = 1341.63,['y'] = -597.5,['z'] = 74.71,['h'] = 50.55, ['info'] = ' Nikola Place 8', ['office'] = 0 },
-	[228] =  { ['x'] = 1323.76,['y'] = -582.45,['z'] = 73.25,['h'] = 154.05, ['info'] = ' Nikola Place 9', ['office'] = 0 }, 
-	[229] =  { ['x'] = 1301.24,['y'] = -573.21,['z'] = 71.74,['h'] = 160.82, ['info'] = ' Nikola Place 10', ['office'] = 0 },
-
-	[230] =  { ['x'] = 1347.87,['y'] = -548.01,['z'] = 73.9,['h'] = 336.0, ['info'] = ' Nikola Place 3', ['office'] = 0 },
-	[231] =  { ['x'] = 1327.76,['y'] = -535.86,['z'] = 72.45,['h'] = 255.65, ['info'] = ' Nikola Place 2', ['office'] = 0 },
-
-	[232] =  { ['x'] = -604.72,['y'] = -802.51,['z'] = 25.2,['h'] = 271.79, ['info'] = ' Mansion Little Seoul 1' , ['office'] = 0 },
-	[233] =  { ['x'] = -603.97,['y'] = -783.37,['z'] = 25.41,['h'] = 186.1, ['info'] = ' Mansion Little Seoul 2' , ['office'] = 0 },
-	[234] =  { ['x'] = -604.03,['y'] = -773.97,['z'] = 25.41,['h'] = 0.84, ['info'] = ' Mansion Little Seoul 3' , ['office'] = 0 },
-	[235] =  { ['x'] = -580.07,['y'] = -778.66,['z'] = 25.02,['h'] = 273.73, ['info'] = ' Mansion Little Seoul 4' , ['office'] = 0 },
-
-
-	[236] =  { ['x'] = -70.99,['y'] = -800.66,['z'] = 44.23,['h'] = 164.99, ['info'] = ' Payne & Associates' , ['office'] = 1 },
-
-	[237] =  { ['x'] = -244.64,['y'] = -814.51,['z'] = 30.72,['h'] = 209.61, ['info'] = ' Office Peaceful Street 1', ["office"] = 1 },
-	[238] =  { ['x'] = -266.18,['y'] = -735.32,['z'] = 34.42,['h'] = 69.17, ['info'] = ' Office Peaceful Street 2', ["office"] = 1 },
-	[239] =  { ['x'] = 101.79,['y'] = -819.41,['z'] = 31.32,['h'] = 155.57, ['info'] = ' Office Elgin Avenue 12', ["office"] = 1 },
-	[240] =  { ['x'] = 296.29,['y'] = -1027.42,['z'] = 29.22,['h'] = 352.14, ['info'] = ' Office Strawberry Avenue 6', ["office"] = 1 },
-	[241] =  { ['x'] = 561.63,['y'] = 93.55,['z'] = 96.11,['h'] = 339.54, ['info'] = ' Office Vinewood Blvd 1', ["office"] = 1 },
-	[242] =  { ['x'] = 359.48,['y'] = 88.7,['z'] = 100.43,['h'] = 250.02, ['info'] = ' Office Vinewood Blvd 2', ["office"] = 1 },
-	[243] =  { ['x'] = -1016.09,['y'] = -265.7,['z'] = 39.05,['h'] = 240.41, ['info'] = ' Office South Blvd Del Perro 1', ["office"] = 1 },
-	[244] =  { ['x'] = -769.01,['y'] = -355.94,['z'] = 37.34,['h'] = 155.54, ['info'] = ' Office Dorset Dr 1', ["office"] = 1 },
-	[245] =  { ['x'] = -1366.01,['y'] = 56.62,['z'] = 54.1,['h'] = 271.73, ['info'] = ' Richman Meadows Golf', ["office"] = 1 },
-	
-	[246] =  { ['x'] = -188.82,['y'] = 978.75,['z'] = 236.14,['h'] = 267.51, ['info'] = ' Vinewood Hills 1' , ['office'] = 2 },
-	[247] =  { ['x'] = -112.98,['y'] = 986.14,['z'] = 235.76,['h'] = 288.75, ['info'] = ' Vinewood Hills 2' , ['office'] = 2 },
-	[248] =  { ['x'] = -151.76,['y'] = 910.59,['z'] = 235.66,['h'] = 228.29, ['info'] = ' Vinewood Hills 3' , ['office'] = 2 },
-	[249] =  { ['x'] = -85.6,['y'] = 834.8,['z'] = 235.93,['h'] = 275.3, ['info'] = ' Vinewood Hills 4' , ['office'] = 2 },
-
-	[250] =  { ['x'] = 201.87,['y'] = -239.06,['z'] = 53.97,['h'] = 118.21, ['info'] = ' White Widow', ['office'] = 1 },
-	[251] =  { ['x'] = 443.67,['y'] = -1900.2,['z'] = 31.74,['h'] = 43.19, ['info'] = ' Little Bighorn Ave 1', ['office'] = 1 },
-	[252] =  { ['x'] = -1804.93,['y'] = 437.09,['z'] = 128.71,['h'] = 178.84, ['info'] = ' Payne Manor', ["office"] = 0 },
-	[253] =  { ['x'] = -2587.8,['y'] = 1910.86,['z'] = 167.5,['h'] = 187.73, ['info'] = ' Buen Vino Rd 1', ['office'] = 2 },
-	[254] =  { ['x'] = -1155.84,['y'] = -1543.05,['z'] = 4.45,['h'] = 36.8, ['info'] = ' Los Santos Wrestling Federation HQ' , ['office'] = 1 },
-	[255] =  { ['x'] = -767.73,['y'] = -751.83,['z'] = 27.88,['h'] = 80.93, ['info'] = ' Dream Tower 1', ['office'] = 0 },
-	[256] =  { ['x'] = -780.29,['y'] = -753.82,['z'] = 27.88,['h'] = 263.71, ['info'] = ' Dream Tower 2', ['office'] = 0 },
-	[257] =  { ['x'] = -780.27,['y'] = -784.25,['z'] = 27.88,['h'] = 269.11, ['info'] = ' Dream Tower 3', ['office'] = 0 },
-	[258] =  { ['x'] = -809.55,['y'] = -978.32,['z'] = 14.23,['h'] = 307.74, ['info'] = ' Ginger St South 1', ['office'] = 0 },
-	[259] =  { ['x'] = -715.32,['y'] = -996.49,['z'] = 18.34,['h'] = 296.68, ['info'] = ' Ginger St South 3', ['office'] = 0 },
-	[260] =  { ['x'] = -98.33,['y'] = 367.49,['z'] = 113.28,['h'] = 337.13, ['info'] = ' Gentry Ln Office #1' , ['office'] = 1 },
-	[261] =  { ['x'] = 813.48,['y'] = -2982.51,['z'] = 6.03,['h'] = 98.76, ['info'] = ' Dock Office #1' , ['office'] = 1 },
-	[262] =  { ['x'] = -143.76,['y'] = 229.72,['z'] = 94.94,['h'] = 178.75, ['info'] = ' Office Eclipse Blvd 9', ['office'] = 1 },
-	[263] =  { ['x'] = -1356.6,['y'] = -791.17,['z'] = 20.25,['h'] = 311.43, ['info'] = ' Office Bay City Ave #1 ', ['office'] = 1 },
-	[264] =  { ['x'] = 288.13,['y'] = -1095.02,['z'] = 29.42,['h'] = 85.8, ['info'] = 'Office Fantastic Place #1' , ['office'] = 1 },
-}
-
-robberycoords = {
-	[1] =  { ['x'] = 1061.04,['y'] = -378.61,['z'] = 68.24,['h'] = 37.87, ['info'] = ' West Mirror Drive 1', ['apt'] = 2 },
-	[2] =  { ['x'] = 1029.42,['y'] = -408.96,['z'] = 65.95,['h'] = 38.91, ['info'] = ' West Mirror Drive 2', ['apt'] = 2 },
-	[3] =  { ['x'] = 1011.27,['y'] = -422.89,['z'] = 64.96,['h'] = 121.8, ['info'] = ' West Mirror Drive 3', ['apt'] = 2 },
-	[4] =  { ['x'] = 988.2,['y'] = -433.74,['z'] = 63.9,['h'] = 34.72, ['info'] = ' West Mirror Drive 4', ['apt'] = 2 },
-	[5] =  { ['x'] = 967.9,['y'] = -452.62,['z'] = 62.41,['h'] = 32.83, ['info'] = ' West Mirror Drive 5', ['apt'] = 2 },
-	[6] =  { ['x'] = 943.26,['y'] = -463.9,['z'] = 61.4,['h'] = 299.36, ['info'] = ' West Mirror Drive 6', ['apt'] = 2 },
-	[7] =  { ['x'] = 922.18,['y'] = -478.69,['z'] = 61.09,['h'] = 22.83, ['info'] = ' West Mirror Drive 7', ['apt'] = 2 },
-	[8] =  { ['x'] = 906.58,['y'] = -489.69,['z'] = 59.44,['h'] = 29.93, ['info'] = ' West Mirror Drive 8', ['apt'] = 2 },
-	[9] =  { ['x'] = 878.99,['y'] = -498.51,['z'] = 57.88,['h'] = 46.17, ['info'] = ' West Mirror Drive 9', ['apt'] = 2 },
-	[10] =  { ['x'] = 862.28,['y'] = -509.58,['z'] = 57.33,['h'] = 48.03, ['info'] = ' West Mirror Drive 10', ['apt'] = 2 },
-	[11] =  { ['x'] = 851.09,['y'] = -532.73,['z'] = 57.93,['h'] = 84.22, ['info'] = ' West Mirror Drive 11', ['apt'] = 2 },
-	[12] =  { ['x'] = 844.37,['y'] = -563.77,['z'] = 57.84,['h'] = 15.0, ['info'] = ' West Mirror Drive 12', ['apt'] = 2 },
-	[13] =  { ['x'] = 861.92,['y'] = -582.26,['z'] = 58.16,['h'] = 170.48, ['info'] = ' West Mirror Drive 13', ['apt'] = 2 },
-	[14] =  { ['x'] = 887.43,['y'] = -607.54,['z'] = 58.22,['h'] = 133.7, ['info'] = ' West Mirror Drive 14', ['apt'] = 2 },
-	[15] =  { ['x'] = 11.5,['y'] = 6578.22,['z'] = 33.08,['h'] = 223.29, ['info'] = ' Paleto Blvd 2', ['apt'] = 2 },
-	[16] =  { ['x'] = 929.51,['y'] = -639.12,['z'] = 58.25,['h'] = 139.34, ['info'] = ' West Mirror Drive 16', ['apt'] = 2 },
-	[17] =  { ['x'] = 943.4,['y'] = -653.71,['z'] = 58.43,['h'] = 36.32, ['info'] = ' West Mirror Drive 17', ['apt'] = 2 },
-	[18] =  { ['x'] = -14.72,['y'] = 6557.54,['z'] = 33.25,['h'] = 311.79, ['info'] = ' Paleto Blvd 3', ['apt'] = 2 },
-	[19] =  { ['x'] = 970.9,['y'] = -701.41,['z'] = 58.49,['h'] = 168.31, ['info'] = ' West Mirror Drive 19', ['apt'] = 2 },
-	[20] =  { ['x'] = 979.49,['y'] = -715.95,['z'] = 58.22,['h'] = 131.16, ['info'] = ' West Mirror Drive 20', ['apt'] = 2 },
-	[21] =  { ['x'] = 997.52,['y'] = -729.0,['z'] = 57.82,['h'] = 128.93, ['info'] = ' West Mirror Drive 21', ['apt'] = 2 },
-	[22] =  { ['x'] = -374.77,['y'] = 6190.77,['z'] = 31.73,['h'] = 223.2, ['info'] = ' Paleto Blvd 5', ['apt'] = 2 },
-	[23] =  { ['x'] = 892.79,['y'] = -540.7,['z'] = 58.51,['h'] = 295.06, ['info'] = ' West Mirror Drive 23', ['apt'] = 2 },
-	[24] =  { ['x'] = 924.02,['y'] = -525.3,['z'] = 59.58,['h'] = 208.51, ['info'] = ' West Mirror Drive 24', ['apt'] = 2 },
-	[25] =  { ['x'] = 946.26,['y'] = -518.79,['z'] = 60.63,['h'] = 122.26, ['info'] = ' West Mirror Drive 25', ['apt'] = 2 },
-	[26] =  { ['x'] = 969.57,['y'] = -502.1,['z'] = 62.15,['h'] = 253.28, ['info'] = ' West Mirror Drive 26', ['apt'] = 2 },
-	[27] =  { ['x'] = 1014.14,['y'] = -468.72,['z'] = 64.29,['h'] = 214.9, ['info'] = ' West Mirror Drive 27', ['apt'] = 2 },
-	[28] =  { ['x'] = 1112.37,['y'] = -390.29,['z'] = 68.74,['h'] = 244.07, ['info'] = ' West Mirror Drive 28', ['apt'] = 2 },
-	[29] =  { ['x'] = 1263.96,['y'] = -429.2,['z'] = 69.81,['h'] = 111.8, ['info'] = ' East Mirror Drive 1', ['apt'] = 2 },
-	[30] =  { ['x'] = 1266.76,['y'] = -457.85,['z'] = 70.52,['h'] = 97.77, ['info'] = ' East Mirror Drive 2', ['apt'] = 2 },
-	[31] =  { ['x'] = 1260.28,['y'] = -479.9,['z'] = 70.19,['h'] = 112.32, ['info'] = ' East Mirror Drive 3', ['apt'] = 2 },
-	[32] =  { ['x'] = 1251.86,['y'] = -494.2,['z'] = 69.91,['h'] = 78.13, ['info'] = ' East Mirror Drive 4', ['apt'] = 2 },
-	[33] =  { ['x'] = 1251.5,['y'] = -515.63,['z'] = 69.35,['h'] = 75.67, ['info'] = ' East Mirror Drive 5', ['apt'] = 2 },
-	[34] =  { ['x'] = 1242.17,['y'] = -565.88,['z'] = 69.66,['h'] = 125.6, ['info'] = ' East Mirror Drive 6', ['apt'] = 2 },
-	[35] =  { ['x'] = 1241.1,['y'] = -601.67,['z'] = 69.59,['h'] = 92.86, ['info'] = ' East Mirror Drive 7', ['apt'] = 2 },
-	[36] =  { ['x'] = 1251.6,['y'] = -621.98,['z'] = 69.41,['h'] = 26.0, ['info'] = ' East Mirror Drive 8', ['apt'] = 2 },
-	[37] =  { ['x'] = 1265.41,['y'] = -647.89,['z'] = 67.93,['h'] = 199.31, ['info'] = ' East Mirror Drive 9', ['apt'] = 2 },
-	[38] =  { ['x'] = 1271.13,['y'] = -683.04,['z'] = 66.04,['h'] = 178.05, ['info'] = ' East Mirror Drive 10', ['apt'] = 2 },
-	[39] =  { ['x'] = 1265.94,['y'] = -703.52,['z'] = 64.56,['h'] = 61.26, ['info'] = ' East Mirror Drive 11', ['apt'] = 2 },
-	[40] =  { ['x'] = -157.31,['y'] = 6409.99,['z'] = 31.92,['h'] = 33.16, ['info'] = ' Procopio Drive 20 / Apt 5', ['apt'] = 1 },
-	[41] =  { ['x'] = -105.49,['y'] = 6528.7,['z'] = 30.17,['h'] = 313.4, ['info'] = ' Procopio Drive 21', ['apt'] = 3 },
-	[42] =  { ['x'] = -44.43,['y'] = 6582.55,['z'] = 32.18,['h'] = 45.65, ['info'] = ' Procopio Drive 22', ['apt'] = 3 },
-	[43] =  { ['x'] = -27.44,['y'] = 6597.89,['z'] = 31.87,['h'] = 47.34, ['info'] = ' Procopio Drive 23', ['apt'] = 3 },
-	[44] =  { ['x'] = 1.36,['y'] = 6613.18,['z'] = 31.89,['h'] = 26.34, ['info'] = ' Procopio Drive 24', ['apt'] = 3 },
-	[45] =  { ['x'] = 31.22,['y'] = 6596.67,['z'] = 32.83,['h'] = 223.03, ['info'] = ' Paleto Blvd 1', ['apt'] = 3 },
-	[46] =  { ['x'] = -167.23,['y'] = 6439.25,['z'] = 31.92,['h'] = 131.66, ['info'] = ' Procopio Drive 20 / Apt 1', ['apt'] = 1 },
-	[47] =  { ['x'] = -160.3,['y'] = 6432.18,['z'] = 31.92,['h'] = 130.17, ['info'] = ' Procopio Drive 20 / Apt 2', ['apt'] = 1 },
-	[48] =  { ['x'] = -150.38,['y'] = 6422.38,['z'] = 31.92,['h'] = 133.68, ['info'] = ' Procopio Drive 20 / Apt 3', ['apt'] = 1 },
-	[49] =  { ['x'] = -150.38,['y'] = 6416.99,['z'] = 31.92,['h'] = 41.43, ['info'] = ' Procopio Drive 20 / Apt 4', ['apt'] = 1 },
-	[50] =  { ['x'] = 1437.15,['y'] = -1492.97,['z'] = 63.44,['h'] = 340.13, ['info'] = ' Fudge Lane 1', ['apt'] = 0 },
-	[51] =  { ['x'] = 1379.49,['y'] = -1515.41,['z'] = 58.04,['h'] = 28.29, ['info'] = ' Fudge Lane 2', ['apt'] = 0 },
-	[52] =  { ['x'] = 1338.24,['y'] = -1524.22,['z'] = 54.59,['h'] = 354.77, ['info'] = ' Fudge Lane 3', ['apt'] = 0 },
-	[53] =  { ['x'] = 1316.2,['y'] = -1528.01,['z'] = 51.42,['h'] = 13.96, ['info'] = ' Fudge Lane 4', ['apt'] = 0 },
-	[54] =  { ['x'] = 1231.17,['y'] = -1591.76,['z'] = 53.56,['h'] = 31.72, ['info'] = ' Fudge Lane 5', ['apt'] = 0 },
-	[55] =  { ['x'] = 1205.91,['y'] = -1607.85,['z'] = 50.54,['h'] = 29.31, ['info'] = ' Fudge Lane 6', ['apt'] = 0 },
-	[56] =  { ['x'] = 1192.94,['y'] = -1622.69,['z'] = 45.23,['h'] = 304.06, ['info'] = ' Fudge Lane 7', ['apt'] = 0 },
-	[57] =  { ['x'] = 1192.82,['y'] = -1655.06,['z'] = 43.03,['h'] = 211.63, ['info'] = ' Fudge Lane 8', ['apt'] = 0 },
-	[58] =  { ['x'] = 1214.11,['y'] = -1643.33,['z'] = 48.65,['h'] = 207.97, ['info'] = ' Fudge Lane 9', ['apt'] = 0 },
-	[59] =  { ['x'] = 1244.78,['y'] = -1625.69,['z'] = 53.29,['h'] = 210.54, ['info'] = ' Fudge Lane 10', ['apt'] = 0 },
-	[60] =  { ['x'] = 1261.31,['y'] = -1616.26,['z'] = 54.75,['h'] = 210.56, ['info'] = ' Fudge Lane 11', ['apt'] = 0 },
-	[61] =  { ['x'] = 1286.4,['y'] = -1603.31,['z'] = 54.83,['h'] = 193.95, ['info'] = ' Fudge Lane 12', ['apt'] = 0 },
-	[62] =  { ['x'] = 1327.22,['y'] = -1552.61,['z'] = 54.06,['h'] = 228.68, ['info'] = ' Fudge Lane 13', ['apt'] = 0 },
-	[63] =  { ['x'] = 1360.39,['y'] = -1554.92,['z'] = 55.95,['h'] = 190.45, ['info'] = ' Fudge Lane 14', ['apt'] = 0 },
-	[64] =  { ['x'] = 1382.68,['y'] = -1544.46,['z'] = 57.11,['h'] = 124.25, ['info'] = ' Fudge Lane 15', ['apt'] = 0 },
-	[65] =  { ['x'] = 1365.25,['y'] = -1720.38,['z'] = 65.64,['h'] = 193.47, ['info'] = ' Amarillo Vista 1', ['apt'] = 0 },
-	[66] =  { ['x'] = 1315.17,['y'] = -1732.63,['z'] = 54.71,['h'] = 115.0, ['info'] = ' Amarillo Vista 2', ['apt'] = 0 },
-	[67] =  { ['x'] = 1295.86,['y'] = -1739.44,['z'] = 54.28,['h'] = 109.9, ['info'] = ' Amarillo Vista 3', ['apt'] = 0 },
-	[68] =  { ['x'] = 1258.81,['y'] = -1761.27,['z'] = 49.67,['h'] = 202.25, ['info'] = ' Amarillo Vista 4', ['apt'] = 0 },
-	[69] =  { ['x'] = 1251.01,['y'] = -1735.07,['z'] = 52.03,['h'] = 21.33, ['info'] = ' Amarillo Vista 5', ['apt'] = 0 },
-	[70] =  { ['x'] = 1289.66,['y'] = -1711.45,['z'] = 55.28,['h'] = 21.9, ['info'] = ' Amarillo Vista 7', ['apt'] = 0 },
-	[71] =  { ['x'] = 1316.97,['y'] = -1699.67,['z'] = 57.84,['h'] = 9.87, ['info'] = ' Amarillo Vista 8', ['apt'] = 0 },
-	[72] =  { ['x'] = 1355.45,['y'] = -1690.85,['z'] = 60.5,['h'] = 79.86, ['info'] = ' Amarillo Vista 9', ['apt'] = 0 },
-	[73] =  { ['x'] = -51.01,['y'] = -1783.87,['z'] = 28.31,['h'] = 314.06, ['info'] = ' Grove Street 1', ['apt'] = 0 },
-	[74] =  { ['x'] = -42.56,['y'] = -1792.78,['z'] = 27.83,['h'] = 313.07, ['info'] = ' Grove Street 2', ['apt'] = 0 },
-	[75] =  { ['x'] = 20.57,['y'] = -1844.12,['z'] = 24.61,['h'] = 227.62, ['info'] = ' Grove Street 3', ['apt'] = 0 },
-	[76] =  { ['x'] = 29.32,['y'] = -1853.94,['z'] = 24.07,['h'] = 226.91, ['info'] = ' Grove Street 4', ['apt'] = 0 },
-	[77] =  { ['x'] = 45.32,['y'] = -1864.99,['z'] = 23.28,['h'] = 314.88, ['info'] = ' Grove Street 5', ['apt'] = 0 },
-	[78] =  { ['x'] = 54.44,['y'] = -1873.17,['z'] = 22.81,['h'] = 313.76, ['info'] = ' Grove Street 6', ['apt'] = 0 },
-	[79] =  { ['x'] = 100.48,['y'] = -1913.0,['z'] = 21.21,['h'] = 331.75, ['info'] = ' Grove Street 7', ['apt'] = 0 },
-	[80] =  { ['x'] = 117.81,['y'] = -1920.55,['z'] = 21.33,['h'] = 237.12, ['info'] = ' Grove Street 8', ['apt'] = 0 },
-	[81] =  { ['x'] = 126.4,['y'] = -1929.47,['z'] = 21.39,['h'] = 208.24, ['info'] = ' Grove Street 9', ['apt'] = 0 },
-	[82] =  { ['x'] = 114.05,['y'] = -1960.69,['z'] = 21.34,['h'] = 201.85, ['info'] = ' Grove Street 10', ['apt'] = 0 },
-	[83] =  { ['x'] = 85.31,['y'] = -1959.0,['z'] = 21.13,['h'] = 231.11, ['info'] = ' Grove Street 11', ['apt'] = 0 },
-	[84] =  { ['x'] = 76.92,['y'] = -1948.61,['z'] = 21.18,['h'] = 47.14, ['info'] = ' Grove Street 12', ['apt'] = 0 },
-	[85] =  { ['x'] = 72.94,['y'] = -1938.5,['z'] = 21.17,['h'] = 134.56, ['info'] = ' Grove Street 13', ['apt'] = 0 },
-	[86] =  { ['x'] = 57.03,['y'] = -1922.37,['z'] = 21.92,['h'] = 138.82, ['info'] = ' Grove Street 14', ['apt'] = 0 },
-	[87] =  { ['x'] = 39.59,['y'] = -1911.99,['z'] = 21.96,['h'] = 48.9, ['info'] = ' Grove Street 15', ['apt'] = 0 },
-	[88] =  { ['x'] = 23.75,['y'] = -1895.77,['z'] = 22.78,['h'] = 138.51, ['info'] = ' Grove Street 16', ['apt'] = 0 },
-	[89] =  { ['x'] = 4.58,['y'] = -1883.77,['z'] = 23.7,['h'] = 230.16, ['info'] = ' Grove Street 17', ['apt'] = 0 },
-	[90] =  { ['x'] = -5.8,['y'] = -1871.52,['z'] = 24.16,['h'] = 231.79, ['info'] = ' Grove Street 18', ['apt'] = 0 },
-	[91] =  { ['x'] = -21.18,['y'] = -1858.15,['z'] = 25.4,['h'] = 231.24, ['info'] = ' Grove Street 19', ['apt'] = 0 },
-	[92] =  { ['x'] = -33.71,['y'] = -1847.46,['z'] = 26.2,['h'] = 50.24, ['info'] = ' Grove Street 20', ['apt'] = 0 },
-	[93] =  { ['x'] = -157.6,['y'] = -1680.11,['z'] = 33.44,['h'] = 48.52, ['info'] = ' Forum Drive 1/Apt1', ['apt'] = 1 },
-	[94] =  { ['x'] = -148.39,['y'] = -1688.04,['z'] = 32.88,['h'] = 318.72, ['info'] = ' Forum Drive 1/Apt2', ['apt'] = 1 },
-	[95] =  { ['x'] = -147.3,['y'] = -1688.99,['z'] = 32.88,['h'] = 318.81, ['info'] = ' Forum Drive 1/Apt3', ['apt'] = 1 },
-	[96] =  { ['x'] = -143.08,['y'] = -1692.38,['z'] = 32.88,['h'] = 277.39, ['info'] = ' Forum Drive 1/Apt4', ['apt'] = 1 },
-	[97] =  { ['x'] = -141.89,['y'] = -1693.43,['z'] = 32.88,['h'] = 225.74, ['info'] = ' Forum Drive 1/Apt5', ['apt'] = 1 },
-	[98] =  { ['x'] = -141.79,['y'] = -1693.55,['z'] = 36.17,['h'] = 229.58, ['info'] = ' Forum Drive 1/Apt6', ['apt'] = 1 },
-	[99] =  { ['x'] = -142.19,['y'] = -1692.69,['z'] = 36.17,['h'] = 321.38, ['info'] = ' Forum Drive 1/Apt7', ['apt'] = 1 },
-	[100] =  { ['x'] = -147.39,['y'] = -1688.39,['z'] = 36.17,['h'] = 318.94, ['info'] = ' Forum Drive 1/Apt8', ['apt'] = 1 },
-	[101] =  { ['x'] = -148.69,['y'] = -1687.35,['z'] = 36.17,['h'] = 313.56, ['info'] = ' Forum Drive 1/Apt9', ['apt'] = 1 },
-	[102] =  { ['x'] = -157.54,['y'] = -1679.61,['z'] = 36.97,['h'] = 354.25, ['info'] = ' Forum Drive 1/Apt10', ['apt'] = 1 },
-	[103] =  { ['x'] = -158.86,['y'] = -1680.02,['z'] = 36.97,['h'] = 38.57, ['info'] = ' Forum Drive 1/Apt11', ['apt'] = 1 },
-	[104] =  { ['x'] = -160.83,['y'] = -1637.93,['z'] = 34.03,['h'] = 157.6, ['info'] = ' Forum Drive 2/Apt1', ['apt'] = 1 },
-	[105] =  { ['x'] = -160.0,['y'] = -1636.41,['z'] = 34.03,['h'] = 324.29, ['info'] = ' Forum Drive 2/Apt2', ['apt'] = 1 },
-	[106] =  { ['x'] = -153.87,['y'] = -1641.77,['z'] = 36.86,['h'] = 331.14, ['info'] = ' Forum Drive 2/Apt3', ['apt'] = 1 },
-	[107] =  { ['x'] = -159.85,['y'] = -1636.42,['z'] = 37.25,['h'] = 321.05, ['info'] = ' Forum Drive 2/Apt4', ['apt'] = 1 },
-	[108] =  { ['x'] = -161.31,['y'] = -1638.13,['z'] = 37.25,['h'] = 142.21, ['info'] = ' Forum Drive 2/Apt5', ['apt'] = 1 },
-	[109] =  { ['x'] = -150.79,['y'] = -1625.26,['z'] = 33.66,['h'] = 233.56, ['info'] = ' Forum Drive 2/Apt6', ['apt'] = 1 },
-	[110] =  { ['x'] = -150.74,['y'] = -1622.68,['z'] = 33.66,['h'] = 57.73, ['info'] = ' Forum Drive 2/Apt7', ['apt'] = 1 },
-	[111] =  { ['x'] = -145.59,['y'] = -1617.88,['z'] = 36.05,['h'] = 222.51, ['info'] = ' Forum Drive 2/Apt8', ['apt'] = 1 },
-	[112] =  { ['x'] = -145.84,['y'] = -1614.71,['z'] = 36.05,['h'] = 67.64, ['info'] = ' Forum Drive 2/Apt9', ['apt'] = 1 },
-	[113] =  { ['x'] = -152.23,['y'] = -1624.37,['z'] = 36.85,['h'] = 52.69, ['info'] = ' Forum Drive 2/Apt10', ['apt'] = 1 },
-	[114] =  { ['x'] = -150.38,['y'] = -1625.5,['z'] = 36.85,['h'] = 233.14, ['info'] = ' Forum Drive 2/Apt11', ['apt'] = 1 },
-	[115] =  { ['x'] = -120.58,['y'] = -1575.04,['z'] = 34.18,['h'] = 323.0, ['info'] = ' Forum Drive 3/Apt1', ['apt'] = 1 },
-	[116] =  { ['x'] = -114.73,['y'] = -1579.95,['z'] = 34.18,['h'] = 318.74, ['info'] = ' Forum Drive 3/Apt2', ['apt'] = 1 },
-	[117] =  { ['x'] = -119.6,['y'] = -1585.41,['z'] = 34.22,['h'] = 231.94, ['info'] = ' Forum Drive 3/Apt3', ['apt'] = 1 },
-	[118] =  { ['x'] = -123.81,['y'] = -1590.67,['z'] = 34.21,['h'] = 234.7, ['info'] = ' Forum Drive 3/Apt4', ['apt'] = 1 },
-	[119] =  { ['x'] = -139.85,['y'] = -1598.7,['z'] = 34.84,['h'] = 158.58, ['info'] = ' Forum Drive 3/Apt6', ['apt'] = 1 },
-	[120] =  { ['x'] = -146.85,['y'] = -1596.64,['z'] = 34.84,['h'] = 69.8, ['info'] = ' Forum Drive 3/Apt7', ['apt'] = 1 },
-	[121] =  { ['x'] = -139.49,['y'] = -1588.39,['z'] = 34.25,['h'] = 47.69, ['info'] = ' Forum Drive 3/Apt8', ['apt'] = 1 },
-	[122] =  { ['x'] = -133.47,['y'] = -1581.2,['z'] = 34.21,['h'] = 49.62, ['info'] = ' Forum Drive 3/Apt9', ['apt'] = 1 },
-	[123] =  { ['x'] = -120.63,['y'] = -1575.05,['z'] = 37.41,['h'] = 320.29, ['info'] = ' Forum Drive 3/Apt10', ['apt'] = 1 },
-	[124] =  { ['x'] = -114.71,['y'] = -1580.4,['z'] = 37.41,['h'] = 322.64, ['info'] = ' Forum Drive 3/Apt11', ['apt'] = 1 },
-	[125] =  { ['x'] = -119.53,['y'] = -1585.26,['z'] = 37.41,['h'] = 228.33, ['info'] = ' Forum Drive 3/Apt12', ['apt'] = 1 },
-	[126] =  { ['x'] = -123.67,['y'] = -1590.39,['z'] = 37.41,['h'] = 223.58, ['info'] = ' Forum Drive 3/Apt13', ['apt'] = 1 },
-	[127] =  { ['x'] = -140.08,['y'] = -1598.75,['z'] = 38.22,['h'] = 157.57, ['info'] = ' Forum Drive 3/Apt15', ['apt'] = 1 },
-	[128] =  { ['x'] = -145.81,['y'] = -1597.55,['z'] = 38.22,['h'] = 99.24, ['info'] = ' Forum Drive 3/Apt16', ['apt'] = 1 },
-	[129] =  { ['x'] = -147.47,['y'] = -1596.26,['z'] = 38.22,['h'] = 55.87, ['info'] = ' Forum Drive 3/Apt17', ['apt'] = 1 },
-	[130] =  { ['x'] = -139.77,['y'] = -1587.8,['z'] = 37.41,['h'] = 50.77, ['info'] = ' Forum Drive 3/Apt18', ['apt'] = 1 },
-	[131] =  { ['x'] = -133.78,['y'] = -1580.56,['z'] = 37.41,['h'] = 54.61, ['info'] = ' Forum Drive 3/Apt19', ['apt'] = 1 },
-	[132] =  { ['x'] = 16.5,['y'] = -1443.77,['z'] = 30.95,['h'] = 336.17, ['info'] = ' Forum Drive 4', ['apt'] = 0 },
-	[133] =  { ['x'] = -1.98,['y'] = -1442.55,['z'] = 30.97,['h'] = 1.65, ['info'] = ' Forum Drive 5', ['apt'] = 0 },
-	[134] =  { ['x'] = -32.87,['y'] = -1446.34,['z'] = 31.9,['h'] = 269.71, ['info'] = ' Forum Drive 7', ['apt'] = 0 },
-	[135] =  { ['x'] = -45.73,['y'] = -1445.58,['z'] = 32.43,['h'] = 274.72, ['info'] = ' Forum Drive 8', ['apt'] = 0 },
-	[136] =  { ['x'] = -64.48,['y'] = -1449.57,['z'] = 32.53,['h'] = 99.6, ['info'] = ' Forum Drive 9', ['apt'] = 0 },
-	[137] =  { ['x'] = -167.71,['y'] = -1534.71,['z'] = 35.1,['h'] = 320.29, ['info'] = ' Forum Drive 10/Apt1', ['apt'] = 1 },
-	[138] =  { ['x'] = -180.71,['y'] = -1553.51,['z'] = 35.13,['h'] = 227.11, ['info'] = ' Forum Drive 10/Apt2', ['apt'] = 1 },
-	[139] =  { ['x'] = -187.47,['y'] = -1562.96,['z'] = 35.76,['h'] = 220.56, ['info'] = ' Forum Drive 10/Apt3', ['apt'] = 1 },
-	[140] =  { ['x'] = -191.86,['y'] = -1559.4,['z'] = 34.96,['h'] = 124.57, ['info'] = ' Forum Drive 10/Apt4', ['apt'] = 1 },
-	[141] =  { ['x'] = -195.55,['y'] = -1556.06,['z'] = 34.96,['h'] = 45.83, ['info'] = ' Forum Drive 10/Apt5', ['apt'] = 1 },
-	[142] =  { ['x'] = -183.81,['y'] = -1540.59,['z'] = 34.36,['h'] = 41.2, ['info'] = ' Forum Drive 10/Apt6', ['apt'] = 1 },
-	[143] =  { ['x'] = -179.69,['y'] = -1534.66,['z'] = 34.36,['h'] = 44.71, ['info'] = ' Forum Drive 10/Apt7', ['apt'] = 1 },
-	[144] =  { ['x'] = -175.06,['y'] = -1529.53,['z'] = 34.36,['h'] = 321.99, ['info'] = ' Forum Drive 10/Apt8', ['apt'] = 1 },
-	[145] =  { ['x'] = -167.62,['y'] = -1534.9,['z'] = 38.33,['h'] = 320.46, ['info'] = ' Forum Drive 10/Apt10', ['apt'] = 1 },
-	[146] =  { ['x'] = -180.19,['y'] = -1553.89,['z'] = 38.34,['h'] = 232.72, ['info'] = ' Forum Drive 10/Apt11', ['apt'] = 1 },
-	[147] =  { ['x'] = -186.63,['y'] = -1562.32,['z'] = 39.14,['h'] = 198.53, ['info'] = ' Forum Drive 10/Apt12', ['apt'] = 1 },
-	[148] =  { ['x'] = -188.32,['y'] = -1562.5,['z'] = 39.14,['h'] = 136.16, ['info'] = ' Forum Drive 10/Apt13', ['apt'] = 1 },
-	[149] =  { ['x'] = -192.14,['y'] = -1559.64,['z'] = 38.34,['h'] = 136.93, ['info'] = ' Forum Drive 10/Apt14', ['apt'] = 1 },
-	[150] =  { ['x'] = -195.77,['y'] = -1555.92,['z'] = 38.34,['h'] = 48.33, ['info'] = ' Forum Drive 10/Apt15', ['apt'] = 1 },
-	[151] =  { ['x'] = -184.06,['y'] = -1539.83,['z'] = 37.54,['h'] = 47.47, ['info'] = ' Forum Drive 10/Apt16', ['apt'] = 1 },
-	[152] =  { ['x'] = -179.58,['y'] = -1534.93,['z'] = 37.54,['h'] = 48.0, ['info'] = ' Forum Drive 10/Apt17', ['apt'] = 1 },
-	[153] =  { ['x'] = -174.87,['y'] = -1529.18,['z'] = 37.54,['h'] = 321.05, ['info'] = ' Forum Drive 10/Apt18', ['apt'] = 1 },
-	[154] =  { ['x'] = -208.75,['y'] = -1600.32,['z'] = 34.87,['h'] = 259.54, ['info'] = ' Forum Drive 11/Apt1', ['apt'] = 1 },
-	[155] =  { ['x'] = -210.05,['y'] = -1607.17,['z'] = 34.87,['h'] = 259.85, ['info'] = ' Forum Drive 11/Apt2', ['apt'] = 1 },
-	[156] =  { ['x'] = -212.05,['y'] = -1616.86,['z'] = 34.87,['h'] = 244.26, ['info'] = ' Forum Drive 11/Apt3', ['apt'] = 1 },
-	[157] =  { ['x'] = -213.8,['y'] = -1618.07,['z'] = 34.87,['h'] = 180.98, ['info'] = ' Forum Drive 11/Apt4', ['apt'] = 1 },
-	[158] =  { ['x'] = -221.82,['y'] = -1617.45,['z'] = 34.87,['h'] = 88.95, ['info'] = ' Forum Drive 11/Apt5', ['apt'] = 1 },
-	[159] =  { ['x'] = -223.06,['y'] = -1601.38,['z'] = 34.89,['h'] = 97.48, ['info'] = ' Forum Drive 11/Apt6', ['apt'] = 1 },
-	[160] =  { ['x'] = -222.52,['y'] = -1585.71,['z'] = 34.87,['h'] = 84.43, ['info'] = ' Forum Drive 11/Apt7', ['apt'] = 1 },
-	[161] =  { ['x'] = -218.91,['y'] = -1580.06,['z'] = 34.87,['h'] = 47.27, ['info'] = ' Forum Drive 11/Apt8', ['apt'] = 1 },
-	[162] =  { ['x'] = -216.48,['y'] = -1577.45,['z'] = 34.87,['h'] = 321.55, ['info'] = ' Forum Drive 11/Apt9', ['apt'] = 1 },
-	[163] =  { ['x'] = -206.23,['y'] = -1585.55,['z'] = 34.87,['h'] = 260.2, ['info'] = ' Forum Drive 11/Apt10', ['apt'] = 1 },
-	[164] =  { ['x'] = -206.63,['y'] = -1585.8,['z'] = 38.06,['h'] = 275.39, ['info'] = ' Forum Drive 11/Apt12', ['apt'] = 1 },
-	[165] =  { ['x'] = -216.05,['y'] = -1576.86,['z'] = 38.06,['h'] = 319.06, ['info'] = ' Forum Drive 11/Apt13', ['apt'] = 1 },
-	[166] =  { ['x'] = -218.37,['y'] = -1579.89,['z'] = 38.06,['h'] = 67.83, ['info'] = ' Forum Drive 11/Apt14', ['apt'] = 1 },
-	[167] =  { ['x'] = -222.25,['y'] = -1585.37,['z'] = 38.06,['h'] = 96.11, ['info'] = ' Forum Drive 11/Apt15', ['apt'] = 1 },
-	[168] =  { ['x'] = -222.26,['y'] = -1600.93,['z'] = 38.06,['h'] = 90.9, ['info'] = ' Forum Drive 11/Apt16', ['apt'] = 1 },
-	[169] =  { ['x'] = -222.21,['y'] = -1617.39,['z'] = 38.06,['h'] = 93.88, ['info'] = ' Forum Drive 11/Apt17', ['apt'] = 1 },
-	[170] =  { ['x'] = -214.12,['y'] = -1617.62,['z'] = 38.06,['h'] = 218.57, ['info'] = ' Forum Drive 11/Apt18', ['apt'] = 1 },
-	[171] =  { ['x'] = -212.29,['y'] = -1617.34,['z'] = 38.06,['h'] = 253.87, ['info'] = ' Forum Drive 11/Apt19', ['apt'] = 1 },
-	[172] =  { ['x'] = -210.46,['y'] = -1607.36,['z'] = 38.05,['h'] = 263.82, ['info'] = ' Forum Drive 11/Apt20', ['apt'] = 1 },
-	[173] =  { ['x'] = -209.45,['y'] = -1600.57,['z'] = 38.05,['h'] = 269.99, ['info'] = ' Forum Drive 11/Apt21', ['apt'] = 1 },
-	[174] =  { ['x'] = -216.64,['y'] = -1673.73,['z'] = 34.47,['h'] = 179.38, ['info'] = ' Forum Drive 12/Apt1', ['apt'] = 1 },
-	[175] =  { ['x'] = -224.15,['y'] = -1673.67,['z'] = 34.47,['h'] = 169.52, ['info'] = ' Forum Drive 12/Apt2', ['apt'] = 1 },
-	[176] =  { ['x'] = -224.17,['y'] = -1666.14,['z'] = 34.47,['h'] = 82.29, ['info'] = ' Forum Drive 12/Apt3', ['apt'] = 1 },
-	[177] =  { ['x'] = -224.32,['y'] = -1649.0,['z'] = 34.86,['h'] = 85.83, ['info'] = ' Forum Drive 12/Apt4', ['apt'] = 1 },
-	[178] =  { ['x'] = -216.34,['y'] = -1648.94,['z'] = 34.47,['h'] = 356.29, ['info'] = ' Forum Drive 12/Apt5', ['apt'] = 1 },
-	[179] =  { ['x'] = -212.92,['y'] = -1660.54,['z'] = 34.47,['h'] = 256.79, ['info'] = ' Forum Drive 12/Apt6', ['apt'] = 1 },
-	[180] =  { ['x'] = -212.95,['y'] = -1667.96,['z'] = 34.47,['h'] = 264.8, ['info'] = ' Forum Drive 12/Apt7', ['apt'] = 1 },
-	[181] =  { ['x'] = -216.55,['y'] = -1673.88,['z'] = 37.64,['h'] = 175.17, ['info'] = ' Forum Drive 12/Apt8', ['apt'] = 1 },
-	[182] =  { ['x'] = -224.34,['y'] = -1673.79,['z'] = 37.64,['h'] = 175.13, ['info'] = ' Forum Drive 12/Apt9', ['apt'] = 1 },
-	[183] =  { ['x'] = -223.99,['y'] = -1666.29,['z'] = 37.64,['h'] = 86.27, ['info'] = ' Forum Drive 12/Apt10', ['apt'] = 1 },
-	[184] =  { ['x'] = -224.44,['y'] = -1653.99,['z'] = 37.64,['h'] = 87.81, ['info'] = ' Forum Drive 12/Apt11', ['apt'] = 1 },
-	[185] =  { ['x'] = -223.96,['y'] = -1649.16,['z'] = 38.45,['h'] = 353.99, ['info'] = ' Forum Drive 12/Apt12', ['apt'] = 1 },
-	[186] =  { ['x'] = -216.44,['y'] = -1649.13,['z'] = 37.64,['h'] = 352.36, ['info'] = ' Forum Drive 12/Apt13', ['apt'] = 1 },
-	[187] =  { ['x'] = -212.85,['y'] = -1660.74,['z'] = 37.64,['h'] = 269.04, ['info'] = ' Forum Drive 12/Apt14', ['apt'] = 1 },
-	[188] =  { ['x'] = -212.72,['y'] = -1668.23,['z'] = 37.64,['h'] = 272.59, ['info'] = ' Forum Drive 12/Apt15', ['apt'] = 1 },
-	[189] =  { ['x'] = 207.81,['y'] = -1894.66,['z'] = 24.82,['h'] = 226.76, ['info'] = ' Covenant Avenue 1', ['apt'] = 0 },
-	[190] =  { ['x'] = 192.27,['y'] = -1884.01,['z'] = 24.86,['h'] = 333.42, ['info'] = ' Covenant Avenue 2', ['apt'] = 0 },
-	[191] =  { ['x'] = 170.9,['y'] = -1871.29,['z'] = 24.41,['h'] = 238.08, ['info'] = ' Covenant Avenue 3', ['apt'] = 0 },
-	[192] =  { ['x'] = 149.69,['y'] = -1865.39,['z'] = 24.6,['h'] = 339.99, ['info'] = ' Covenant Avenue 4', ['apt'] = 0 },
-	[193] =  { ['x'] = 130.2,['y'] = -1854.03,['z'] = 25.06,['h'] = 331.31, ['info'] = ' Covenant Avenue 5', ['apt'] = 0 },
-	[194] =  { ['x'] = 104.32,['y'] = -1884.78,['z'] = 24.32,['h'] = 143.76, ['info'] = ' Covenant Avenue 6', ['apt'] = 0 },
-	[195] =  { ['x'] = 114.95,['y'] = -1887.7,['z'] = 23.93,['h'] = 241.36, ['info'] = ' Covenant Avenue 7', ['apt'] = 0 },
-	[196] =  { ['x'] = 127.69,['y'] = -1896.79,['z'] = 23.68,['h'] = 248.34, ['info'] = ' Covenant Avenue 8', ['apt'] = 0 },
-	[197] =  { ['x'] = 148.81,['y'] = -1904.41,['z'] = 23.54,['h'] = 155.7, ['info'] = ' Covenant Avenue 9', ['apt'] = 0 },
-	[198] =  { ['x'] = -1071.77,['y'] = -1566.08,['z'] = 4.39,['h'] = 99.92, ['info'] = ' Beachside Court 13', ['apt'] = 0 },
-	[199] =  { ['x'] = -1073.94,['y'] = -1562.36,['z'] = 4.46,['h'] = 300.25, ['info'] = ' Beachside Court 14', ['apt'] = 0 },
-	[200] =  { ['x'] = -1066.23,['y'] = -1545.34,['z'] = 4.91,['h'] = 208.82, ['info'] = ' Beachside Court 15', ['apt'] = 0 },
-	[201] =  { ['x'] = -113.52,['y'] = -1478.46,['z'] = 33.83,['h'] = 226.49, ['info'] = ' Carson Avenue 1/Apt1', ['apt'] = 1 },
-	[202] =  { ['x'] = -108.04,['y'] = -1473.11,['z'] = 33.83,['h'] = 225.6, ['info'] = ' Carson Avenue 1/Apt2', ['apt'] = 1 },
-	[203] =  { ['x'] = -113.89,['y'] = -1468.64,['z'] = 33.83,['h'] = 321.96, ['info'] = ' Carson Avenue 1/Apt3', ['apt'] = 1 },
-	[204] =  { ['x'] = -123.05,['y'] = -1460.05,['z'] = 33.83,['h'] = 317.58, ['info'] = ' Carson Avenue 1/Apt4', ['apt'] = 1 },
-	[205] =  { ['x'] = -126.68,['y'] = -1456.71,['z'] = 34.57,['h'] = 320.2, ['info'] = ' Carson Avenue 1/Apt5', ['apt'] = 1 },
-	[206] =  { ['x'] = -131.8,['y'] = -1463.15,['z'] = 33.83,['h'] = 49.07, ['info'] = ' Carson Avenue 1/Apt6', ['apt'] = 1 },
-	[207] =  { ['x'] = -125.47,['y'] = -1473.1,['z'] = 33.83,['h'] = 142.11, ['info'] = ' Carson Avenue 1/Apt7', ['apt'] = 1 },
-	[208] =  { ['x'] = -119.61,['y'] = -1478.11,['z'] = 33.83,['h'] = 135.81, ['info'] = ' Carson Avenue 1/Apt8', ['apt'] = 1 },
-	[209] =  { ['x'] = -122.98,['y'] = -1460.25,['z'] = 37.0,['h'] = 320.71, ['info'] = ' Carson Avenue 1/Apt9', ['apt'] = 1 },
-	[210] =  { ['x'] = -127.02,['y'] = -1457.18,['z'] = 37.8,['h'] = 52.77, ['info'] = ' Carson Avenue 1/Apt10', ['apt'] = 1 },
-	[211] =  { ['x'] = -131.92,['y'] = -1463.16,['z'] = 37.0,['h'] = 49.86, ['info'] = ' Carson Avenue 1/Apt11', ['apt'] = 1 },
-	[212] =  { ['x'] = -138.15,['y'] = -1470.49,['z'] = 37.0,['h'] = 139.34, ['info'] = ' Carson Avenue 1/Apt12', ['apt'] = 1 },
-	[213] =  { ['x'] = -125.48,['y'] = -1473.39,['z'] = 37.0,['h'] = 144.5, ['info'] = ' Carson Avenue 1/Apt13', ['apt'] = 1 },
-	[214] =  { ['x'] = -119.87,['y'] = -1477.81,['z'] = 37.0,['h'] = 143.58, ['info'] = ' Carson Avenue 1/Apt14', ['apt'] = 1 },
-	[215] =  { ['x'] = -77.1,['y'] = -1515.61,['z'] = 34.25,['h'] = 44.81, ['info'] = ' Carson Avenue 2/Apt1', ['apt'] = 1 },
-	[216] =  { ['x'] = -71.74,['y'] = -1508.33,['z'] = 33.44,['h'] = 40.4, ['info'] = ' Carson Avenue 2/Apt2', ['apt'] = 1 },
-	[217] =  { ['x'] = -65.73,['y'] = -1513.55,['z'] = 33.44,['h'] = 318.02, ['info'] = ' Carson Avenue 2/Apt3', ['apt'] = 1 },
-	[218] =  { ['x'] = -60.39,['y'] = -1517.48,['z'] = 33.44,['h'] = 319.04, ['info'] = ' Carson Avenue 2/Apt4', ['apt'] = 1 },
-	[219] =  { ['x'] = -54.1,['y'] = -1523.19,['z'] = 33.44,['h'] = 235.48, ['info'] = ' Carson Avenue 2/Apt5', ['apt'] = 1 },
-	[220] =  { ['x'] = -59.84,['y'] = -1530.35,['z'] = 34.24,['h'] = 231.22, ['info'] = ' Carson Avenue 2/Apt6', ['apt'] = 1 },
-	[221] =  { ['x'] = -62.18,['y'] = -1532.27,['z'] = 34.24,['h'] = 136.83, ['info'] = ' Carson Avenue 2/Apt7', ['apt'] = 1 },
-	[222] =  { ['x'] = -68.86,['y'] = -1526.34,['z'] = 34.24,['h'] = 132.44, ['info'] = ' Carson Avenue 2/Apt8', ['apt'] = 1 },
-	[223] =  { ['x'] = -77.3,['y'] = -1515.62,['z'] = 37.42,['h'] = 48.47, ['info'] = ' Carson Avenue 2/Apt9', ['apt'] = 1 },
-	[224] =  { ['x'] = -71.37,['y'] = -1508.76,['z'] = 36.63,['h'] = 42.69, ['info'] = ' Carson Avenue 2/Apt10', ['apt'] = 1 },
-	[225] =  { ['x'] = -65.85,['y'] = -1513.39,['z'] = 36.63,['h'] = 319.16, ['info'] = ' Carson Avenue 2/Apt11', ['apt'] = 1 },
-	[226] =  { ['x'] = -61.03,['y'] = -1517.82,['z'] = 36.63,['h'] = 316.66, ['info'] = ' Carson Avenue 2/Apt12', ['apt'] = 1 },
-	[227] =  { ['x'] = -54.23,['y'] = -1523.33,['z'] = 36.63,['h'] = 229.97, ['info'] = ' Carson Avenue 2/Apt13', ['apt'] = 1 },
-	[228] =  { ['x'] = -60.03,['y'] = -1530.35,['z'] = 37.42,['h'] = 226.15, ['info'] = ' Carson Avenue 2/Apt14', ['apt'] = 1 },
-	[229] =  { ['x'] = -61.53,['y'] = -1532.14,['z'] = 37.42,['h'] = 136.13, ['info'] = ' Carson Avenue 2/Apt15', ['apt'] = 1 },
-	[230] =  { ['x'] = -68.59,['y'] = -1526.2,['z'] = 37.42,['h'] = 137.9, ['info'] = ' Carson Avenue 2/Apt16', ['apt'] = 1 },
-	[231] =  { ['x'] = -35.11,['y'] = -1554.6,['z'] = 30.68,['h'] = 129.72, ['info'] = ' Strawberry Avenue 1/Apt1', ['apt'] = 1 },
-	[232] =  { ['x'] = -44.33,['y'] = -1547.29,['z'] = 31.27,['h'] = 51.34, ['info'] = ' Strawberry Avenue 1/Apt2', ['apt'] = 1 },
-	[233] =  { ['x'] = -36.07,['y'] = -1537.29,['z'] = 31.25,['h'] = 47.34, ['info'] = ' Strawberry Avenue 1/Apt3', ['apt'] = 1 },
-	[234] =  { ['x'] = -26.48,['y'] = -1544.33,['z'] = 30.68,['h'] = 310.44, ['info'] = ' Strawberry Avenue 1/Apt4', ['apt'] = 1 },
-	[235] =  { ['x'] = -20.54,['y'] = -1550.16,['z'] = 30.68,['h'] = 230.04, ['info'] = ' Strawberry Avenue 1/Apt5', ['apt'] = 1 },
-	[236] =  { ['x'] = -25.49,['y'] = -1556.28,['z'] = 30.69,['h'] = 224.38, ['info'] = ' Strawberry Avenue 1/Apt6', ['apt'] = 1 },
-	[237] =  { ['x'] = -34.37,['y'] = -1566.55,['z'] = 33.03,['h'] = 227.02, ['info'] = ' Strawberry Avenue 1/Apt7', ['apt'] = 1 },
-	[238] =  { ['x'] = -35.36,['y'] = -1555.08,['z'] = 33.83,['h'] = 138.59, ['info'] = ' Strawberry Avenue 1/Apt8', ['apt'] = 1 },
-	[239] =  { ['x'] = -43.9,['y'] = -1547.83,['z'] = 34.63,['h'] = 50.27, ['info'] = ' Strawberry Avenue 1/Apt9', ['apt'] = 1 },
-	[240] =  { ['x'] = -28.52,['y'] = -1560.41,['z'] = 33.83,['h'] = 234.04, ['info'] = ' Strawberry Avenue 1/Apt14', ['apt'] = 1 },
-	[241] =  { ['x'] = -14.63,['y'] = -1543.73,['z'] = 33.03,['h'] = 222.98, ['info'] = ' Strawberry Avenue 1/Apt12', ['apt'] = 1 },
-	[242] =  { ['x'] = -20.69,['y'] = -1550.0,['z'] = 33.83,['h'] = 225.08, ['info'] = ' Strawberry Avenue 1/Apt13', ['apt'] = 1 },
-	[243] =  { ['x'] = -26.96,['y'] = -1544.93,['z'] = 33.83,['h'] = 320.18, ['info'] = ' Strawberry Avenue 1/Apt11', ['apt'] = 1 },
-	[244] =  { ['x'] = -35.82,['y'] = -1537.25,['z'] = 34.63,['h'] = 48.69, ['info'] = ' Strawberry Avenue 1/Apt10', ['apt'] = 1 },
-	[245] =  { ['x'] = -84.12,['y'] = -1622.47,['z'] = 31.48,['h'] = 230.69, ['info'] = ' Strawberry Avenue 2/Apt1', ['apt'] = 1 },
-	[246] =  { ['x'] = -90.44,['y'] = -1629.08,['z'] = 31.51,['h'] = 226.67, ['info'] = ' Strawberry Avenue 2/Apt2', ['apt'] = 1 },
-	[247] =  { ['x'] = -97.46,['y'] = -1638.56,['z'] = 32.11,['h'] = 225.22, ['info'] = ' Strawberry Avenue 2/Apt3', ['apt'] = 1 },
-	[248] =  { ['x'] = -105.34,['y'] = -1632.48,['z'] = 32.91,['h'] = 137.22, ['info'] = ' Strawberry Avenue 2/Apt4', ['apt'] = 1 },
-	[249] =  { ['x'] = -108.73,['y'] = -1629.04,['z'] = 32.91,['h'] = 45.99, ['info'] = ' Strawberry Avenue 2/Apt5', ['apt'] = 1 },
-	[250] =  { ['x'] = -96.87,['y'] = -1613.02,['z'] = 32.32,['h'] = 52.37, ['info'] = ' Strawberry Avenue 2/Apt6', ['apt'] = 1 },
-	[251] =  { ['x'] = -92.45,['y'] = -1608.14,['z'] = 32.32,['h'] = 47.32, ['info'] = ' Strawberry Avenue 2/Apt7', ['apt'] = 1 },
-	[252] =  { ['x'] = -88.5,['y'] = -1602.39,['z'] = 32.32,['h'] = 323.29, ['info'] = ' Strawberry Avenue 2/Apt8', ['apt'] = 1 },
-	[253] =  { ['x'] = -81.05,['y'] = -1608.75,['z'] = 31.49,['h'] = 322.94, ['info'] = ' Strawberry Avenue 2/Apt9', ['apt'] = 1 },
-	[254] =  { ['x'] = -84.11,['y'] = -1622.43,['z'] = 34.69,['h'] = 229.53, ['info'] = ' Strawberry Avenue 2/Apt10', ['apt'] = 1 },
-	[255] =  { ['x'] = -90.11,['y'] = -1629.4,['z'] = 34.69,['h'] = 227.58, ['info'] = ' Strawberry Avenue 2/Apt11', ['apt'] = 1 },
-	[256] =  { ['x'] = -96.25,['y'] = -1637.41,['z'] = 35.49,['h'] = 164.78, ['info'] = ' Strawberry Avenue 2/Apt12', ['apt'] = 1 },
-	[257] =  { ['x'] = -98.24,['y'] = -1638.72,['z'] = 35.49,['h'] = 139.02, ['info'] = ' Strawberry Avenue 2/Apt13', ['apt'] = 1 },
-	[258] =  { ['x'] = -104.94,['y'] = -1632.23,['z'] = 36.29,['h'] = 135.05, ['info'] = ' Strawberry Avenue 2/Apt14', ['apt'] = 1 },
-	[259] =  { ['x'] = -108.73,['y'] = -1628.99,['z'] = 36.29,['h'] = 50.81, ['info'] = ' Strawberry Avenue 2/Apt15', ['apt'] = 1 },
-	[260] =  { ['x'] = -97.08,['y'] = -1612.9,['z'] = 35.49,['h'] = 50.06, ['info'] = ' Strawberry Avenue 2/Apt16', ['apt'] = 1 },
-	[261] =  { ['x'] = -92.88,['y'] = -1607.79,['z'] = 35.49,['h'] = 47.31, ['info'] = ' Strawberry Avenue 2/Apt17', ['apt'] = 1 },
-	[262] =  { ['x'] = -88.13,['y'] = -1602.14,['z'] = 35.49,['h'] = 318.46, ['info'] = ' Strawberry Avenue 2/Apt18', ['apt'] = 1 },
-	[263] =  { ['x'] = -80.67,['y'] = -1608.63,['z'] = 34.69,['h'] = 317.01, ['info'] = ' Strawberry Avenue 2/Apt19', ['apt'] = 1 },
-	[264] =  { ['x'] = 252.35,['y'] = -1671.55,['z'] = 29.67,['h'] = 321.56, ['info'] = ' Brouge Avenue 1', ['apt'] = 0 },
-	[265] =  { ['x'] = 241.38,['y'] = -1688.28,['z'] = 29.52,['h'] = 51.92, ['info'] = ' Brouge Avenue 2', ['apt'] = 0 },
-	[266] =  { ['x'] = 223.35,['y'] = -1703.33,['z'] = 29.49,['h'] = 37.67, ['info'] = ' Brouge Avenue 3', ['apt'] = 0 },
-	[267] =  { ['x'] = 216.83,['y'] = -1717.15,['z'] = 29.48,['h'] = 123.44, ['info'] = ' Brouge Avenue 4', ['apt'] = 0 },
-	[268] =  { ['x'] = 198.59,['y'] = -1725.5,['z'] = 29.67,['h'] = 115.99, ['info'] = ' Brouge Avenue 5', ['apt'] = 0 },
-	[269] =  { ['x'] = 152.28,['y'] = -1823.45,['z'] = 27.87,['h'] = 234.41, ['info'] = ' Brouge Avenue 6', ['apt'] = 0 },
-	[270] =  { ['x'] = 249.48,['y'] = -1730.38,['z'] = 29.67,['h'] = 229.2, ['info'] = ' Brouge Avenue 7', ['apt'] = 0 },
-	[271] =  { ['x'] = 257.05,['y'] = -1723.09,['z'] = 29.66,['h'] = 313.23, ['info'] = ' Brouge Avenue 8', ['apt'] = 0 },
-	[272] =  { ['x'] = 269.23,['y'] = -1713.34,['z'] = 29.67,['h'] = 318.18, ['info'] = ' Brouge Avenue 9', ['apt'] = 0 },
-	[273] =  { ['x'] = 281.13,['y'] = -1694.16,['z'] = 29.26,['h'] = 232.69, ['info'] = ' Brouge Avenue 10', ['apt'] = 0 },
-	[274] =  { ['x'] = 332.58,['y'] = -1741.63,['z'] = 29.74,['h'] = 319.91, ['info'] = ' Roy Lowenstein Blvd 1', ['apt'] = 0 },
-	[275] =  { ['x'] = 320.66,['y'] = -1759.78,['z'] = 29.64,['h'] = 60.41, ['info'] = ' Roy Lowenstein Blvd 2', ['apt'] = 0 },
-	[276] =  { ['x'] = 305.15,['y'] = -1775.86,['z'] = 29.1,['h'] = 49.68, ['info'] = ' Roy Lowenstein Blvd 3', ['apt'] = 0 },
-	[277] =  { ['x'] = 299.84,['y'] = -1784.04,['z'] = 28.44,['h'] = 324.93, ['info'] = ' Roy Lowenstein Blvd 4', ['apt'] = 0 },
-	[278] =  { ['x'] = 289.25,['y'] = -1791.99,['z'] = 28.09,['h'] = 141.95, ['info'] = ' Roy Lowenstein Blvd 5', ['apt'] = 0 },
-	[279] =  { ['x'] = 179.23,['y'] = -1923.86,['z'] = 21.38,['h'] = 322.58, ['info'] = ' Roy Lowenstein Blvd 6', ['apt'] = 0 },
-	[280] =  { ['x'] = 165.55,['y'] = -1945.18,['z'] = 20.24,['h'] = 48.7, ['info'] = ' Roy Lowenstein Blvd 7', ['apt'] = 0 },
-	[281] =  { ['x'] = 149.99,['y'] = -1961.59,['z'] = 19.08,['h'] = 43.72, ['info'] = ' Roy Lowenstein Blvd 8', ['apt'] = 0 },
-	[282] =  { ['x'] = 144.14,['y'] = -1969.72,['z'] = 18.86,['h'] = 332.82, ['info'] = ' Roy Lowenstein Blvd 9', ['apt'] = 0 },
-	[283] =  { ['x'] = 140.98,['y'] = -1983.14,['z'] = 18.33,['h'] = 57.43, ['info'] = ' Roy Lowenstein Blvd 10', ['apt'] = 0 },
-	[284] =  { ['x'] = 250.07,['y'] = -1934.4,['z'] = 24.51,['h'] = 231.59, ['info'] = ' Roy Lowenstein Blvd 11', ['apt'] = 0 },
-	[285] =  { ['x'] = 257.39,['y'] = -1927.69,['z'] = 25.45,['h'] = 312.69, ['info'] = ' Roy Lowenstein Blvd 12', ['apt'] = 0 },
-	[286] =  { ['x'] = 269.71,['y'] = -1917.57,['z'] = 26.19,['h'] = 317.5, ['info'] = ' Roy Lowenstein Blvd 13', ['apt'] = 0 },
-	[287] =  { ['x'] = 281.88,['y'] = -1898.45,['z'] = 26.88,['h'] = 230.17, ['info'] = ' Roy Lowenstein Blvd 14', ['apt'] = 0 },
-	[288] =  { ['x'] = 319.74,['y'] = -1853.49,['z'] = 27.53,['h'] = 227.79, ['info'] = ' Roy Lowenstein Blvd 15', ['apt'] = 0 },
-	[289] =  { ['x'] = 328.0,['y'] = -1844.52,['z'] = 27.76,['h'] = 225.99, ['info'] = ' Roy Lowenstein Blvd 16', ['apt'] = 0 },
-	[290] =  { ['x'] = 339.22,['y'] = -1829.24,['z'] = 28.34,['h'] = 136.63, ['info'] = ' Roy Lowenstein Blvd 17', ['apt'] = 0 },
-	[291] =  { ['x'] = 348.85,['y'] = -1820.62,['z'] = 28.9,['h'] = 142.65, ['info'] = ' Roy Lowenstein Blvd 18', ['apt'] = 0 },
-	[292] =  { ['x'] = 405.64,['y'] = -1751.29,['z'] = 29.72,['h'] = 324.51, ['info'] = ' Roy Lowenstein Blvd 19', ['apt'] = 0 },
-	[293] =  { ['x'] = 418.53,['y'] = -1735.9,['z'] = 29.61,['h'] = 315.07, ['info'] = ' Roy Lowenstein Blvd 20', ['apt'] = 0 },
-	[294] =  { ['x'] = 430.99,['y'] = -1725.5,['z'] = 29.61,['h'] = 310.19, ['info'] = ' Roy Lowenstein Blvd 21', ['apt'] = 0 },
-	[295] =  { ['x'] = 442.72,['y'] = -1706.93,['z'] = 29.49,['h'] = 231.07, ['info'] = ' Roy Lowenstein Blvd 22', ['apt'] = 0 },
-	[296] =  { ['x'] = 471.16,['y'] = -1561.47,['z'] = 32.8,['h'] = 50.68, ['info'] = ' Roy Lowenstein Blvd 23/Apt1', ['apt'] = 1 },
-	[297] =  { ['x'] = 465.83,['y'] = -1567.54,['z'] = 32.8,['h'] = 54.01, ['info'] = ' Roy Lowenstein Blvd 23/Apt2', ['apt'] = 1 },
-	[298] =  { ['x'] = 461.39,['y'] = -1573.95,['z'] = 32.8,['h'] = 49.46, ['info'] = ' Roy Lowenstein Blvd 23/Apt3', ['apt'] = 1 },
-	[299] =  { ['x'] = 455.53,['y'] = -1579.34,['z'] = 32.8,['h'] = 141.19, ['info'] = ' Roy Lowenstein Blvd 23/Apt4', ['apt'] = 1 },
-	[300] =  { ['x'] = 442.13,['y'] = -1569.43,['z'] = 32.8,['h'] = 134.84, ['info'] = ' Roy Lowenstein Blvd 23/Apt5', ['apt'] = 1 },
-	[301] =  { ['x'] = 436.5,['y'] = -1563.9,['z'] = 32.8,['h'] = 136.21, ['info'] = ' Roy Lowenstein Blvd 23/Apt6', ['apt'] = 1 },
-	[302] =  { ['x'] = 431.15,['y'] = -1558.66,['z'] = 32.8,['h'] = 136.11, ['info'] = ' Roy Lowenstein Blvd 23/Apt7', ['apt'] = 1 },
-	[303] =  { ['x'] = 500.25,['y'] = -1697.49,['z'] = 29.79,['h'] = 322.98, ['info'] = ' Jamestown Street 1', ['apt'] = 0 },
-	[304] =  { ['x'] = 490.6,['y'] = -1714.39,['z'] = 29.5,['h'] = 70.57, ['info'] = ' Jamestown Street 2', ['apt'] = 0 },
-	[305] =  { ['x'] = 479.51,['y'] = -1736.71,['z'] = 29.16,['h'] = 344.06, ['info'] = ' Jamestown Street 3', ['apt'] = 0 },
-	[306] =  { ['x'] = 475.44,['y'] = -1757.74,['z'] = 28.9,['h'] = 79.05, ['info'] = ' Jamestown Street 4', ['apt'] = 0 },
-	[307] =  { ['x'] = 472.88,['y'] = -1775.22,['z'] = 29.07,['h'] = 86.89, ['info'] = ' Jamestown Street 5', ['apt'] = 0 },
-	[308] =  { ['x'] = 440.01,['y'] = -1830.31,['z'] = 28.37,['h'] = 328.16, ['info'] = ' Jamestown Street 6', ['apt'] = 0 },
-	[309] =  { ['x'] = 428.12,['y'] = -1841.33,['z'] = 28.47,['h'] = 135.91, ['info'] = ' Jamestown Street 7', ['apt'] = 0 },
-	[310] =  { ['x'] = 412.58,['y'] = -1856.23,['z'] = 27.33,['h'] = 137.19, ['info'] = ' Jamestown Street 8', ['apt'] = 0 },
-	[311] =  { ['x'] = 399.67,['y'] = -1864.78,['z'] = 26.72,['h'] = 132.43, ['info'] = ' Jamestown Street 9', ['apt'] = 0 },
-	[312] =  { ['x'] = 386.04,['y'] = -1882.27,['z'] = 25.79,['h'] = 47.42, ['info'] = ' Jamestown Street 10', ['apt'] = 0 },
-	[313] =  { ['x'] = 368.05,['y'] = -1896.76,['z'] = 25.18,['h'] = 317.81, ['info'] = ' Jamestown Street 11', ['apt'] = 0 },
-	[314] =  { ['x'] = 324.15,['y'] = -1937.81,['z'] = 25.02,['h'] = 327.68, ['info'] = ' Jamestown Street 12', ['apt'] = 0 },
-	[315] =  { ['x'] = 312.81,['y'] = -1956.66,['z'] = 24.43,['h'] = 44.18, ['info'] = ' Jamestown Street 13', ['apt'] = 0 },
-	[316] =  { ['x'] = 296.54,['y'] = -1972.44,['z'] = 22.7,['h'] = 43.25, ['info'] = ' Jamestown Street 14', ['apt'] = 0 },
-	[317] =  { ['x'] = 291.23,['y'] = -1980.74,['z'] = 21.61,['h'] = 323.31, ['info'] = ' Jamestown Street 15', ['apt'] = 0 },
-	[318] =  { ['x'] = 280.23,['y'] = -1993.25,['z'] = 20.81,['h'] = 139.93, ['info'] = ' Jamestown Street 16', ['apt'] = 0 },
-	[319] =  { ['x'] = 257.12,['y'] = -2023.84,['z'] = 19.27,['h'] = 55.76, ['info'] = ' Jamestown Street 17', ['apt'] = 0 },
-	[320] =  { ['x'] = 251.39,['y'] = -2029.73,['z'] = 18.51,['h'] = 137.79, ['info'] = ' Jamestown Street 18', ['apt'] = 0 },
-	[321] =  { ['x'] = 236.5,['y'] = -2045.73,['z'] = 18.38,['h'] = 134.85, ['info'] = ' Jamestown Street 19', ['apt'] = 0 },
-	[322] =  { ['x'] = 296.87,['y'] = -2097.86,['z'] = 17.67,['h'] = 285.59, ['info'] = ' Jamestown Street 20/Apt1', ['apt'] = 1 },
-	[323] =  { ['x'] = 295.78,['y'] = -2093.31,['z'] = 17.67,['h'] = 291.54, ['info'] = ' Jamestown Street 20/Apt2', ['apt'] = 1 },
-	[324] =  { ['x'] = 293.68,['y'] = -2087.92,['z'] = 17.67,['h'] = 287.12, ['info'] = ' Jamestown Street 20/Apt3', ['apt'] = 1 },
-	[325] =  { ['x'] = 292.59,['y'] = -2086.38,['z'] = 17.67,['h'] = 290.15, ['info'] = ' Jamestown Street 20/Apt4', ['apt'] = 1 },
-	[326] =  { ['x'] = 289.53,['y'] = -2077.1,['z'] = 17.67,['h'] = 291.26, ['info'] = ' Jamestown Street 20/Apt5', ['apt'] = 1 },
-	[327] =  { ['x'] = 288.21,['y'] = -2072.75,['z'] = 17.67,['h'] = 288.69, ['info'] = ' Jamestown Street 20/Apt6', ['apt'] = 1 },
-	[328] =  { ['x'] = 279.29,['y'] = -2043.26,['z'] = 19.77,['h'] = 232.08, ['info'] = ' Jamestown Street 20/Apt7', ['apt'] = 1 },
-	[329] =  { ['x'] = 280.6,['y'] = -2041.64,['z'] = 19.77,['h'] = 224.82, ['info'] = ' Jamestown Street 20/Apt8', ['apt'] = 1 },
-	[330] =  { ['x'] = 286.69,['y'] = -2034.4,['z'] = 19.77,['h'] = 231.33, ['info'] = ' Jamestown Street 20/Apt9', ['apt'] = 1 },
-	[331] =  { ['x'] = 289.76,['y'] = -2030.74,['z'] = 19.77,['h'] = 231.61, ['info'] = ' Jamestown Street 20/Apt10', ['apt'] = 1 },
-	[332] =  { ['x'] = 323.53,['y'] = -1990.66,['z'] = 24.17,['h'] = 229.59, ['info'] = ' Jamestown Street 20/Apt11', ['apt'] = 1 },
-	[333] =  { ['x'] = 324.82,['y'] = -1988.95,['z'] = 24.17,['h'] = 226.72, ['info'] = ' Jamestown Street 20/Apt12', ['apt'] = 1 },
-	[334] =  { ['x'] = 331.63,['y'] = -1982.15,['z'] = 24.17,['h'] = 233.06, ['info'] = ' Jamestown Street 20/Apt13', ['apt'] = 1 },
-	[335] =  { ['x'] = 333.9,['y'] = -1978.33,['z'] = 24.17,['h'] = 241.31, ['info'] = ' Jamestown Street 20/Apt14', ['apt'] = 1 },
-	[336] =  { ['x'] = 362.6,['y'] = -1986.24,['z'] = 24.13,['h'] = 159.57, ['info'] = ' Jamestown Street 20/Apt15', ['apt'] = 1 },
-	[337] =  { ['x'] = 364.17,['y'] = -1986.78,['z'] = 24.14,['h'] = 160.3, ['info'] = ' Jamestown Street 20/Apt16', ['apt'] = 1 },
-	[338] =  { ['x'] = 375.15,['y'] = -1990.66,['z'] = 24.13,['h'] = 157.46, ['info'] = ' Jamestown Street 20/Apt18', ['apt'] = 1 },
-	[339] =  { ['x'] = 384.27,['y'] = -1994.33,['z'] = 24.24,['h'] = 162.11, ['info'] = ' Jamestown Street 20/Apt19', ['apt'] = 1 },
-	[340] =  { ['x'] = 385.74,['y'] = -1995.01,['z'] = 24.24,['h'] = 162.4, ['info'] = ' Jamestown Street 20/Apt20', ['apt'] = 1 },
-	[341] =  { ['x'] = 405.02,['y'] = -2018.35,['z'] = 23.33,['h'] = 67.11, ['info'] = ' Jamestown Street 20/Apt21', ['apt'] = 1 },
-	[342] =  { ['x'] = 402.43,['y'] = -2024.68,['z'] = 23.25,['h'] = 64.89, ['info'] = ' Jamestown Street 20/Apt22', ['apt'] = 1 },
-	[343] =  { ['x'] = 400.7,['y'] = -2028.47,['z'] = 23.25,['h'] = 64.86, ['info'] = ' Jamestown Street 20/Apt23', ['apt'] = 1 },
-	[344] =  { ['x'] = 397.38,['y'] = -2034.67,['z'] = 23.21,['h'] = 62.87, ['info'] = ' Jamestown Street 20/Apt24', ['apt'] = 1 },
-	[345] =  { ['x'] = 396.04,['y'] = -2037.9,['z'] = 23.04,['h'] = 66.18, ['info'] = ' Jamestown Street 20/Apt25', ['apt'] = 1 },
-	[346] =  { ['x'] = 392.7,['y'] = -2044.32,['z'] = 22.93,['h'] = 64.93, ['info'] = ' Jamestown Street 20/Apt26', ['apt'] = 1 },
-	[347] =  { ['x'] = 382.56,['y'] = -2061.38,['z'] = 21.78,['h'] = 52.06, ['info'] = ' Jamestown Street 20/Apt27', ['apt'] = 1 },
-	[348] =  { ['x'] = 378.73,['y'] = -2067.02,['z'] = 21.38,['h'] = 52.18, ['info'] = ' Jamestown Street 20/Apt28', ['apt'] = 1 },
-	[349] =  { ['x'] = 375.83,['y'] = -2069.96,['z'] = 21.55,['h'] = 52.97, ['info'] = ' Jamestown Street 20/Apt29', ['apt'] = 1 },
-	[350] =  { ['x'] = 371.63,['y'] = -2074.86,['z'] = 21.56,['h'] = 47.53, ['info'] = ' Jamestown Street 20/Apt30', ['apt'] = 1 },
-	[351] =  { ['x'] = 368.99,['y'] = -2078.37,['z'] = 21.38,['h'] = 49.85, ['info'] = ' Jamestown Street 20/Apt31', ['apt'] = 1 },
-	[352] =  { ['x'] = 364.48,['y'] = -2083.31,['z'] = 21.57,['h'] = 55.19, ['info'] = ' Jamestown Street 20/Apt32', ['apt'] = 1 },
-	[353] =  { ['x'] = 341.08,['y'] = -2098.49,['z'] = 18.21,['h'] = 110.37, ['info'] = ' Jamestown Street 20/Apt33', ['apt'] = 1 },
-	[354] =  { ['x'] = 333.01,['y'] = -2106.72,['z'] = 18.02,['h'] = 38.79, ['info'] = ' Jamestown Street 20/Apt34', ['apt'] = 1 },
-	[355] =  { ['x'] = 329.57,['y'] = -2108.85,['z'] = 17.91,['h'] = 31.98, ['info'] = ' Jamestown Street 20/Apt35', ['apt'] = 1 },
-	[356] =  { ['x'] = 324.18,['y'] = -2112.44,['z'] = 17.76,['h'] = 46.63, ['info'] = ' Jamestown Street 20/Apt36', ['apt'] = 1 },
-	[357] =  { ['x'] = 306.34,['y'] = -2098.09,['z'] = 17.53,['h'] = 17.58, ['info'] = ' Jamestown Street 20/Apt37', ['apt'] = 1 },
-	[358] =  { ['x'] = 306.07,['y'] = -2086.4,['z'] = 17.61,['h'] = 103.49, ['info'] = ' Jamestown Street 20/Apt38', ['apt'] = 1 },
-	[359] =  { ['x'] = 303.8,['y'] = -2079.71,['z'] = 17.66,['h'] = 108.49, ['info'] = ' Jamestown Street 20/Apt39', ['apt'] = 1 },
-	[360] =  { ['x'] = 302.18,['y'] = -2076.06,['z'] = 17.69,['h'] = 99.21, ['info'] = ' Jamestown Street 20/Apt40', ['apt'] = 1 },
-	[361] =  { ['x'] = 295.03,['y'] = -2067.07,['z'] = 17.66,['h'] = 190.42, ['info'] = ' Jamestown Street 20/Apt41', ['apt'] = 1 },
-	[362] =  { ['x'] = 286.77,['y'] = -2053.13,['z'] = 19.43,['h'] = 52.79, ['info'] = ' Jamestown Street 20/Apt42', ['apt'] = 1 },
-	[363] =  { ['x'] = 291.13,['y'] = -2047.6,['z'] = 19.66,['h'] = 44.61, ['info'] = ' Jamestown Street 20/Apt43', ['apt'] = 1 },
-	[364] =  { ['x'] = 293.65,['y'] = -2044.56,['z'] = 19.64,['h'] = 39.9, ['info'] = ' Jamestown Street 20/Apt44', ['apt'] = 1 },
-	[365] =  { ['x'] = 331.18,['y'] = -2000.79,['z'] = 23.81,['h'] = 47.06, ['info'] = ' Jamestown Street 20/Apt45', ['apt'] = 1 },
-	[366] =  { ['x'] = 335.45,['y'] = -1995.13,['z'] = 24.05,['h'] = 47.08, ['info'] = ' Jamestown Street 20/Apt46', ['apt'] = 1 },
-	[367] =  { ['x'] = 338.11,['y'] = -1992.45,['z'] = 23.61,['h'] = 40.95, ['info'] = ' Jamestown Street 20/Apt47', ['apt'] = 1 },
-	[368] =  { ['x'] = 356.72,['y'] = -1997.29,['z'] = 24.07,['h'] = 336.83, ['info'] = ' Jamestown Street 20/Apt48', ['apt'] = 1 },
-	[369] =  { ['x'] = 363.17,['y'] = -1999.61,['z'] = 24.05,['h'] = 336.99, ['info'] = ' Jamestown Street 20/Apt49', ['apt'] = 1 },
-	[370] =  { ['x'] = 366.89,['y'] = -2000.92,['z'] = 24.24,['h'] = 334.73, ['info'] = ' Jamestown Street 20/Apt50', ['apt'] = 1 },
-	[371] =  { ['x'] = 373.56,['y'] = -2003.08,['z'] = 24.27,['h'] = 340.6, ['info'] = ' Jamestown Street 20/Apt51', ['apt'] = 1 },
-	[372] =  { ['x'] = 376.97,['y'] = -2004.75,['z'] = 24.05,['h'] = 334.25, ['info'] = ' Jamestown Street 20/Apt52', ['apt'] = 1 },
-	[373] =  { ['x'] = 383.31,['y'] = -2007.28,['z'] = 23.88,['h'] = 331.42, ['info'] = ' Jamestown Street 20/Apt53', ['apt'] = 1 },
-	[374] =  { ['x'] = 393.38,['y'] = -2015.4,['z'] = 23.41,['h'] = 241.2, ['info'] = ' Jamestown Street 20/Apt54', ['apt'] = 1 },
-	[375] =  { ['x'] = 391.99,['y'] = -2016.96,['z'] = 23.41,['h'] = 242.17, ['info'] = ' Jamestown Street 20/Apt55', ['apt'] = 1 },
-	[376] =  { ['x'] = 388.18,['y'] = -2025.47,['z'] = 23.41,['h'] = 236.34, ['info'] = ' Jamestown Street 20/Apt56', ['apt'] = 1 },
-	[377] =  { ['x'] = 383.87,['y'] = -2036.12,['z'] = 23.41,['h'] = 243.42, ['info'] = ' Jamestown Street 20/Apt58', ['apt'] = 1 },
-	[378] =  { ['x'] = 382.6,['y'] = -2037.41,['z'] = 23.41,['h'] = 243.12, ['info'] = ' Jamestown Street 20/Apt59', ['apt'] = 1 },
-	[379] =  { ['x'] = 372.04,['y'] = -2055.52,['z'] = 21.75,['h'] = 221.27, ['info'] = ' Jamestown Street 20/Apt60', ['apt'] = 1 },
-	[380] =  { ['x'] = 370.9,['y'] = -2056.9,['z'] = 21.75,['h'] = 226.86, ['info'] = ' Jamestown Street 20/Apt61', ['apt'] = 1 },
-	[381] =  { ['x'] = 364.62,['y'] = -2064.18,['z'] = 21.75,['h'] = 226.55, ['info'] = ' Jamestown Street 20/Apt62', ['apt'] = 1 },
-	[382] =  { ['x'] = 357.72,['y'] = -2073.24,['z'] = 21.75,['h'] = 231.66, ['info'] = ' Jamestown Street 20/Apt64', ['apt'] = 1 },
-	[383] =  { ['x'] = 356.57,['y'] = -2074.62,['z'] = 21.75,['h'] = 227.21, ['info'] = ' Jamestown Street 20/Apt65', ['apt'] = 1 },
-	[384] =  { ['x'] = 334.14,['y'] = -2092.86,['z'] = 18.25,['h'] = 209.74, ['info'] = ' Jamestown Street 20/Apt66', ['apt'] = 1 },
-	[385] =  { ['x'] = 329.88,['y'] = -2094.65,['z'] = 18.25,['h'] = 208.97, ['info'] = ' Jamestown Street 20/Apt67', ['apt'] = 1 },
-	[386] =  { ['x'] = 321.57,['y'] = -2099.85,['z'] = 18.25,['h'] = 208.4, ['info'] = ' Jamestown Street 20/Apt68', ['apt'] = 1 },
-	[387] =  { ['x'] = 319.72,['y'] = -2100.29,['z'] = 18.25,['h'] = 207.21, ['info'] = ' Jamestown Street 20/Apt69', ['apt'] = 1 },
-	[388] =  { ['x'] = 332.15,['y'] = -2070.86,['z'] = 20.95,['h'] = 321.11, ['info'] = ' Jamestown Street 20/Apt70', ['apt'] = 1 },
-	[389] =  { ['x'] = 324.11,['y'] = -2063.77,['z'] = 20.72,['h'] = 327.76, ['info'] = ' Jamestown Street 20/Apt72', ['apt'] = 1 },
-	[390] =  { ['x'] = 321.03,['y'] = -2061.05,['z'] = 20.74,['h'] = 319.9, ['info'] = ' Jamestown Street 20/Apt73', ['apt'] = 1 },
-	[391] =  { ['x'] = 315.26,['y'] = -2056.94,['z'] = 20.72,['h'] = 321.74, ['info'] = ' Jamestown Street 20/Apt74', ['apt'] = 1 },
-	[392] =  { ['x'] = 312.31,['y'] = -2054.58,['z'] = 20.72,['h'] = 320.28, ['info'] = ' Jamestown Street 20/Apt75', ['apt'] = 1 },
-	[393] =  { ['x'] = 305.98,['y'] = -2044.77,['z'] = 20.9,['h'] = 229.17, ['info'] = ' Jamestown Street 20/Apt76', ['apt'] = 1 },
-	[394] =  { ['x'] = 313.74,['y'] = -2040.53,['z'] = 20.94,['h'] = 140.85, ['info'] = ' Jamestown Street 20/Apt77', ['apt'] = 1 },
-	[395] =  { ['x'] = 317.47,['y'] = -2043.3,['z'] = 20.94,['h'] = 139.1, ['info'] = ' Jamestown Street 20/Apt78', ['apt'] = 1 },
-	[396] =  { ['x'] = 324.69,['y'] = -2049.25,['z'] = 20.94,['h'] = 139.12, ['info'] = ' Jamestown Street 20/Apt79', ['apt'] = 1 },
-	[397] =  { ['x'] = 326.2,['y'] = -2050.54,['z'] = 20.94,['h'] = 139.05, ['info'] = ' Jamestown Street 20/Apt80', ['apt'] = 1 },
-	[398] =  { ['x'] = 333.56,['y'] = -2056.94,['z'] = 20.94,['h'] = 136.48, ['info'] = ' Jamestown Street 20/Apt81', ['apt'] = 1 },
-	[399] =  { ['x'] = 334.57,['y'] = -2058.3,['z'] = 20.94,['h'] = 143.73, ['info'] = ' Jamestown Street 20/Apt82', ['apt'] = 1 },
-	[400] =  { ['x'] = 341.86,['y'] = -2064.11,['z'] = 20.95,['h'] = 143.43, ['info'] = ' Jamestown Street 20/Apt83', ['apt'] = 1 },
-	[401] =  { ['x'] = 345.23,['y'] = -2067.37,['z'] = 20.94,['h'] = 139.82, ['info'] = ' Jamestown Street 20/Apt84', ['apt'] = 1 },
-	[402] =  { ['x'] = 363.43,['y'] = -2046.13,['z'] = 22.2,['h'] = 318.31, ['info'] = ' Jamestown Street 20/Apt85', ['apt'] = 1 },
-	[403] =  { ['x'] = 359.88,['y'] = -2043.38,['z'] = 22.2,['h'] = 320.76, ['info'] = ' Jamestown Street 20/Apt86', ['apt'] = 1 },
-	[404] =  { ['x'] = 352.51,['y'] = -2037.24,['z'] = 22.09,['h'] = 318.37, ['info'] = ' Jamestown Street 20/Apt87', ['apt'] = 1 },
-	[405] =  { ['x'] = 352.15,['y'] = -2034.96,['z'] = 22.36,['h'] = 318.55, ['info'] = ' Jamestown Street 20/Apt88', ['apt'] = 1 },
-	[406] =  { ['x'] = 344.83,['y'] = -2028.81,['z'] = 22.36,['h'] = 319.14, ['info'] = ' Jamestown Street 20/Apt89', ['apt'] = 1 },
-	[407] =  { ['x'] = 343.63,['y'] = -2027.94,['z'] = 22.36,['h'] = 320.6, ['info'] = ' Jamestown Street 20/Apt90', ['apt'] = 1 },
-	[408] =  { ['x'] = 336.17,['y'] = -2021.61,['z'] = 22.36,['h'] = 318.01, ['info'] = ' Jamestown Street 20/Apt91', ['apt'] = 1 },
-	[409] =  { ['x'] = 331.93,['y'] = -2019.28,['z'] = 22.35,['h'] = 332.68, ['info'] = ' Jamestown Street 20/Apt92', ['apt'] = 1 },
-	[410] =  { ['x'] = 335.78,['y'] = -2010.93,['z'] = 22.32,['h'] = 219.48, ['info'] = ' Jamestown Street 20/Apt93', ['apt'] = 1 },
-	[411] =  { ['x'] = 345.65,['y'] = -2014.72,['z'] = 22.4,['h'] = 156.47, ['info'] = ' Jamestown Street 20/Apt94', ['apt'] = 1 },
-	[412] =  { ['x'] = 354.15,['y'] = -2021.71,['z'] = 22.31,['h'] = 161.59, ['info'] = ' Jamestown Street 20/Apt96', ['apt'] = 1 },
-	[413] =  { ['x'] = 357.26,['y'] = -2024.55,['z'] = 22.3,['h'] = 138.06, ['info'] = ' Jamestown Street 20/Apt97', ['apt'] = 1 },
-	[414] =  { ['x'] = 362.71,['y'] = -2028.26,['z'] = 22.25,['h'] = 146.16, ['info'] = ' Jamestown Street 20/Apt98', ['apt'] = 1 },
-	[415] =  { ['x'] = 365.22,['y'] = -2031.53,['z'] = 22.4,['h'] = 229.42, ['info'] = ' Jamestown Street 20/Apt99', ['apt'] = 1 },
-	[416] =  { ['x'] = 371.47,['y'] = -2040.7,['z'] = 22.2,['h'] = 48.81, ['info'] = ' Jamestown Street 20/Apt100', ['apt'] = 1 },
-	[417] =  { ['x'] = -903.43,['y'] = -1005.12,['z'] = 2.16,['h'] = 210.68, ['info'] = ' Coopenmartha Court 1', ['apt'] = 2 },
-	[418] =  { ['x'] = -902.68,['y'] = -997.07,['z'] = 2.16,['h'] = 28.56, ['info'] = ' Coopenmartha Court 2', ['apt'] = 2 },
-	[419] =  { ['x'] = -900.17,['y'] = -981.97,['z'] = 2.17,['h'] = 122.33, ['info'] = ' Coopenmartha Court 3', ['apt'] = 2 },
-	[420] =  { ['x'] = -913.66,['y'] = -989.39,['z'] = 2.16,['h'] = 206.18, ['info'] = ' Coopenmartha Court 4', ['apt'] = 2 },
-	[421] =  { ['x'] = -908.07,['y'] = -976.76,['z'] = 2.16,['h'] = 32.27, ['info'] = ' Coopenmartha Court 5', ['apt'] = 2 },
-	[422] =  { ['x'] = -922.48,['y'] = -983.07,['z'] = 2.16,['h'] = 117.2, ['info'] = ' Coopenmartha Court 6', ['apt'] = 2 },
-	[423] =  { ['x'] = -927.84,['y'] = -973.27,['z'] = 2.16,['h'] = 215.49, ['info'] = ' Coopenmartha Court 6', ['apt'] = 2 },
-	[424] =  { ['x'] = -927.7,['y'] = -949.4,['z'] = 2.75,['h'] = 129.72, ['info'] = ' Coopenmartha Court 8', ['apt'] = 2 },
-	[425] =  { ['x'] = -934.92,['y'] = -938.93,['z'] = 2.15,['h'] = 119.33, ['info'] = ' Coopenmartha Court 9', ['apt'] = 2 },
-	[426] =  { ['x'] = -947.13,['y'] = -927.75,['z'] = 2.15,['h'] = 118.67, ['info'] = ' Coopenmartha Court 10', ['apt'] = 2 },
-	[427] =  { ['x'] = -947.68,['y'] = -910.11,['z'] = 2.35,['h'] = 122.31, ['info'] = ' Coopenmartha Court 11', ['apt'] = 2 },
-	[428] =  { ['x'] = -950.41,['y'] = -905.28,['z'] = 2.35,['h'] = 118.74, ['info'] = ' Coopenmartha Court 12', ['apt'] = 2 },
-	[429] =  { ['x'] = -986.43,['y'] = -866.38,['z'] = 2.2,['h'] = 208.66, ['info'] = ' Coopenmartha Court 13', ['apt'] = 2 },
-	[430] =  { ['x'] = -996.44,['y'] = -875.87,['z'] = 2.16,['h'] = 196.75, ['info'] = ' Coopenmartha Court 14', ['apt'] = 2 },
-	[431] =  { ['x'] = -1011.47,['y'] = -880.83,['z'] = 2.16,['h'] = 208.65, ['info'] = ' Coopenmartha Court 15', ['apt'] = 2 },
-	[432] =  { ['x'] = -1005.53,['y'] = -897.67,['z'] = 2.55,['h'] = 296.35, ['info'] = ' Coopenmartha Court 16', ['apt'] = 2 },
-	[433] =  { ['x'] = -975.57,['y'] = -909.16,['z'] = 2.16,['h'] = 222.04, ['info'] = ' Coopenmartha Court 17', ['apt'] = 2 },
-	[434] =  { ['x'] = -1010.99,['y'] = -909.64,['z'] = 2.14,['h'] = 33.62, ['info'] = ' Coopenmartha Court 18', ['apt'] = 2 },
-	[435] =  { ['x'] = -1022.89,['y'] = -896.58,['z'] = 5.42,['h'] = 207.75, ['info'] = ' Coopenmartha Court 19', ['apt'] = 2 },
-	[436] =  { ['x'] = -1031.35,['y'] = -903.04,['z'] = 3.7,['h'] = 208.79, ['info'] = ' Coopenmartha Court 20', ['apt'] = 2 },
-	[437] =  { ['x'] = -1027.9,['y'] = -919.72,['z'] = 5.05,['h'] = 22.53, ['info'] = ' Coopenmartha Court 21', ['apt'] = 2 },
-	[438] =  { ['x'] = -1024.41,['y'] = -912.11,['z'] = 6.97,['h'] = 126.42, ['info'] = ' Coopenmartha Court 22', ['apt'] = 2 },
-	[439] =  { ['x'] = -1043.03,['y'] = -924.86,['z'] = 3.16,['h'] = 28.04, ['info'] = ' Coopenmartha Court 23', ['apt'] = 2 },
-	[440] =  { ['x'] = -1053.82,['y'] = -933.09,['z'] = 3.36,['h'] = 23.91, ['info'] = ' Coopenmartha Court 24', ['apt'] = 2 },
-	[441] =  { ['x'] = -1090.89,['y'] = -926.24,['z'] = 3.14,['h'] = 204.58, ['info'] = ' Coopenmartha Court 25', ['apt'] = 2 },
-	[442] =  { ['x'] = -1085.1,['y'] = -934.97,['z'] = 3.09,['h'] = 121.56, ['info'] = ' Coopenmartha Court 26', ['apt'] = 2 },
-	[443] =  { ['x'] = -1075.69,['y'] = -939.49,['z'] = 2.36,['h'] = 303.99, ['info'] = ' Coopenmartha Court 27', ['apt'] = 2 },
-	[444] =  { ['x'] = -1084.41,['y'] = -951.81,['z'] = 2.37,['h'] = 310.7, ['info'] = ' Coopenmartha Court 28', ['apt'] = 2 },
-	[445] =  { ['x'] = -989.35,['y'] = -975.21,['z'] = 4.23,['h'] = 117.27, ['info'] = ' Imagination Court 1', ['apt'] = 2 },
-	[446] =  { ['x'] = -994.98,['y'] = -966.47,['z'] = 2.55,['h'] = 116.74, ['info'] = ' Imagination Court 2', ['apt'] = 2 },
-	[447] =  { ['x'] = -978.21,['y'] = -990.68,['z'] = 4.55,['h'] = 121.89, ['info'] = ' Imagination Court 3', ['apt'] = 2 },
-	[448] =  { ['x'] = -1019.04,['y'] = -963.69,['z'] = 2.16,['h'] = 201.18, ['info'] = ' Imagination Court 4', ['apt'] = 2 },
-	[449] =  { ['x'] = -1028.21,['y'] = -968.02,['z'] = 2.16,['h'] = 204.49, ['info'] = ' Imagination Court 5', ['apt'] = 2 },
-	[450] =  { ['x'] = -1032.18,['y'] = -982.48,['z'] = 2.16,['h'] = 202.74, ['info'] = ' Imagination Court 6', ['apt'] = 2 },
-	[451] =  { ['x'] = -1056.67,['y'] = -1001.26,['z'] = 2.16,['h'] = 277.45, ['info'] = ' Imagination Court 7', ['apt'] = 2 },
-	[452] =  { ['x'] = -1054.81,['y'] = -1000.95,['z'] = 6.42,['h'] = 307.44, ['info'] = ' Imagination Court 8', ['apt'] = 2 },
-	[453] =  { ['x'] = -1055.75,['y'] = -998.78,['z'] = 6.42,['h'] = 305.55, ['info'] = ' Imagination Court 9', ['apt'] = 2 },
-	[454] =  { ['x'] = -1042.39,['y'] = -1024.61,['z'] = 2.16,['h'] = 211.23, ['info'] = ' Imagination Court 10', ['apt'] = 2 },
-	[455] =  { ['x'] = -1022.48,['y'] = -1022.42,['z'] = 2.16,['h'] = 205.65, ['info'] = ' Imagination Court 11', ['apt'] = 2 },
-	[456] =  { ['x'] = -1008.47,['y'] = -1015.29,['z'] = 2.16,['h'] = 208.97, ['info'] = ' Imagination Court 12', ['apt'] = 2 },
-	[457] =  { ['x'] = -997.35,['y'] = -1012.6,['z'] = 2.16,['h'] = 302.07, ['info'] = ' Imagination Court 13', ['apt'] = 2 },
-	[458] =  { ['x'] = -967.46,['y'] = -1008.5,['z'] = 2.16,['h'] = 218.76, ['info'] = ' Imagination Court 14', ['apt'] = 2 },
-	[459] =  { ['x'] = -942.71,['y'] = -1076.35,['z'] = 2.54,['h'] = 29.74, ['info'] = ' Invention Court 1', ['apt'] = 2 },
-	[460] =  { ['x'] = -951.94,['y'] = -1078.52,['z'] = 2.16,['h'] = 29.92, ['info'] = ' Invention Court 2', ['apt'] = 2 },
-	[461] =  { ['x'] = -982.64,['y'] = -1066.94,['z'] = 2.55,['h'] = 207.21, ['info'] = ' Invention Court 3', ['apt'] = 2 },
-	[462] =  { ['x'] = -977.79,['y'] = -1091.85,['z'] = 4.23,['h'] = 132.57, ['info'] = ' Invention Court 4', ['apt'] = 2 },
-	[463] =  { ['x'] = -982.64,['y'] = -1083.86,['z'] = 2.55,['h'] = 121.26, ['info'] = ' Invention Court 5', ['apt'] = 2 },
-	[464] =  { ['x'] = -991.11,['y'] = -1103.85,['z'] = 2.16,['h'] = 38.51, ['info'] = ' Invention Court 6', ['apt'] = 2 },
-	[465] =  { ['x'] = -986.66,['y'] = -1122.15,['z'] = 4.55,['h'] = 301.76, ['info'] = ' Invention Court 7', ['apt'] = 2 },
-	[466] =  { ['x'] = -976.25,['y'] = -1140.3,['z'] = 2.18,['h'] = 296.42, ['info'] = ' Invention Court 8', ['apt'] = 2 },
-	[467] =  { ['x'] = -978.06,['y'] = -1108.25,['z'] = 2.16,['h'] = 199.34, ['info'] = ' Invention Court 9', ['apt'] = 2 },
-	[468] =  { ['x'] = -960.05,['y'] = -1109.07,['z'] = 2.16,['h'] = 202.32, ['info'] = ' Invention Court 11', ['apt'] = 2 },
-	[469] =  { ['x'] = -963.15,['y'] = -1110.02,['z'] = 2.18,['h'] = 117.39, ['info'] = ' Invention Court 10', ['apt'] = 2 },
-	[470] =  { ['x'] = -948.72,['y'] = -1107.7,['z'] = 2.18,['h'] = 299.33, ['info'] = ' Invention Court 12', ['apt'] = 2 },
-	[471] =  { ['x'] = -939.32,['y'] = -1088.27,['z'] = 2.16,['h'] = 273.12, ['info'] = ' Invention Court 13', ['apt'] = 2 },
-	[472] =  { ['x'] = -931.12,['y'] = -1100.18,['z'] = 2.18,['h'] = 215.78, ['info'] = ' Invention Court 14', ['apt'] = 2 },
-	[473] =  { ['x'] = -921.36,['y'] = -1095.44,['z'] = 2.16,['h'] = 118.76, ['info'] = ' Invention Court 15', ['apt'] = 2 },
-	[474] =  { ['x'] = -1176.2,['y'] = -1072.88,['z'] = 5.91,['h'] = 115.96, ['info'] = ' Imagination Court 15', ['apt'] = 2 },
-	[475] =  { ['x'] = -1180.93,['y'] = -1056.36,['z'] = 2.16,['h'] = 209.3, ['info'] = ' Imagination Court 16', ['apt'] = 2 },
-	[476] =  { ['x'] = -1183.71,['y'] = -1044.88,['z'] = 2.16,['h'] = 125.29, ['info'] = ' Imagination Court 17', ['apt'] = 2 },
-	[477] =  { ['x'] = -1188.65,['y'] = -1041.64,['z'] = 2.3,['h'] = 27.41, ['info'] = ' Imagination Court 18', ['apt'] = 2 },
-	[478] =  { ['x'] = -1198.67,['y'] = -1023.73,['z'] = 2.16,['h'] = 202.18, ['info'] = ' Imagination Court 19', ['apt'] = 2 },
-	[479] =  { ['x'] = -1203.28,['y'] = -1021.27,['z'] = 5.96,['h'] = 121.76, ['info'] = ' Imagination Court 20', ['apt'] = 2 },
-	[480] =  { ['x'] = -1098.74,['y'] = -1679.17,['z'] = 4.37,['h'] = 300.45, ['info'] = ' Beachside Avenue 1', ['apt'] = 2 },
-	[481] =  { ['x'] = -1097.58,['y'] = -1673.07,['z'] = 8.4,['h'] = 303.36, ['info'] = ' Beachside Avenue 2', ['apt'] = 2 },
-	[482] =  { ['x'] = -1349.59,['y'] = -1187.7,['z'] = 4.57,['h'] = 271.19, ['info'] = ' Beachside Avenue 3', ['apt'] = 2 },
-	[483] =  { ['x'] = -1347.14,['y'] = -1167.87,['z'] = 4.58,['h'] = 326.75, ['info'] = ' Beachside Avenue 4', ['apt'] = 2 },
-	[484] =  { ['x'] = -1350.2,['y'] = -1161.41,['z'] = 4.51,['h'] = 268.7, ['info'] = ' Beachside Avenue 5', ['apt'] = 2 },
-	[485] =  { ['x'] = -1347.23,['y'] = -1145.91,['z'] = 4.34,['h'] = 236.95, ['info'] = ' Beachside Avenue 6', ['apt'] = 2 },
-	[486] =  { ['x'] = -1336.27,['y'] = -1145.51,['z'] = 6.74,['h'] = 177.62, ['info'] = ' Beachside Avenue 7', ['apt'] = 2 },
-	[487] =  { ['x'] = -1374.53,['y'] = -1074.28,['z'] = 4.32,['h'] = 300.62, ['info'] = ' Beachside Avenue 8', ['apt'] = 2 },
-	[488] =  { ['x'] = -1376.91,['y'] = -1070.31,['z'] = 4.35,['h'] = 300.36, ['info'] = ' Beachside Avenue 9', ['apt'] = 2 },
-	[489] =  { ['x'] = -1379.84,['y'] = -1066.37,['z'] = 4.35,['h'] = 300.43, ['info'] = ' Beachside Avenue 10', ['apt'] = 2 },
-	[490] =  { ['x'] = -1381.87,['y'] = -1062.06,['z'] = 4.35,['h'] = 299.36, ['info'] = ' Beachside Avenue 11', ['apt'] = 2 },
-	[491] =  { ['x'] = -1384.78,['y'] = -1058.38,['z'] = 4.36,['h'] = 301.37, ['info'] = ' Beachside Avenue 12', ['apt'] = 2 },
-	[492] =  { ['x'] = -1386.93,['y'] = -1054.22,['z'] = 4.34,['h'] = 303.25, ['info'] = ' Beachside Avenue 13', ['apt'] = 2 },
-	[493] =  { ['x'] = -1370.18,['y'] = -1042.84,['z'] = 4.26,['h'] = 212.96, ['info'] = ' Beachside Avenue 14', ['apt'] = 2 },
-	[494] =  { ['x'] = -1366.28,['y'] = -1039.9,['z'] = 4.26,['h'] = 207.39, ['info'] = ' Beachside Avenue 15', ['apt'] = 2 },
-	[495] =  { ['x'] = -1362.4,['y'] = -1037.3,['z'] = 4.25,['h'] = 208.56, ['info'] = ' Beachside Avenue 16', ['apt'] = 2 },
-	[496] =  { ['x'] = -1358.3,['y'] = -1035.08,['z'] = 4.24,['h'] = 206.68, ['info'] = ' Beachside Avenue 17', ['apt'] = 2 },
-	[497] =  { ['x'] = -1754.06,['y'] = -725.21,['z'] = 10.29,['h'] = 315.01, ['info'] = ' Beachside Avenue 18', ['apt'] = 2 },
-	[498] =  { ['x'] = -1754.74,['y'] = -708.34,['z'] = 10.4,['h'] = 228.16, ['info'] = ' Beachside Avenue 19', ['apt'] = 2 },
-	[499] =  { ['x'] = -1764.34,['y'] = -708.4,['z'] = 10.62,['h'] = 330.2, ['info'] = ' Beachside Avenue 20', ['apt'] = 2 },
-	[500] =  { ['x'] = -1777.02,['y'] = -701.53,['z'] = 10.53,['h'] = 321.14, ['info'] = ' Beachside Avenue 21', ['apt'] = 2 },
-	[501] =  { ['x'] = -1770.67,['y'] = -677.27,['z'] = 10.38,['h'] = 132.13, ['info'] = ' Beachside Avenue 22', ['apt'] = 2 },
-	[502] =  { ['x'] = -1765.69,['y'] = -681.05,['z'] = 10.29,['h'] = 141.89, ['info'] = ' Beachside Avenue 23', ['apt'] = 2 },
-	[503] =  { ['x'] = -1791.69,['y'] = -683.89,['z'] = 10.65,['h'] = 322.32, ['info'] = ' Beachside Avenue 24', ['apt'] = 2 },
-	[504] =  { ['x'] = -1793.69,['y'] = -663.88,['z'] = 10.6,['h'] = 313.3, ['info'] = ' Beachside Avenue 25', ['apt'] = 2 },
-	[505] =  { ['x'] = -1803.64,['y'] = -662.45,['z'] = 10.73,['h'] = 10.28, ['info'] = ' Beachside Avenue 26', ['apt'] = 2 },
-	[506] =  { ['x'] = -1813.82,['y'] = -657.05,['z'] = 10.89,['h'] = 57.95, ['info'] = ' Beachside Avenue 27', ['apt'] = 2 },
-	[507] =  { ['x'] = -1819.73,['y'] = -650.15,['z'] = 10.98,['h'] = 36.31, ['info'] = ' Beachside Avenue 28', ['apt'] = 2 },
-	[508] =  { ['x'] = -1834.74,['y'] = -642.54,['z'] = 11.48,['h'] = 288.8, ['info'] = ' Beachside Avenue 29', ['apt'] = 2 },
-	[509] =  { ['x'] = -1836.49,['y'] = -631.61,['z'] = 10.76,['h'] = 260.79, ['info'] = ' Beachside Avenue 30', ['apt'] = 2 },
-	[510] =  { ['x'] = -1838.56,['y'] = -629.2,['z'] = 11.25,['h'] = 76.98, ['info'] = ' Beachside Avenue 31', ['apt'] = 2 },
-	[511] =  { ['x'] = -1872.51,['y'] = -604.06,['z'] = 11.89,['h'] = 50.69, ['info'] = ' Beachside Avenue 32', ['apt'] = 2 },
-	[512] =  { ['x'] = -1874.66,['y'] = -593.01,['z'] = 11.89,['h'] = 50.96, ['info'] = ' Beachside Avenue 33', ['apt'] = 2 },
-	[513] =  { ['x'] = -1883.28,['y'] = -578.94,['z'] = 11.82,['h'] = 138.0, ['info'] = ' Beachside Avenue 34', ['apt'] = 2 },
-	[514] =  { ['x'] = -1901.72,['y'] = -586.55,['z'] = 11.88,['h'] = 300.26, ['info'] = ' Beachside Avenue 35', ['apt'] = 2 },
-	[515] =  { ['x'] = -1913.45,['y'] = -574.22,['z'] = 11.44,['h'] = 317.93, ['info'] = ' Beachside Avenue 36', ['apt'] = 2 },
-	[516] =  { ['x'] = -1917.79,['y'] = -558.82,['z'] = 11.85,['h'] = 274.38, ['info'] = ' Beachside Avenue 37', ['apt'] = 2 },
-	[517] =  { ['x'] = -1924.05,['y'] = -559.33,['z'] = 12.07,['h'] = 45.74, ['info'] = ' Beachside Avenue 38', ['apt'] = 2 },
-	[518] =  { ['x'] = -1918.64,['y'] = -542.55,['z'] = 11.83,['h'] = 145.81, ['info'] = ' Beachside Avenue 39', ['apt'] = 2 },
-	[519] =  { ['x'] = -1947.03,['y'] = -544.07,['z'] = 11.87,['h'] = 54.28, ['info'] = ' Beachside Avenue 40', ['apt'] = 2 },
-	[520] =  { ['x'] = -1947.95,['y'] = -531.65,['z'] = 11.83,['h'] = 44.17, ['info'] = ' Beachside Avenue 41', ['apt'] = 2 },
-	[521] =  { ['x'] = -1968.27,['y'] = -532.39,['z'] = 12.18,['h'] = 317.83, ['info'] = ' Beachside Avenue 42', ['apt'] = 2 },
-	[522] =  { ['x'] = -1968.36,['y'] = -523.33,['z'] = 11.85,['h'] = 52.01, ['info'] = ' Beachside Avenue 43', ['apt'] = 2 },
-	[523] =  { ['x'] = -1980.0,['y'] = -520.54,['z'] = 11.9,['h'] = 316.92, ['info'] = ' Beachside Avenue 44', ['apt'] = 2 },
-	[524] =  { ['x'] = -1070.57,['y'] = -1653.81,['z'] = 4.41,['h'] = 306.97, ['info'] = ' Beachside Court 1', ['apt'] = 2 },
-	[525] =  { ['x'] = -1076.09,['y'] = -1645.79,['z'] = 4.51,['h'] = 313.53, ['info'] = ' Beachside Court 2', ['apt'] = 2 },
-	[526] =  { ['x'] = -1082.93,['y'] = -1631.47,['z'] = 4.74,['h'] = 303.72, ['info'] = ' Beachside Court 3', ['apt'] = 2 },
-	[527] =  { ['x'] = -1088.77,['y'] = -1623.08,['z'] = 4.74,['h'] = 299.0, ['info'] = ' Beachside Court 4', ['apt'] = 2 },
-	[528] =  { ['x'] = -1092.39,['y'] = -1607.42,['z'] = 8.47,['h'] = 124.17, ['info'] = ' Beachside Court 5', ['apt'] = 2 },
-	[529] =  { ['x'] = -1106.29,['y'] = -1596.34,['z'] = 4.6,['h'] = 228.18, ['info'] = ' Beachside Court 6', ['apt'] = 2 },
-	[530] =  { ['x'] = -1038.86,['y'] = -1609.53,['z'] = 5.0,['h'] = 152.83, ['info'] = ' Beachside Court 7', ['apt'] = 2 },
-	[531] =  { ['x'] = -1029.29,['y'] = -1603.62,['z'] = 4.97,['h'] = 129.41, ['info'] = ' Beachside Court 8', ['apt'] = 2 },
-	[532] =  { ['x'] = -1032.69,['y'] = -1582.77,['z'] = 5.14,['h'] = 24.53, ['info'] = ' Beachside Court 9', ['apt'] = 2 },
-	[533] =  { ['x'] = -1043.47,['y'] = -1580.43,['z'] = 5.04,['h'] = 235.83, ['info'] = ' Beachside Court 10', ['apt'] = 2 },
-	[534] =  { ['x'] = -1041.27,['y'] = -1591.25,['z'] = 4.99,['h'] = 31.37, ['info'] = ' Beachside Court 11', ['apt'] = 2 },
-	[535] =  { ['x'] = -1057.06,['y'] = -1587.44,['z'] = 4.61,['h'] = 40.1, ['info'] = ' Beachside Court 12', ['apt'] = 2 },
-	[536] =  { ['x'] = -1058.16,['y'] = -1540.21,['z'] = 5.05,['h'] = 217.14, ['info'] = ' Beachside Court 16', ['apt'] = 2 },
-
-	[537] =  { ['x'] = 35.27,['y'] = 6662.8,['z'] = 32.2,['h'] = 160.32, ['info'] = ' Procopio Drive 1', ['apt'] = 2 },
-	[538] =  { ['x'] = -9.75,['y'] = 6654.15,['z'] = 31.7,['h'] = 201.74, ['info'] = ' Procopio Drive 2', ['apt'] = 2 },
-	[539] =  { ['x'] = -41.3,['y'] = 6636.99,['z'] = 31.09,['h'] = 209.76, ['info'] = ' Procopio Drive 3', ['apt'] = 2 },
-	[540] =  { ['x'] = -130.1,['y'] = 6551.49,['z'] = 29.53,['h'] = 220.17, ['info'] = ' Procopio Drive 4', ['apt'] = 2 },
-	[541] =  { ['x'] = -229.77,['y'] = 6445.18,['z'] = 31.2,['h'] = 139.3, ['info'] = ' Procopio Drive 5', ['apt'] = 2 },
-	[542] =  { ['x'] = -238.37,['y'] = 6423.4,['z'] = 31.46,['h'] = 215.07, ['info'] = ' Procopio Drive 6', ['apt'] = 2 },
-	[543] =  { ['x'] = -272.14,['y'] = 6400.61,['z'] = 31.51,['h'] = 207.46, ['info'] = ' Procopio Drive 7', ['apt'] = 2 },
-	[544] =  { ['x'] = -359.51,['y'] = 6334.64,['z'] = 29.85,['h'] = 218.99, ['info'] = ' Procopio Drive 8', ['apt'] = 2 },
-	[545] =  { ['x'] = -407.22,['y'] = 6314.12,['z'] = 28.95,['h'] = 215.74, ['info'] = ' Procopio Drive 9', ['apt'] = 2 },
-	[546] =  { ['x'] = -447.9,['y'] = 6271.69,['z'] = 33.34,['h'] = 64.01, ['info'] = ' Procopio Drive 10', ['apt'] = 2 },
-	[547] =  { ['x'] = -467.97,['y'] = 6206.18,['z'] = 29.56,['h'] = 358.01, ['info'] = ' Procopio Drive 11', ['apt'] = 2 },
-	[548] =  { ['x'] = -379.73,['y'] = 6253.05,['z'] = 31.86,['h'] = 310.69, ['info'] = ' Procopio Drive 12', ['apt'] = 3 },
-	[549] =  { ['x'] = -370.91,['y'] = 6267.2,['z'] = 31.88,['h'] = 35.56, ['info'] = ' Procopio Drive 13', ['apt'] = 3 },
-	[550] =  { ['x'] = -302.07,['y'] = 6327.4,['z'] = 32.89,['h'] = 36.31, ['info'] = ' Procopio Drive 14', ['apt'] = 3 },
-	[551] =  { ['x'] = -280.62,['y'] = 6350.84,['z'] = 32.61,['h'] = 42.88, ['info'] = ' Procopio Drive 15', ['apt'] = 1 },
-	[552] =  { ['x'] = -247.88,['y'] = 6369.98,['z'] = 31.85,['h'] = 45.41, ['info'] = ' Procopio Drive 16', ['apt'] = 3 },
-	[553] =  { ['x'] = -227.7,['y'] = 6377.93,['z'] = 31.76,['h'] = 44.42, ['info'] = ' Procopio Drive 17', ['apt'] = 3 },
-	[554] =  { ['x'] = -213.86,['y'] = 6396.5,['z'] = 33.09,['h'] = 42.81, ['info'] = ' Procopio Drive 18', ['apt'] = 3 },
-	[555] =  { ['x'] = -189.07,['y'] = 6409.72,['z'] = 32.3,['h'] = 41.25, ['info'] = ' Procopio Drive 19', ['apt'] = 3 },
-
-	[556] =  { ['x'] = 1535.30,['y'] = 2231.90,['z'] = 77.7,['h'] = 133.7, ['info'] = ' Grand Senora Path 1', ['apt'] = 2 },
-
-	[557] =  { ['x'] = 248.3,['y'] = -1489.9,['z'] = 29.3,['h'] = 224.51, ['info'] = ' Strawberry Shop 1' , ['apt'] = 4 },
-	[558] =  { ['x'] = 243.9,['y'] = -1492.9,['z'] = 29.3,['h'] = 45.95, ['info'] = ' Strawberry Shop 2' , ['apt'] = 4 },
-	[559] =  { ['x'] = 224.62,['y'] = -1510.77,['z'] = 29.3,['h'] = 235.2, ['info'] = ' Strawberry Shop 3' , ['apt'] = 4 },
-	[560] =  { ['x'] = 216.01,['y'] = -1523.44,['z'] = 29.3,['h'] = 142.05, ['info'] = ' Strawberry Shop 4' , ['apt'] = 4 },
-	[561] =  { ['x'] = 218.7,['y'] = -1530.97,['z'] = 29.3,['h'] = 9.86, ['info'] = ' Strawberry Shop 5' , ['apt'] = 4 },
-	[562] =  { ['x'] = 225.64,['y'] = -1539.46,['z'] = 29.32,['h'] = 311.3, ['info'] = ' Strawberry Shop 6' , ['apt'] = 4 },
-	[563] =  { ['x'] = 168.19,['y'] = -1506.32,['z'] = 29.26,['h'] = 317.63, ['info'] = ' Strawberry Shop 7' , ['apt'] = 4 },
-	[564] =  { ['x'] = 84.11,['y'] = -1551.83,['z'] = 29.6,['h'] = 218.89, ['info'] = ' Strawberry Shop 8' , ['apt'] = 4 },
-	[565] =  { ['x'] = 68.14,['y'] = -1569.61,['z'] = 29.6,['h'] = 233.82, ['info'] = ' Strawberry Shop 9' , ['apt'] = 4 },
-	[566] =  { ['x'] = 60.41,['y'] = -1579.4,['z'] = 29.6,['h'] = 214.56, ['info'] = ' Strawberry Shop 10' , ['apt'] = 4 },
-	[567] =  { ['x'] = 47.73,['y'] = -1593.67,['z'] = 29.6,['h'] = 230.48, ['info'] = ' Strawberry Shop 11' , ['apt'] = 4 },
-	[568] =  { ['x'] = 86.88,['y'] = -1670.51,['z'] = 29.17,['h'] = 262.58, ['info'] = ' Strawberry Shop 12' , ['apt'] = 4 },
-	[569] =  { ['x'] = 95.75,['y'] = -1682.63,['z'] = 29.26,['h'] = 306.06, ['info'] = ' Strawberry Shop 13' , ['apt'] = 4 },
-	[570] =  { ['x'] = 105.27,['y'] = -1689.97,['z'] = 29.3,['h'] = 323.28, ['info'] = ' Strawberry Shop 14' , ['apt'] = 4 },
-	[571] =  { ['x'] = 100.21,['y'] = -1661.96,['z'] = 29.3,['h'] = 217.67, ['info'] = ' Strawberry Shop 15' , ['apt'] = 4 },
-	[572] =  { ['x'] = 107.2,['y'] = -1657.47,['z'] = 29.3,['h'] = 220.76, ['info'] = ' Strawberry Shop 16' , ['apt'] = 4 },
-	[573] =  { ['x'] = 106.22,['y'] = -1658.4,['z'] = 29.3,['h'] = 269.44, ['info'] = ' Strawberry Shop 17' , ['apt'] = 4 },
-	[574] =  { ['x'] = 118.34,['y'] = -1649.77,['z'] = 29.3,['h'] = 226.06, ['info'] = ' Strawberry Shop 18' , ['apt'] = 4 },
-	[575] =  { ['x'] = 121.92,['y'] = -1647.5,['z'] = 29.3,['h'] = 215.09, ['info'] = ' Strawberry Shop 19' , ['apt'] = 4 },
-	[576] =  { ['x'] = 129.64,['y'] = -1642.64,['z'] = 29.3,['h'] = 116.08, ['info'] = ' Strawberry Shop 20' , ['apt'] = 4 },
-	[577] =  { ['x'] = 138.0,['y'] = -1639.45,['z'] = 29.31,['h'] = 219.64, ['info'] = ' Strawberry Shop 21' , ['apt'] = 4 },
-	[578] =  { ['x'] = 53.3,['y'] = -1478.84,['z'] = 29.29,['h'] = 7.7, ['info'] = ' Strawberry Shop 22' , ['apt'] = 4 },
-	[579] =  { ['x'] = 65.74,['y'] = -1467.38,['z'] = 29.3,['h'] = 203.15, ['info'] = ' Strawberry Shop 23' , ['apt'] = 4 },
-	[580] =  { ['x'] = 76.03,['y'] = -1455.81,['z'] = 29.3,['h'] = 38.31, ['info'] = ' Strawberry Shop 24' , ['apt'] = 4 },
-	[581] =  { ['x'] = 99.55,['y'] = -1419.21,['z'] = 29.43,['h'] = 63.13, ['info'] = ' Strawberry Shop 25' , ['apt'] = 4 },
-	[582] =  { ['x'] = 89.92,['y'] = -1411.31,['z'] = 29.43,['h'] = 125.59, ['info'] = ' Strawberry Shop 26' , ['apt'] = 4 },
-	[583] =  { ['x'] = 84.87,['y'] = -1404.89,['z'] = 29.42,['h'] = 68.34, ['info'] = ' Strawberry Shop 27' , ['apt'] = 4 },
-	[584] =  { ['x'] = 122.82,['y'] = -1347.74,['z'] = 29.3,['h'] = 306.79, ['info'] = ' Strawberry Shop 28' , ['apt'] = 4 },
-	[585] =  { ['x'] = 170.37,['y'] = -1336.82,['z'] = 29.3,['h'] = 357.49, ['info'] = ' Strawberry Shop 29' , ['apt'] = 4 },
-	[586] =  { ['x'] = 186.94,['y'] = -1310.53,['z'] = 29.33,['h'] = 45.29, ['info'] = ' Strawberry Shop 30' , ['apt'] = 4 },
-	[587] =  { ['x'] = 195.63,['y'] = -1291.18,['z'] = 29.33,['h'] = 167.31, ['info'] = ' Strawberry Shop 31' , ['apt'] = 4 },
-	[588] =  { ['x'] = 198.27,['y'] = -1276.41,['z'] = 29.33,['h'] = 26.43, ['info'] = ' Strawberry Shop 32' , ['apt'] = 4 },
-	[589] =  { ['x'] = 199.61,['y'] = -1269.29,['z'] = 29.18,['h'] = 55.9, ['info'] = ' Strawberry Shop 33' , ['apt'] = 4 },
-	[590] =  { ['x'] = 98.58,['y'] = -1308.83,['z'] = 29.28,['h'] = 122.82, ['info'] = ' Strawberry Shop 34' , ['apt'] = 4 },
-	[591] =  { ['x'] = 87.92,['y'] = -1294.48,['z'] = 29.21,['h'] = 122.01, ['info'] = ' Strawberry Shop 35' , ['apt'] = 4 },
-	[592] =  { ['x'] = 51.76,['y'] = -1317.47,['z'] = 29.29,['h'] = 124.75, ['info'] = ' Strawberry Shop 36' , ['apt'] = 4 },
-	[593] =  { ['x'] = -39.17,['y'] = -1387.48,['z'] = 30.3,['h'] = 183.53, ['info'] = ' Strawberry Shop 37' , ['apt'] = 4 },
-	[594] =  { ['x'] = -47.99,['y'] = -1385.35,['z'] = 29.5,['h'] = 355.74, ['info'] = ' Strawberry Shop 38' , ['apt'] = 4 },
-	[595] =  { ['x'] = -82.25,['y'] = -1385.8,['z'] = 29.5,['h'] = 184.22, ['info'] = ' Strawberry Shop 39' , ['apt'] = 4 },
-	[596] =  { ['x'] = -128.09,['y'] = -1394.33,['z'] = 29.55,['h'] = 182.09, ['info'] = ' Strawberry Shop 40' , ['apt'] = 4 },
-	[597] =  { ['x'] = -160.18,['y'] = -1432.03,['z'] = 31.28,['h'] = 186.3, ['info'] = ' Strawberry Shop 41' , ['apt'] = 4 },
-	[598] =  { ['x'] = -163.55,['y'] = -1439.71,['z'] = 31.43,['h'] = 142.48, ['info'] = ' Strawberry Shop 42' , ['apt'] = 4 },
-	[599] =  { ['x'] = -171.21,['y'] = -1449.62,['z'] = 31.64,['h'] = 326.49, ['info'] = ' Strawberry Shop 43' , ['apt'] = 4 },
-
-	[600] =  { ['x'] = -1489.69,['y'] = -671.15,['z'] = 33.39,['h'] = 134.21, ['info'] = ' Bay City Ave / App 69' , ['apt'] = 1 },
-	[601] =  { ['x'] = -1493.46,['y'] = -668.06,['z'] = 33.39,['h'] = 141.4, ['info'] = ' Bay City Ave / App 37' , ['apt'] = 1 },
-	[602] =  { ['x'] = -1497.83,['y'] = -664.47,['z'] = 29.03,['h'] = 137.35, ['info'] = ' Bay City Ave / App 2' , ['apt'] = 1 },
-	[603] =  { ['x'] = -1495.04,['y'] = -661.92,['z'] = 29.03,['h'] = 30.17, ['info'] = ' Bay City Ave / App 3' , ['apt'] = 1 },
-	[604] =  { ['x'] = -1490.48,['y'] = -658.73,['z'] = 29.03,['h'] = 29.52, ['info'] = ' Bay City Ave / App 4' , ['apt'] = 1 },
-	[605] =  { ['x'] = -1486.45,['y'] = -655.88,['z'] = 29.59,['h'] = 37.15, ['info'] = ' Bay City Ave / App 5' , ['apt'] = 1 },
-	[606] =  { ['x'] = -1481.97,['y'] = -652.46,['z'] = 29.59,['h'] = 31.19, ['info'] = ' Bay City Ave / App 6' , ['apt'] = 1 },
-	[607] =  { ['x'] = -1477.95,['y'] = -649.54,['z'] = 29.59,['h'] = 32.3, ['info'] = ' Bay City Ave / App 7' , ['apt'] = 1 },
-	[608] =  { ['x'] = -1473.36,['y'] = -646.2,['z'] = 29.59,['h'] = 26.38, ['info'] = ' Bay City Ave / App 8' , ['apt'] = 1 },
-	[609] =  { ['x'] = -1469.31,['y'] = -643.41,['z'] = 29.59,['h'] = 29.38, ['info'] = ' Bay City Ave / App 8' , ['apt'] = 1 },
-	[610] =  { ['x'] = -1464.75,['y'] = -640.1,['z'] = 29.59,['h'] = 33.84, ['info'] = ' Bay City Ave / App 10' , ['apt'] = 1 },
-	[611] =  { ['x'] = -1461.78,['y'] = -641.4,['z'] = 29.59,['h'] = 303.51, ['info'] = ' Bay City Ave / App 11' , ['apt'] = 1 },
-	[612] =  { ['x'] = -1452.58,['y'] = -653.29,['z'] = 29.59,['h'] = 300.87, ['info'] = ' Bay City Ave / App 12' , ['apt'] = 1 },
-	[613] =  { ['x'] = -1454.68,['y'] = -655.64,['z'] = 29.59,['h'] = 213.03, ['info'] = ' Bay City Ave / App 13' , ['apt'] = 1 },
-	[614] =  { ['x'] = -1459.3,['y'] = -658.86,['z'] = 29.59,['h'] = 228.02, ['info'] = ' Bay City Ave / App 14' , ['apt'] = 1 },
-	[615] =  { ['x'] = -1463.37,['y'] = -661.72,['z'] = 29.59,['h'] = 214.95, ['info'] = ' Bay City Ave / App 15' , ['apt'] = 1 },
-	[616] =  { ['x'] = -1468.05,['y'] = -664.9,['z'] = 29.59,['h'] = 214.39, ['info'] = ' Bay City Ave / App 16' , ['apt'] = 1 },
-	[617] =  { ['x'] = -1471.96,['y'] = -667.82,['z'] = 29.59,['h'] = 213.94, ['info'] = ' Bay City Ave / App 17' , ['apt'] = 1 },
-	[618] =  { ['x'] = -1461.53,['y'] = -641.04,['z'] = 33.39,['h'] = 304.53, ['info'] = ' Bay City Ave / App 18' , ['apt'] = 1 },
-	[619] =  { ['x'] = -1458.35,['y'] = -645.91,['z'] = 33.39,['h'] = 308.11, ['info'] = ' Bay City Ave / App 19' , ['apt'] = 1 },
-	[620] =  { ['x'] = -1456.04,['y'] = -648.95,['z'] = 33.39,['h'] = 306.76, ['info'] = ' Bay City Ave / App 20' , ['apt'] = 1 },
-	[621] =  { ['x'] = -1452.73,['y'] = -653.47,['z'] = 33.39,['h'] = 301.36, ['info'] = ' Bay City Ave / App 21' , ['apt'] = 1 },
-	[622] =  { ['x'] = -1454.63,['y'] = -655.6,['z'] = 33.39,['h'] = 215.46, ['info'] = ' Bay City Ave / App 22' , ['apt'] = 1 },
-	[623] =  { ['x'] = -1459.41,['y'] = -658.81,['z'] = 33.39,['h'] = 213.78, ['info'] = ' Bay City Ave / App 23' , ['apt'] = 1 },
-	[624] =  { ['x'] = -1463.32,['y'] = -661.53,['z'] = 33.39,['h'] = 210.0, ['info'] = ' Bay City Ave / App 24' , ['apt'] = 1 },
-	[625] =  { ['x'] = -1467.84,['y'] = -665.24,['z'] = 33.39,['h'] = 189.07, ['info'] = ' Bay City Ave / App 25' , ['apt'] = 1 },
-	[626] =  { ['x'] = -1471.78,['y'] = -668.02,['z'] = 33.39,['h'] = 214.32, ['info'] = ' Bay City Ave / App 26' , ['apt'] = 1 },
-	[627] =  { ['x'] = -1476.37,['y'] = -671.31,['z'] = 33.39,['h'] = 216.08, ['info'] = ' Bay City Ave / App 27' , ['apt'] = 1 },
-	[628] =  { ['x'] = -1464.99,['y'] = -639.7,['z'] = 33.39,['h'] = 35.06, ['info'] = ' Bay City Ave / App 28' , ['apt'] = 1 },
-	[629] =  { ['x'] = -1469.15,['y'] = -643.43,['z'] = 33.39,['h'] = 35.14, ['info'] = ' Bay City Ave / App 29' , ['apt'] = 1 },
-	[630] =  { ['x'] = -1473.23,['y'] = -646.27,['z'] = 33.39,['h'] = 32.85, ['info'] = ' Bay City Ave / App 30' , ['apt'] = 1 },
-	[631] =  { ['x'] = -1477.85,['y'] = -649.78,['z'] = 33.39,['h'] = 32.61, ['info'] = ' Bay City Ave / App 31' , ['apt'] = 1 },
-	[632] =  { ['x'] = -1481.81,['y'] = -652.67,['z'] = 33.39,['h'] = 33.91, ['info'] = ' Bay City Ave / App 32' , ['apt'] = 1 },
-	[633] =  { ['x'] = -1486.47,['y'] = -655.77,['z'] = 33.39,['h'] = 36.38, ['info'] = ' Bay City Ave / App 33' , ['apt'] = 1 },
-	[634] =  { ['x'] = -1490.7,['y'] = -658.4,['z'] = 33.39,['h'] = 33.02, ['info'] = ' Bay City Ave / App 34' , ['apt'] = 1 },
-	[635] =  { ['x'] = -1495.22,['y'] = -661.82,['z'] = 33.39,['h'] = 38.31, ['info'] = ' Bay City Ave / App 35' , ['apt'] = 1 },
-	[636] =  { ['x'] = -1498.02,['y'] = -664.59,['z'] = 33.39,['h'] = 128.87, ['info'] = ' Bay City Ave / App 36' , ['apt'] = 1 },
-
-	[637] =  { ['x'] = -668.34,['y'] = -971.1,['z'] = 22.35,['h'] = 3.05, ['info'] = ' Lindsay Circus Apartment 1' , ['apt'] = 2 },
-	[638] =  { ['x'] = -672.99,['y'] = -981.21,['z'] = 22.35,['h'] = 0.87, ['info'] = ' Lindsay Circus Apartment 2' , ['apt'] = 2 },
-	[639] =  { ['x'] = -673.83,['y'] = -999.55,['z'] = 18.24,['h'] = 107.35, ['info'] = ' Lindsay Circus Apartment 3' , ['apt'] = 2 },
-	[640] =  { ['x'] = -699.55,['y'] = -1032.33,['z'] = 16.22,['h'] = 293.78, ['info'] = ' Lindsay Circus Apartment 4' , ['apt'] = 2 },
-	[641] =  { ['x'] = -702.95,['y'] = -1023.57,['z'] = 16.23,['h'] = 310.37, ['info'] = ' Lindsay Circus Apartment 5' , ['apt'] = 2 },
-	[642] =  { ['x'] = -712.02,['y'] = -1028.62,['z'] = 16.43,['h'] = 136.07, ['info'] = ' Lindsay Circus Apartment 6' , ['apt'] = 2 },
-	[643] =  { ['x'] = -705.84,['y'] = -1036.18,['z'] = 16.3,['h'] = 117.55, ['info'] = ' Little Seoul Apartment 1' , ['apt'] = 1 },
-	[644] =  { ['x'] = -670.55,['y'] = -888.9,['z'] = 24.5,['h'] = 1.22, ['info'] = ' Little Seoul Apartment 2' , ['apt'] = 1 },
-	[645] =  { ['x'] = -690.52,['y'] = -893.1,['z'] = 24.71,['h'] = 92.39, ['info'] = ' Little Seoul Apartment 3' , ['apt'] = 1 },
-	[646] =  { ['x'] = -683.56,['y'] = -876.24,['z'] = 24.5,['h'] = 1.54, ['info'] = ' Little Seoul Apartment 4' , ['apt'] = 1 },
-	[647] =  { ['x'] = -676.0,['y'] = -884.98,['z'] = 24.46,['h'] = 273.5, ['info'] = ' Little Seoul Apartment 5' , ['apt'] = 1 },
-
-	[648] =  { ['x'] = -1253.91,['y'] = -1140.81,['z'] = 8.57,['h'] = 17.5, ['info'] = ' Bay City Ave Upper 1' , ['apt'] = 2 },
-	[649] =  { ['x'] = -1252.75,['y'] = -1144.26,['z'] = 8.52,['h'] = 194.39, ['info'] = ' Bay City Ave Upper 2', ['apt'] = 2 },
-	[650] =  { ['x'] = -1221.37,['y'] = -1232.13,['z'] = 11.03,['h'] = 199.21, ['info'] = ' Bay City Ave Lower 1', ['apt'] = 1 },
-	[651] =   { ['x'] = -1229.69,['y'] = -1235.39,['z'] = 11.03,['h'] = 198.65, ['info'] = ' Bay City Ave Lower 2', ['apt'] = 1 },
-	[652] =  { ['x'] = -1237.59,['y'] = -1238.56,['z'] = 11.03,['h'] = 199.9, ['info'] = ' Bay City Ave Lower 3', ['apt'] = 1 },
-	[653] =  { ['x'] = -1244.02,['y'] = -1240.64,['z'] = 11.03,['h'] = 202.08, ['info'] = ' Bay City Ave Lower 4', ['apt'] = 1 },
-	[654] =  { ['x'] = -1226.14,['y'] = -1207.35,['z'] = 8.28,['h'] = 103.63, ['info'] = ' Bay City Ave Upper 4', ['apt'] = 2 },
-	[655] =  { ['x'] = -1232.89,['y'] = -1191.83,['z'] = 11.26,['h'] = 16.83, ['info'] = ' Bay City Ave Average 1', ['apt'] = 3 },
-	[656] =  { ['x'] = -35.69,['y'] = 2871.22,['z'] = 59.6,['h'] = 250.51, ['info'] = ' Shitville', ['apt'] = 3 },
-	[657] =  { ['x'] = -766.11,['y'] = -916.99,['z'] = 21.08,['h'] = 90.73, ['info'] = ' Ginger St 1', ['apt'] = 3 },
-	[658] =  { ['x'] = 2.24,['y'] = -241.06,['z'] = 47.67,['h'] = 342.2, ['info'] = ' Occupation Ave 1 / Apt 1', ['apt'] = 3 },
-	[659] =  { ['x'] = 8.78,['y'] = -243.28,['z'] = 47.67,['h'] = 337.63, ['info'] = ' Occupation Ave 1 / Apt 2', ['apt'] = 3 },
-	[660] =  { ['x'] = 2.35,['y'] = -241.02,['z'] = 51.87,['h'] = 339.63, ['info'] = ' Occupation Ave 1 / Apt 3', ['apt'] = 3 },
-	[661] =  { ['x'] = 8.81,['y'] = -243.33,['z'] = 51.87,['h'] = 339.04, ['info'] = ' Occupation Ave 1 / Apt 4', ['apt'] = 3 },
-	[662] =  { ['x'] = 2.28,['y'] = -240.88,['z'] = 55.87,['h'] = 336.6, ['info'] = ' Occupation Ave 1 / Apt 5', ['apt'] = 3 },
-	[663] =  { ['x'] = 8.79,['y'] = -243.66,['z'] = 55.87,['h'] = 340.11, ['info'] = ' Occupation Ave 1 / Apt 6', ['apt'] = 3 },
-	[664] =  { ['x'] = 352.86,['y'] = -142.13,['z'] = 66.69,['h'] = 162.06, ['info'] = ' Spanish Ave 1', ['apt'] = 2 },
-	[665] =  { ['x'] = 216.15,['y'] = -147.07,['z'] = 59.16,['h'] = 259.15, ['info'] = ' Power Street 1', ['apt'] = 3 },
-	[666] =  { ['x'] = 213.47,['y'] = -154.84,['z'] = 59.16,['h'] = 250.24, ['info'] = ' Power Street 2', ['apt'] = 3 },
-	[667] =  { ['x'] = 280.21,['y'] = 32.47,['z'] = 88.61,['h'] = 337.36, ['info'] = ' Power Street 10', ['apt'] = 3 },
-	[668] =  { ['x'] = 283.99,['y'] = 31.14,['z'] = 88.61,['h'] = 340.55, ['info'] = ' Power Street 11', ['apt'] = 3 },
-	[669] =  { ['x'] = 283.83,['y'] = 47.66,['z'] = 92.67,['h'] = 65.03, ['info'] = ' Power Street 12', ['apt'] = 0 },
-	[670] =  { ['x'] = 283.83,['y'] = 47.31,['z'] = 96.69,['h'] = 51.9, ['info'] = ' Power Street 13', ['apt'] = 0 },
-	[671] =  { ['x'] = -1363.31,['y'] = -137.24,['z'] = 49.58,['h'] = 357.94, ['info'] = ' Cougar Ave 1', ['apt'] = 0 },
-	[672] =  { ['x'] = -1359.18,['y'] = -138.06,['z'] = 49.58,['h'] = 356.25, ['info'] = ' Cougar Ave 2', ['apt'] = 0 },
-	[673] =  { ['x'] = -1348.59,['y'] = -140.0,['z'] = 49.58,['h'] = 352.37, ['info'] = ' Cougar Ave 3', ['apt'] = 0 },
-	[674] =  { ['x'] = -1344.6,['y'] = -140.8,['z'] = 49.58,['h'] = 348.0, ['info'] = ' Cougar Ave 4', ['apt'] = 0 },
-	[675] =  { ['x'] = -1342.67,['y'] = -130.66,['z'] = 49.91,['h'] = 174.54, ['info'] = ' Cougar Ave 5', ['apt'] = 3 },
-	[676] =  { ['x'] = -1346.72,['y'] = -129.88,['z'] = 49.99,['h'] = 174.31, ['info'] = ' Cougar Ave 6', ['apt'] = 3 },
-	[677] =  { ['x'] = -1357.28,['y'] = -128.07,['z'] = 49.85,['h'] = 168.92, ['info'] = ' Cougar Ave 7', ['apt'] = 3 },
-	[678] =  { ['x'] = -1361.52,['y'] = -127.29,['z'] = 49.85,['h'] = 175.05, ['info'] = ' Cougar Ave 8', ['apt'] = 3 },
-
-	[679] =  { ['x'] = 798.39,['y'] = -158.81,['z'] = 74.9,['h'] = 57.07, ['info'] = ' Bridge Street 1', ['apt'] = 2 },
-	[680] =  { ['x'] = 808.69,['y'] = -163.68,['z'] = 75.88,['h'] = 327.28, ['info'] = ' Bridge Street 2', ['apt'] = 0 },
-	[681] =  { ['x'] = 820.7,['y'] = -156.28,['z'] = 80.76,['h'] = 62.13, ['info'] = ' Bridge Street 3', ['apt'] = 2 },
-	[682] =  { ['x'] = 840.78,['y'] = -182.27,['z'] = 74.59,['h'] = 235.74, ['info'] = ' Bridge Street 4', ['apt'] = 2 },
-	[683] =  { ['x'] = 846.1,['y'] = -173.19,['z'] = 78.47,['h'] = 237.25, ['info'] = ' Bridge Street 5', ['apt'] = 2 },
-	[684] =  { ['x'] = 2727.85,['y'] = 4142.37,['z'] = 44.29,['h'] = 245.38, ['info'] = ' East Joshua Rd 3', ['trailer'] = 1, ['apt'] = 0 },
-	[685] =  { ['x'] = 1880.43,['y'] = 3920.61,['z'] = 33.22,['h'] = 285.0, ['info'] = ' Niland Ave 1', ['apt'] = 0 },
-	[686] =  { ['x'] = 1845.76,['y'] = 3914.55,['z'] = 33.47,['h'] = 101.96, ['info'] = ' Niland Ave 2', ['apt'] = 3 },
-	[687] =  { ['x'] = 1661.35,['y'] = 3819.93,['z'] = 35.47,['h'] = 124.13, ['info'] = ' Mountain View Drive 1', ['trailer'] = 1, ['apt'] = 0 },
-	[688] =  { ['x'] = 1859.47,['y'] = 3865.11,['z'] = 33.06,['h'] = 102.35, ['info'] = ' Niland Ave 3', ['apt'] = 3 },
-	[689] =  { ['x'] = 1902.37,['y'] = 3866.89,['z'] = 33.07,['h'] = 26.71, ['info'] = ' Algonquin Blvd 1', ['trailer'] = 1, ['apt'] = 0  },
-	[690] =  { ['x'] = 1925.05,['y'] = 3824.73,['z'] = 32.44,['h'] = 26.06, ['info'] = ' Niland Ave 4', ['apt'] = 0  },
-	[691] =  { ['x'] = 1880.63,['y'] = 3810.42,['z'] = 32.78,['h'] = 116.47, ['info'] = ' Niland Ave 5', ['trailer'] = 1, ['apt'] = 0 },
-	[692] =  { ['x'] = 1781.64,['y'] = 3911.24,['z'] = 34.92,['h'] = 200.61, ['info'] = ' Marina Drive 1', ['trailer'] = 1, ['apt'] = 0 },
-	[693] =  { ['x'] = 1915.83,['y'] = 3909.24,['z'] = 33.45,['h'] = 57.4, ['info'] = ' Marina Drive 2', ['trailer'] = 1, ['apt'] = 0 },
-	[694] =  { ['x'] = 1777.52,['y'] = 3799.98,['z'] = 34.53,['h'] = 300.82, ['info'] = ' Armadillo Ave 1', ['trailer'] = 1, ['apt'] = 0 },
-	[695] =  { ['x'] = 115.67,['y'] = -1685.63,['z'] = 33.5,['h'] = 48.01, ['info'] = ' Carson Ave/ Apt 1', ['apt'] = 1 },
-	[696] =  { ['x'] = 1425.71,['y'] = 3669.59,['z'] = 34.83,['h'] = 197.82, ['info'] = ' Marina Dr 12', ['trailer'] = 1 },
-	[697] =  { ['x'] = 1809.93,['y'] = 3907.17,['z'] = 33.81,['h'] = 299.31, ['info'] = ' Cholla Springs Ave 1', ['apt'] = 3 },
-	[698] =  { ['x'] = 1936.66,['y'] = 3891.56,['z'] = 32.75,['h'] = 35.61, ['info'] = ' Algonquin Blvd 2', ['trailer'] = 1 },
-	[699] =  { ['x'] = 1832.66,['y'] = 3868.5,['z'] = 34.3,['h'] = 294.36, ['info'] = ' Cholla Springs Ave 2', ['trailer'] = 1 },
-	[700] =  { ['x'] = 1813.66,['y'] = 3854.0,['z'] = 34.36,['h'] = 202.61, ['info'] = ' Cholla Springs Ave 3', ['trailer'] = 1 },
-	[701] =  { ['x'] = 1763.76,['y'] = 3823.56,['z'] = 34.77,['h'] = 213.05, ['info'] = ' Cholla Springs Ave 4', ['trailer'] = 1 },
-	[702] =  { ['x'] = 1728.46,['y'] = 3851.8,['z'] = 34.79,['h'] = 39.05, ['info'] = ' Cholla Springs Ave 5', ['apt'] = 2 },
-	[703] =  { ['x'] = 1733.6,['y'] = 3808.7,['z'] = 35.12,['h'] = 211.81, ['info'] = ' Cholla Springs Ave 6', ['apt'] = 2 },
-	[704] =  { ['x'] = 98.15,['y'] = -1307.23,['z'] = 35.39,['h'] = 300.53, ['info'] = ' VU Pimphouse', ['apt'] = 1 },
-	[705] =  { ['x'] = -728.48,['y'] = -879.92,['z'] = 22.72,['h'] = 268.36, ['info'] = ' Ginger St 2', ['apt'] = 3  },
-	[706] =  { ['x'] = -719.15,['y'] = -897.76,['z'] = 20.68,['h'] = 92.46, ['info'] = ' Ginger St 3', ['apt'] = 3  },
-	[707] =  { ['x'] = -716.42,['y'] = -864.73,['z'] = 23.21,['h'] = 82.5, ['info'] = ' Ginger St 4', ['apt'] = 3  },
-	[708] =  { ['x'] = -731.71,['y'] = -693.62,['z'] = 30.38,['h'] = 266.73, ['info'] = ' Ginger St 5', ['apt'] = 3 },
-	[709] =  { ['x'] = -714.65,['y'] = -676.31,['z'] = 30.63,['h'] = 179.89, ['info'] = ' Ginger St 6', ['apt'] = 3 },
-	[710] =  { ['x'] = -710.91,['y'] = -724.23,['z'] = 28.8,['h'] = 66.07, ['info'] = ' Ginger St 7', ['apt'] = 3 },
-	[711] =  { ['x'] = -691.48,['y'] = -722.75,['z'] = 33.93,['h'] = 356.44, ['info'] = ' Ginger St 6B', ['apt'] = 3 },
-	[712] =  { ['x'] = -714.95,['y'] = -712.73,['z'] = 29.28,['h'] = 1.12, ['info'] = ' Ginger St 5B', ['apt'] = 3 },
-	[713] =  { ['x'] = 3310.85,['y'] = 5176.43,['z'] = 19.62,['h'] = 53.41, ['info'] = ' La Casa De Jubilación #1',['apt'] = 3 },
-	[714] =  { ['x'] = -1354.14,['y'] = -777.16,['z'] = 20.68,['h'] = 218.44, ['info'] = ' Bay City Ave #1',['apt'] = 0 },
-
-	[715] =  { ['x'] = 1203.24,['y'] = -1670.67,['z'] = 42.99,['h'] = 37.37, ['info'] = ' Innocence Blvd #1' ,['apt'] = 0 },
-	[716] =  { ['x'] = 1220.24,['y'] = -1658.75,['z'] = 48.65,['h'] = 31.29, ['info'] = ' Innocence Blvd #2' ,['apt'] = 0 },
-	[717] =  { ['x'] = 1252.8,['y'] = -1638.49,['z'] = 53.18,['h'] = 31.61, ['info'] = ' Innocence Blvd #3' ,['apt'] = 0 },
-	[718] =  { ['x'] = 1276.43,['y'] = -1628.83,['z'] = 54.74,['h'] = 35.35, ['info'] = ' Innocence Blvd #4' ,['apt'] = 0 },
-	[719] =  { ['x'] = 1297.21,['y'] = -1618.03,['z'] = 54.58,['h'] = 19.41, ['info'] = ' Innocence Blvd #5' ,['apt'] = 0 },
-}
-
-
-robbablesMansion = {
-	[1] = { ["x"] = -5.67645700, ["y"] = 9.23738900, ["z"] = 4.58609800, ["name"] = "bed table" },
-	[2] = { ["x"] = -1.28456500, ["y"] = -1.86961300, ["z"] = 0.92229600, ["name"] = "jewel box" },
-	[3] = { ["x"] = -0.82748790, ["y"] = -0.20085050, ["z"] = 5.66071400, ["name"] = "jewel box" },
-	[4] = { ["x"] = 2.19403800, ["y"] = 6.81445700, ["z"] = 0.98931310, ["name"] = "jewel box" },
-	[5] = { ["x"] = 14.36221000, ["y"] = 6.14473800, ["z"] = 1.44332300, ["name"] = "cupboard" },
-	[6] = { ["x"] = -2.89582400, ["y"] = 9.22972300, ["z"] = 4.58609800, ["name"] = "bed table" },
-	[7] = { ["x"] = 13.48880000, ["y"] = 9.39807700, ["z"] = 1.50317400, ["name"] = "cupboard" },
-	[8] = { ["x"] = 9.14163700, ["y"] = 9.39807700, ["z"] = 1.50319300, ["name"] = "cupboard" },
-	[9] = { ["x"] = 5.60166200, ["y"] = -7.84856600, ["z"] = 5.57709100, ["name"] = "jewel box" },
-	[10] = { ["x"] = 6.33438800, ["y"] = -7.96820100, ["z"] = 4.57700000, ["name"] = "drawers" },
-	[11] = { ["x"] = 3.50600100, ["y"] = -3.73348200, ["z"] = 4.57736500, ["name"] = "bed table" },	
-	[12] = { ["x"] = 0.53466320, ["y"] = -7.69714400,["z"] = 5.40757800, ["name"] = "table" },	
-	[13] = { ["x"] = -2.72426300, ["y"] = -4.61612700,["z"] = 4.70186500, ["name"] = "clutter" },	
-	[14] = { ["x"] = -1.77334100, ["y"] = -3.80492700,["z"] = 4.60178600, ["name"] = "under bed" },		
-}
-robbables2 = {
-	[1] = { ["x"] = 1.90339700, ["y"] = -3.80026800, ["z"] = 1.29917900, ["name"] = "fridge" },
-	[2] = { ["x"] = -3.50363200, ["y"] = -6.55289400, ["z"] = 1.30625800, ["name"] = "drawers" },
-	[3] = { ["x"] = -3.50712600, ["y"] = -4.13621600, ["z"] = 1.29625800, ["name"] = "table" },
-	[4] = { ["x"] = 8.47819500, ["y"] = -2.50979300, ["z"] = 1.19712300, ["name"] = "storage" },
-	[5] = { ["x"] = 9.75982700, ["y"] = -1.35874100, ["z"] = 1.29625800, ["name"] = "storage" },
-	[6] = { ["x"] = 8.46626300, ["y"] = 4.53223600, ["z"] = 1.19425800, ["name"] = "wardrobe" },
-	[7] = { ["x"] = 5.84416200, ["y"] = 2.57377400, ["z"] = 1.22089100, ["name"] = "table" },
-	[8] = { ["x"] = 3.04164100, ["y"] = 0.31671810, ["z"] = 3.58363900, ["name"] = "jewelry" },
-	[9] = { ["x"] = 6.86376900, ["y"] = 1.20651200, ["z"] = 1.36589100, ["name"] = "under bed" },
-	[10] = { ["x"] = 2.03442400, ["y"] = -5.61585100, ["z"] = 3.30395600, ["name"] = "cupboards" },
-	[11] = { ["x"] = -5.53120400, ["y"] = 0.76299670, ["z"] = 1.77236000, ["name"] = "cabinet" },
-	[12] = { ["x"] = -1.24716200, ["y"] = 1.07820500, ["z"] = 1.69089300, ["name"] = "coffee table" },
-	[13] = { ["x"] = 2.91325400, ["y"] = -4.2783510, ["z"] = 1.82746400, ["name"] = "table" },
-}
-
--- 1-7 rare, 42-44 very rare
-itemdrops = {
-	[1] = { ["id"] = 1, ["info"] = {"Weed Ounce",350,0.25,"i",false,false} },
-	[2] = { ["id"] = 38, ["info"] = {"Gun Part",1800,4.4,"i",false,false} },
-	[3] = { ["id"] = 7, ["info"]= {"Cocaine Bag",350,0.25,"i",false,false} },
-	[4] = { ["id"] = 9, ["info"]= {"Money Ink Set",350,0.25,"i",false,false} },
-	[5] = { ["id"] = 22, ["info"] = {"Hand Cuffs",250,1,"i",false,false} },
-	[6] = { ["id"] = 24, ["info"] = {"Oxygen Tank",300,1,"i",false,false} },
-    -- White pearl used as Money trade in , cannot find another use as of yet
-	[7] = { ["id"] = 25, ["info"] = {"White Pearl",0,1,"m",false,true} },
-    -- All Meterials Currently 
-	[8] = { ["id"] = 4, ["info"]= {"Gold Bar",21,2,"m",false,true} },
-	[9] = { ["id"] = 5, ["info"]= {"Wood",15,2,"m",false,true} },
-	[10] = { ["id"] = 26, ["info"] = {"Scrap Metal",250,2,"m",false,true} },
-	[11] = { ["id"] = 27, ["info"] = {"Plastic",11,1,"m",false,true} },
-	[12] = { ["id"] = 28, ["info"] = {"Glass",12,1,"m",false,true} },
-	[13] = { ["id"] = 30, ["info"] = {"Steel",45,5.5,"m",false,true} },
-	[14] = { ["id"] = 31, ["info"] = {"Aluminium",50,2.0,"m",false,true} },
-	[15] = { ["id"] = 32, ["info"] = {"Dye",20,0.6,"m",false,true} },
-	[16] = { ["id"] = 33, ["info"] = {"Rubber",20,1.2,"m",false,true} },
-	[17] = { ["id"] = 34, ["info"] = {"Copper",25,1.6,"m",false,true} },
-	[18] = { ["id"] = 35, ["info"] = {"Electronics",25,0.8,"m",false,true} },
-	[19] = { ["id"] = 70, ["info"] = {"Cleaning goods",500,3.0,"i",false,true} },
-	[20] = { ["id"] = 72, ["info"] = {"Pistol Ammo x30",25,3.0,"i",false,true} },
-	[21] = { ["id"] = 73, ["info"] = {"Rifle Ammo x30",100,7.0,"i",false,false} },
-	[22] = { ["id"] = 74, ["info"] = {"Shotgun Ammo x30",100,7.0,"i",false,false} },
-	[23] = { ["id"] = 45, ["info"] = {"Oil",300,1.3,"i",false,false} }, -- Shop
-	[24] = { ["id"] = 46, ["info"] = {"Nitrous Oxide",300,10.0,"i",false,false} },
-	[25] = { ["id"] = 47, ["info"] = {"Iron Oxide",200,3.5,"m",false,false} }, -- Gang task A / 10% chance of spawn
-	[26] = { ["id"] = 48, ["info"] = {"Aluminium Oxide",200,1.5,"m",false,false} }, -- Gang task B / 14% chance of spawn
-	[27] = { ["id"] = 49, ["info"] = {"Fuse",30,0.1,"i",false,false} }, -- Crafting
-	[28] = { ["id"] = 50, ["info"] = {"Clutch",350,5.0,"i",false,false} }, -- Gang task A / 35% chance of spawn
-	[29] = { ["id"] = 51, ["info"] = {"Drill Bit",100,2.0,"i",false,false} }, -- Gang task C / 40% chance of spawn
-	[30] = { ["id"] = 52, ["info"] = {"Battery",10,1.0,"i",false,false} },    -- Gang Task B / 60% chance of spawn
-	[31] = { ["id"] = 53, ["info"] = {"Breadboard",60,0.6,"i",false,false} }, -- Gang Task B / 60% chance of spawn
-	[32] = { ["id"] = 69, ["info"] = {"Food goods",500,3.0,"i",false,true} },
-	[33] = { ["id"] = 57, ["info"] = {"Green Cow Energy Drink",1200,3.0,"i",false,true} },
-	[34] = { ["id"] = 58, ["info"] = {"Chest Armor",1200,30.0,"i",false,true} },
-	[35] = { ["id"] = 59, ["info"] = {"Radio Scanner",1500,15.0,"i",false,true} },
-	[36] = { ["id"] = 60, ["info"] = {"Advanced Lock Pick",500,3.0,"i",false,false} }, -- crafted
-	[37] = { ["id"] = 62, ["info"] = {"Cigarette",10,0.2,"i",false,true} },
-	[38] = { ["id"] = 75, ["info"] = {"Sub-Machinegun Ammo x30",100,5.0,"i",false,false} },
-	[39] = { ["id"] = 66, ["info"] = {"Mobile Phone",1000,1.0,"i",false,true} },
-	[40] = { ["id"] = 67, ["info"] = {"Radio",1000,3.0,"i",false,true} },
-	[41] = { ["id"] = 68, ["info"] = {"Umbrella",500,3.0,"i",false,true} },
-	[42] = { ["id"] = 76, ["info"] = {"Unknown USB Device",300,1.0,"i",false,true} },
-	[43] = { ["id"] = 78, ["info"] = {"Decrypter MK 1",300,3.0,"i",false,true} },
-	[44] = { ["id"] = 79, ["info"] = {"Decrypter MK 2",300,3.0,"i",false,true} },
-}  
-
-
-robberyExitCoordsMansions = {
-	[1] = { ['x'] = 9.24863, ['y'] = 396.906, ['z'] = 120.289, ['h'] = 214.0 },
-	[2] = { ['x'] = -102.626, ['y'] = 452.67, ['z'] = 117.883, ['h'] = 346.0 },
-	[3] = { ['x'] = -163.974, ['y'] = 404.316, ['z'] = 111.423, ['h'] = 190.0 },
-	[4] = { ['x'] = 33.3112, ['y'] = 382.784, ['z'] = 116.509, ['h'] = 38.0 },
-	[5] = { ['x'] = -200.356, ['y'] = 382.65, ['z'] = 109.492, ['h'] = 191.0 },
-	[6] = { ['x'] = -238.975, ['y'] = 364.382, ['z'] = 110.832, ['h'] = 133.0 },
-	[7] = { ['x'] = -296.969, ['y'] = 360.887, ['z'] = 109.746, ['h'] = 187.0 },
-	[8] = { ['x'] = -320.307, ['y'] = 354.927, ['z'] = 110.016, ['h'] = 197.0 },
-	[9] = { ['x'] = -369.133, ['y'] = 330.685, ['z'] = 109.943, ['h'] = 178.0 },
-	[10] = { ['x'] = -407.714, ['y'] = 324.684, ['z'] = 108.718, ['h'] = 182.0 },
-	[11] = { ['x'] = -446.425, ['y'] = 328.708, ['z'] = 104.823, ['h'] = 198.0 },
-	[12] = { ['x'] = -484.874, ['y'] = 345.783, ['z'] = 104.146, ['h'] = 66.0 },
-	[13] = { ['x'] = -310.648, ['y'] = 420.123, ['z'] = 109.883, ['h'] = 189.0 },
-	[14] = { ['x'] = -344.39, ['y'] = 400.142, ['z'] = 110.593, ['h'] = 208.0 },
-	[15] = { ['x'] = -412.903, ['y'] = 437.12, ['z'] = 112.406, ['h'] = 154.0 },
-	[16] = { ['x'] = -447.822, ['y'] = 378.629, ['z'] = 108.869, ['h'] = 184.0 },
-	[17] = { ['x'] = -477.176, ['y'] = 424.709, ['z'] = 103.122, ['h'] = 8.0 },
-	[18] = { ['x'] = -504.334, ['y'] = 388.046, ['z'] = 97.4062, ['h'] = 61.0 },
-	[19] = { ['x'] = -498.749, ['y'] = 437.544, ['z'] = 97.2872, ['h'] = 316.0 },
-	[20] = { ['x'] = -561.359, ['y'] = 386.162, ['z'] = 101.289, ['h'] = 193.0 },
-	[21] = { ['x'] = -597.38, ['y'] = 375.935, ['z'] = 97.8495, ['h'] = 180.0 },
-	[22] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[23] = { ['x'] = 219.274, ['y'] = 491.756, ['z'] = 140.697, ['h'] = 263.0 },
-	[24] = { ['x'] = -497.476, ['y'] = 524.18, ['z'] = 116.763, ['h'] = 165.0 },
-	[25] = { ['x'] = 119.764, ['y'] = 504.062, ['z'] = 155.148, ['h'] = 319.0 },
-	[26] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[27] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[28] = { ['x'] = 39.6699, ['y'] = 435.325, ['z'] = 146.775, ['h'] = 155.0 },
-	[29] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[30] = { ['x'] = -26.6184, ['y'] = 455.283, ['z'] = 141.731, ['h'] = 162.0 },
-	[31] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[32] = { ['x'] = -106.436, ['y'] = 491.2, ['z'] = 137.031, ['h'] = 169.0 },
-	[33] = { ['x'] = -166.133, ['y'] = 477.207, ['z'] = 133.878, ['h'] = 195.0 },
-	[34] = { ['x'] = -225.175, ['y'] = 477.398, ['z'] = 128.427, ['h'] = 205.0 },
-	[35] = { ['x'] = -1908.72, ['y'] = 129.682, ['z'] = 82.4507, ['h'] = 125.0 },
-	[36] = { ['x'] = 233.686, ['y'] = 643.62, ['z'] = 186.399, ['h'] = 226.0 },
-	[37] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[38] = { ['x'] = 163.086, ['y'] = 552.949, ['z'] = 182.342, ['h'] = 183.0 },
-	[39] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[40] = { ['x'] = 99.6028, ['y'] = 550.055, ['z'] = 181.498, ['h'] = 190.0 },
-	[41] = { ['x'] = 52.7842, ['y'] = 544.641, ['z'] = 175.853, ['h'] = 195.0 },
-	[42] = { ['x'] = 21.9587, ['y'] = 535.863, ['z'] = 170.628, ['h'] = 114.0 },
-	[43] = { ['x'] = 232.407, ['y'] = 747.157, ['z'] = 203.702, ['h'] = 230.0 },
-	[44] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[45] = { ['x'] = -186.877, ['y'] = 570.392, ['z'] = 189.77, ['h'] = 179.0 },
-	[46] = { ['x'] = -199.5, ['y'] = 636.61, ['z'] = 199.639, ['h'] = 1.0 },
-	[47] = { ['x'] = -231.478, ['y'] = 574.81, ['z'] = 185.658, ['h'] = 178.0 },
-	[48] = { ['x'] = -233.508, ['y'] = 621.67, ['z'] = 187.81, ['h'] = 316.0 },
-	[49] = { ['x'] = -281.694, ['y'] = 580.345, ['z'] = 177.738, ['h'] = 173.0 },
-	[50] = { ['x'] = -293.924, ['y'] = 650.211, ['z'] = 175.694, ['h'] = 285.0 },
-	[51] = { ['x'] = -346.269, ['y'] = 687.07, ['z'] = 172.539, ['h'] = 350.0 },
-	[52] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[53] = { ['x'] = -400.021, ['y'] = 640.22, ['z'] = 159.466, ['h'] = 182.0 },
-	[54] = { ['x'] = -443.234, ['y'] = 696.243, ['z'] = 153.229, ['h'] = 297.0 },
-	[55] = { ['x'] = -483.217, ['y'] = 633.964, ['z'] = 144.384, ['h'] = 193.0 },
-	[56] = { ['x'] = -609.038, ['y'] = 540.864, ['z'] = 111.321, ['h'] = 15.0 },
-	[57] = { ['x'] = -599.729, ['y'] = 481.132, ['z'] = 109.014, ['h'] = 101.0 },
-	[58] = { ['x'] = -624.838, ['y'] = 470.603, ['z'] = 108.858, ['h'] = 186.0 },
-	[59] = { ['x'] = -638.839, ['y'] = 540.722, ['z'] = 109.716, ['h'] = 8.0 },
-	[60] = { ['x'] = -657.619, ['y'] = 462.883, ['z'] = 110.39, ['h'] = 193.0 },
-	[61] = { ['x'] = -677.575, ['y'] = 522.413, ['z'] = 110.316, ['h'] = 16.0 },
-	[62] = { ['x'] = -741.65, ['y'] = 506.696, ['z'] = 110.182, ['h'] = 22.0 },
-	[63] = { ['x'] = -710.481, ['y'] = 440.604, ['z'] = 107.049, ['h'] = 202.0 },
-	[64] = { ['x'] = -788.291, ['y'] = 465.12, ['z'] = 100.172, ['h'] = 30.0 },
-	[65] = { ['x'] = -747.262, ['y'] = 410.115, ['z'] = 96.0174, ['h'] = 197.0 },
-	[66] = { ['x'] = -833.23, ['y'] = 406.064, ['z'] = 91.5597, ['h'] = 187.0 },
-	[67] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[68] = { ['x'] = -545.023, ['y'] = 694.791, ['z'] = 146.074, ['h'] = 305.0 },
-	[69] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[70] = { ['x'] = -714.705, ['y'] = 696.683, ['z'] = 158.031, ['h'] = 186.0 },
-	[71] = { ['x'] = -657.472, ['y'] = 728.777, ['z'] = 174.285, ['h'] = 191.0 },
-	[72] = { ['x'] = -601.678, ['y'] = 712.455, ['z'] = 180.007, ['h'] = 177.0 },
-	[73] = { ['x'] = -609.017, ['y'] = 771.849, ['z'] = 188.51, ['h'] = 164.0 },
-	[74] = { ['x'] = -608.857, ['y'] = 771.678, ['z'] = 188.51, ['h'] = 166.0 },
-	[75] = { ['x'] = -578.085, ['y'] = 812.272, ['z'] = 191.547, ['h'] = 283.0 },
-	[76] = { ['x'] = -668.206, ['y'] = 797.354, ['z'] = 198.998, ['h'] = 91.0 },
-	[77] = { ['x'] = -746.083, ['y'] = 796.373, ['z'] = 214.571, ['h'] = 188.0 },
-	[78] = { ['x'] = -818.364, ['y'] = 796.103, ['z'] = 202.586, ['h'] = 200.0 },
-	[79] = { ['x'] = -859.517, ['y'] = 767.31, ['z'] = 191.822, ['h'] = 182.0 },
-	[80] = { ['x'] = -907.07, ['y'] = 753.177, ['z'] = 182.161, ['h'] = 184.0 },
-	[81] = { ['x'] = -931.321, ['y'] = 826.367, ['z'] = 184.337, ['h'] = 354.0 },
-	[82] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[83] = { ['x'] = -1008.68, ['y'] = 831.368, ['z'] = 172.451, ['h'] = 43.0 },
-	[84] = { ['x'] = -954.28, ['y'] = 736.54, ['z'] = 175.559, ['h'] = 222.0 },
-	[85] = { ['x'] = -1052.7, ['y'] = 818.676, ['z'] = 166.991, ['h'] = 4.0 },
-	[86] = { ['x'] = -1097.35, ['y'] = 823.841, ['z'] = 168.638, ['h'] = 12.0 },
-	[87] = { ['x'] = -1107.22, ['y'] = 738.891, ['z'] = 159.916, ['h'] = 201.0 },
-	[88] = { ['x'] = -1144.9, ['y'] = 719.063, ['z'] = 155.671, ['h'] = 226.0 },
-	[89] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[90] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[91] = { ['x'] = -1255.31, ['y'] = 667.106, ['z'] = 142.822, ['h'] = 203.0 },
-	[92] = { ['x'] = -1233.95, ['y'] = 636.047, ['z'] = 142.745, ['h'] = 202.0 },
-	[93] = { ['x'] = -1283.25, ['y'] = 663.324, ['z'] = 144.849, ['h'] = 285.0 },
-	[94] = { ['x'] = -1271.38, ['y'] = 628.783, ['z'] = 143.23, ['h'] = 305.0 },
-	[95] = { ['x'] = -1381.39, ['y'] = 528.401, ['z'] = 123.017, ['h'] = 248.0 },
-	[96] = { ['x'] = -1409.06, ['y'] = 446.177, ['z'] = 112.22, ['h'] = 166.0 },
-	[97] = { ['x'] = -1347.08, ['y'] = 442.319, ['z'] = 100.994, ['h'] = 260.0 },
-	[98] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[99] = { ['x'] = -1332.54, ['y'] = 490.902, ['z'] = 102.448, ['h'] = 357.0 },
-	[100] = { ['x'] = -1253.12, ['y'] = 433.049, ['z'] = 95.1852, ['h'] = 219.0 },
-	[101] = { ['x'] = -1224.66, ['y'] = 439.9, ['z'] = 85.6166, ['h'] = 177.0 },
-	[102] = { ['x'] = -1161.01, ['y'] = 435.339, ['z'] = 86.6364, ['h'] = 265.0 },
-	[103] = { ['x'] = -1161.58, ['y'] = 499.77, ['z'] = 86.0938, ['h'] = 1.0 },
-	[104] = { ['x'] = -1113.44, ['y'] = 504.418, ['z'] = 82.2875, ['h'] = 345.0 },
-	[105] = { ['x'] = -1066.33, ['y'] = 482.486, ['z'] = 85.3016, ['h'] = 59.0 },
-	[106] = { ['x'] = -1105.3, ['y'] = 429.796, ['z'] = 75.88, ['h'] = 84.0 },
-	[107] = { ['x'] = -1036.75, ['y'] = 443.469, ['z'] = 72.8639, ['h'] = 278.0 },
-	[108] = { ['x'] = -1059.73, ['y'] = 515.632, ['z'] = 84.3811, ['h'] = 38.0 },
-	[109] = { ['x'] = -1013.72, ['y'] = 457.103, ['z'] = 79.3645, ['h'] = 239.0 },
-	[110] = { ['x'] = -1007.25, ['y'] = 531.34, ['z'] = 79.7712, ['h'] = 68.0 },
-	[111] = { ['x'] = -984.774, ['y'] = 476.088, ['z'] = 82.4608, ['h'] = 184.0 },
-	[112] = { ['x'] = -956.359, ['y'] = 526.95, ['z'] = 81.6716, ['h'] = 322.0 },
-	[113] = { ['x'] = -983.267, ['y'] = 442.307, ['z'] = 79.9715, ['h'] = 108.0 },
-	[114] = { ['x'] = -933.096, ['y'] = 472.269, ['z'] = 85.1206, ['h'] = 284.0 },
-	[115] = { ['x'] = -873.866, ['y'] = 353.771, ['z'] = 85.2853, ['h'] = 180.0 },
-	[116] = { ['x'] = -889.402, ['y'] = 310.611, ['z'] = 84.1299, ['h'] = 55.0 },
-	[117] = { ['x'] = -806.847, ['y'] = 253.298, ['z'] = 82.7961, ['h'] = 274.0 },
-	[118] = { ['x'] = -1673.47, ['y'] = 372.078, ['z'] = 85.119, ['h'] = 166.0 },
-	[119] = { ['x'] = -1742.07, ['y'] = 365.231, ['z'] = 88.7283, ['h'] = 125.0 },
-	[120] = { ['x'] = -1771.36, ['y'] = 342.321, ['z'] = 89.3714, ['h'] = 205.0 },
-	[121] = { ['x'] = -1861.27, ['y'] = 310.455, ['z'] = 89.1144, ['h'] = 104.0 },
-	[122] = { ['x'] = -1878.02, ['y'] = 652.328, ['z'] = 130.0, ['h'] = 310.0 },
-	[123] = { ['x'] = -1994.22, ['y'] = 639.763, ['z'] = 122.536, ['h'] = 61.0 },
-	[124] = { ['x'] = -1917.27, ['y'] = 592.333, ['z'] = 122.125, ['h'] = 243.0 },
-	[125] = { ['x'] = -2009.59, ['y'] = 591.366, ['z'] = 118.102, ['h'] = 72.0 },
-	[126] = { ['x'] = -1923.6, ['y'] = 544.192, ['z'] = 114.82, ['h'] = 248.0 },
-	[127] = { ['x'] = -2036.74, ['y'] = 496.19, ['z'] = 107.012, ['h'] = 69.0 },
-	[128] = { ['x'] = -2018.15, ['y'] = 434.141, ['z'] = 102.674, ['h'] = 191.0 },
-	[129] = { ['x'] = -1932.08, ['y'] = 452.521, ['z'] = 102.703, ['h'] = 269.0 },
-	[130] = { ['x'] = -1931.59, ['y'] = 398.633, ['z'] = 96.5071, ['h'] = 275.0 },
-	[131] = { ['x'] = -2020.42, ['y'] = 370.051, ['z'] = 94.5785, ['h'] = 56.0 },
-	[132] = { ['x'] = -1918.7, ['y'] = 367.626, ['z'] = 93.9763, ['h'] = 266.0 },
-	[133] = { ['x'] = -1907.1, ['y'] = 294.036, ['z'] = 88.6077, ['h'] = 175.0 },
-	[134] = { ['x'] = -1998.72, ['y'] = 313.762, ['z'] = 91.5606, ['h'] = 10.0 },
-	[135] = { ['x'] = -1981.31, ['y'] = 244.1, ['z'] = 87.6132, ['h'] = 105.0 },
-	[136] = { ['x'] = -1895.16, ['y'] = 261.188, ['z'] = 86.4532, ['h'] = 294.0 },
-	[137] = { ['x'] = -1974.5, ['y'] = 198.575, ['z'] = 86.5972, ['h'] = 113.0 },
-	[138] = { ['x'] = -1944.15, ['y'] = 150.87, ['z'] = 84.6527, ['h'] = 127.0 },
-	[139] = { ['x'] = -1846.05, ['y'] = 203.009, ['z'] = 84.4393, ['h'] = 123.0 },
-	[140] = { ['x'] = -1289.04, ['y'] = 500.734, ['z'] = 97.5598, ['h'] = 69.0 },
-	[141] = { ['x'] = -1201.08, ['y'] = 503.266, ['z'] = 98.9964, ['h'] = 229.0 },
-	[142] = { ['x'] = -1201.09, ['y'] = 581.729, ['z'] = 100.13, ['h'] = 359.0 },
-	[143] = { ['x'] = -1164.33, ['y'] = 588.457, ['z'] = 101.833, ['h'] = 9.0 },
-	[144] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[145] = { ['x'] = -1124.08, ['y'] = 531.423, ['z'] = 98.3818, ['h'] = 195.0 },
-	[146] = { ['x'] = -1123.09, ['y'] = 600.907, ['z'] = 104.36, ['h'] = 23.0 },
-	[147] = { ['x'] = -1069.0, ['y'] = 561.994, ['z'] = 102.73, ['h'] = 294.0 },
-	[148] = { ['x'] = -1032.63, ['y'] = 565.741, ['z'] = 100.515, ['h'] = 183.0 },
-	[149] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[150] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[151] = { ['x'] = -957.953, ['y'] = 549.023, ['z'] = 101.701, ['h'] = 154.0 },
-	[152] = { ['x'] = -940.313, ['y'] = 540.878, ['z'] = 103.581, ['h'] = 147.0 },
-	[153] = { ['x'] = -887.68, ['y'] = 584.497, ['z'] = 101.192, ['h'] = 232.0 },
-	[154] = { ['x'] = -921.383, ['y'] = 535.617, ['z'] = 96.014, ['h'] = 136.0 },
-	[155] = { ['x'] = -856.906, ['y'] = 563.557, ['z'] = 96.6216, ['h'] = 312.0 },
-	[156] = { ['x'] = -898.491, ['y'] = 518.151, ['z'] = 92.2289, ['h'] = 103.0 },
-	[157] = { ['x'] = -832.574, ['y'] = 512.656, ['z'] = 94.6172, ['h'] = 280.0 },
-	[158] = { ['x'] = -866.953, ['y'] = 457.584, ['z'] = 88.2811, ['h'] = 190.0 },
-	[159] = { ['x'] = -829.663, ['y'] = 477.961, ['z'] = 90.1653, ['h'] = 273.0 },
-	[160] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[161] = { ['x'] = -717.107, ['y'] = 564.141, ['z'] = 142.386, ['h'] = 173.0 },
-	[162] = { ['x'] = -745.863, ['y'] = 589.555, ['z'] = 142.615, ['h'] = 60.0 },
-	[163] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[164] = { ['x'] = -789.09, ['y'] = 650.316, ['z'] = 139.264, ['h'] = 125.0 },
-	[165] = { ['x'] = -809.564, ['y'] = 674.579, ['z'] = 147.29, ['h'] = 199.0 },
-	[166] = { ['x'] = -855.745, ['y'] = 669.56, ['z'] = 152.451, ['h'] = 178.0 },
-	[167] = { ['x'] = -886.418, ['y'] = 672.841, ['z'] = 151.101, ['h'] = 175.0 },
-	[168] = { ['x'] = -914.792, ['y'] = 669.017, ['z'] = 155.282, ['h'] = 183.0 },
-	[169] = { ['x'] = -944.247, ['y'] = 666.458, ['z'] = 153.573, ['h'] = 173.0 },
-	[170] = { ['x'] = -970.132, ['y'] = 663.949, ['z'] = 158.228, ['h'] = 89.0 },
-	[171] = { ['x'] = -1021.61, ['y'] = 664.754, ['z'] = 161.294, ['h'] = 182.0 },
-	[172] = { ['x'] = -1058.51, ['y'] = 712.582, ['z'] = 165.594, ['h'] = 111.0 },
-	[173] = { ['x'] = -1069.84, ['y'] = 749.546, ['z'] = 168.047, ['h'] = 87.0 },
-	[174] = { ['x'] = -643.332, ['y'] = 874.418, ['z'] = 224.594, ['h'] = 307.0 },
-	[175] = { ['x'] = -611.887, ['y'] = 847.493, ['z'] = 211.502, ['h'] = 139.0 },
-	[176] = { ['x'] = -539.926, ['y'] = 801.903, ['z'] = 197.51, ['h'] = 151.0 },
-	[177] = { ['x'] = -489.479, ['y'] = 783.344, ['z'] = 180.535, ['h'] = 169.0 },
-	[178] = { ['x'] = -498.507, ['y'] = 753.593, ['z'] = 170.835, ['h'] = 14.0 },
-	[179] = { ['x'] = -525.429, ['y'] = 722.415, ['z'] = 161.594, ['h'] = 1.0 },
-	[180] = { ['x'] = -498.978, ['y'] = 700.691, ['z'] = 151.259, ['h'] = 3.0 },
-	[181] = { ['x'] = -542.253, ['y'] = 627.312, ['z'] = 137.855, ['h'] = 118.0 },
-	[182] = { ['x'] = -450.872, ['y'] = 587.372, ['z'] = 128.069, ['h'] = 268.0 },
-	[183] = { ['x'] = -542.395, ['y'] = 577.358, ['z'] = 117.316, ['h'] = 89.0 },
-	[184] = { ['x'] = -556.578, ['y'] = 552.617, ['z'] = 110.522, ['h'] = 348.0 },
-	[185] = { ['x'] = -510.427, ['y'] = 503.413, ['z'] = 112.439, ['h'] = 220.0 },
-	[186] = { ['x'] = -532.621, ['y'] = 464.72, ['z'] = 103.194, ['h'] = 149.0 },
-	[187] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[188] = { ['x'] = 259.575, ['y'] = -782.76, ['z'] = 30.518, ['h'] = 53.0 },
-	[189] = { ['x'] = 260.99, ['y'] = -1004.99, ['z'] = 61.6346, ['h'] = 153.0 },
-	[190] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[191] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[192] = { ['x'] = 123.852, ['y'] = -1039.64, ['z'] = 29.2118, ['h'] = 161.0 },
-	[193] = { ['x'] = 83.8308, ['y'] = -855.085, ['z'] = 30.7698, ['h'] = 69.0 },
-	[194] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[195] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[196] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[197] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[198] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[199] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[200] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[201] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[202] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[203] = { ['x'] = -289.411, ['y'] = 303.25, ['z'] = 90.7184, ['h'] = 358.0 },
-	[204] = { ['x'] = -348.406, ['y'] = 179.068, ['z'] = 87.918, ['h'] = 178.0 },
-	[205] = { ['x'] = -623.207, ['y'] = 311.88, ['z'] = 83.9285, ['h'] = 255.0 },
-	[206] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[207] = { ['x'] = -729.856, ['y'] = 321.271, ['z'] = 86.78, ['h'] = 84.0 },
-	[208] = { ['x'] = -784.225, ['y'] = 351.657, ['z'] = 87.9982, ['h'] = 359.0 },
-	[209] = { ['x'] = -753.214, ['y'] = 275.973, ['z'] = 85.7562, ['h'] = 96.0 },
-	[210] = { ['x'] = -669.732, ['y'] = 214.22, ['z'] = 81.9552, ['h'] = 289.0 },
-	[211] = { ['x'] = -286.839, ['y'] = 482.213, ['z'] = 113.201, ['h'] = 299.0 },
-	[212] = { ['x'] = -369.282, ['y'] = 468.074, ['z'] = 112.462, ['h'] = 100.0 },
-	[213] = { ['x'] = -337.886, ['y'] = 529.252, ['z'] = 120.149, ['h'] = 316.0 },
-	[214] = { ['x'] = -401.036, ['y'] = 491.448, ['z'] = 120.299, ['h'] = 151.0 },
-	[215] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[216] = { ['x'] = -440.16, ['y'] = 519.96, ['z'] = 122.159, ['h'] = 131.0 },
-	[217] = { ['x'] = -408.427, ['y'] = 583.4, ['z'] = 124.627, ['h'] = 330.0 },
-	[218] = { ['x'] = -471.6, ['y'] = 524.021, ['z'] = 125.728, ['h'] = 175.0 }
-}
-
-
-
-
-robberyExitCoords = {
-	[1] = { ['x'] = 1050.16, ['y'] = -369.431, ['z'] = 68.2395, ['h'] = 36.0 },
-	[2] = { ['x'] = 1021.07, ['y'] = -414.099, ['z'] = 66.1394, ['h'] = 127.0 },
-	[3] = { ['x'] = 1003.1, ['y'] = -423.892, ['z'] = 65.3468, ['h'] = 135.0 },
-	[4] = { ['x'] = 976.419, ['y'] = -436.9, ['z'] = 63.7452, ['h'] = 32.0 },
-	[5] = { ['x'] = 962.334, ['y'] = -445.739, ['z'] = 62.6005, ['h'] = 302.0 },
-	[6] = { ['x'] = 940.967, ['y'] = -452.002, ['z'] = 61.2523, ['h'] = 301.0 },
-	[7] = { ['x'] = 918.33, ['y'] = -464.81, ['z'] = 61.0837, ['h'] = 14.0 },
-	[8] = { ['x'] = 899.699, ['y'] = -474.118, ['z'] = 59.4362, ['h'] = 17.0 },
-	[9] = { ['x'] = 869.233, ['y'] = -496.407, ['z'] = 57.6431, ['h'] = 39.0 },
-	[10] = { ['x'] = 854.784, ['y'] = -516.325, ['z'] = 57.3284, ['h'] = 135.0 },
-	[11] = { ['x'] = 834.426, ['y'] = -534.352, ['z'] = 57.5249, ['h'] = 87.0 },
-	[12] = { ['x'] = 832.439, ['y'] = -561.425, ['z'] = 57.7079, ['h'] = 7.0 },
-	[13] = { ['x'] = 850.473, ['y'] = -588.86, ['z'] = 57.9599, ['h'] = 138.0 },
-	[14] = { ['x'] = 879.462, ['y'] = -609.731, ['z'] = 58.4422, ['h'] = 130.0 },
-	[15] = { ['x'] = 891.181, ['y'] = -625.312, ['z'] = 58.2605, ['h'] = 133.0 },
-	[16] = { ['x'] = 918.145, ['y'] = -648.733, ['z'] = 58.0587, ['h'] = 137.0 },
-	[17] = { ['x'] = 939.002, ['y'] = -661.203, ['z'] = 58.014, ['h'] = 128.0 },
-	[18] = { ['x'] = 944.432, ['y'] = -678.173, ['z'] = 58.4498, ['h'] = 115.0 },
-	[19] = { ['x'] = 959.017, ['y'] = -704.345, ['z'] = 58.477, ['h'] = 121.0 },
-	[20] = { ['x'] = 982.211, ['y'] = -726.873, ['z'] = 58.0258, ['h'] = 220.0 },
-	[21] = { ['x'] = 987.213, ['y'] = -734.519, ['z'] = 57.8157, ['h'] = 126.0 },
-	[22] = { ['x'] = 993.753, ['y'] = -620.756, ['z'] = 59.0431, ['h'] = 305.0 },
-	[23] = { ['x'] = 906.134, ['y'] = -536.564, ['z'] = 58.5069, ['h'] = 285.0 },
-	[24] = { ['x'] = 932.317, ['y'] = -530.707, ['z'] = 59.3417, ['h'] = 199.0 },
-	[25] = { ['x'] = 952.696, ['y'] = -524.033, ['z'] = 60.6436, ['h'] = 212.0 },
-	[26] = { ['x'] = 972.118, ['y'] = -514.475, ['z'] = 62.1361, ['h'] = 212.0 },
-	[27] = { ['x'] = 1023.54, ['y'] = -472.679, ['z'] = 64.0556, ['h'] = 218.0 },
-	[28] = { ['x'] = 1123.57, ['y'] = -390.138, ['z'] = 68.5005, ['h'] = 240.0 },
-	[29] = { ['x'] = 1257.39, ['y'] = -437.555, ['z'] = 69.5674, ['h'] = 108.0 },
-	[30] = { ['x'] = 1250.28, ['y'] = -461.362, ['z'] = 70.2796, ['h'] = 91.0 },
-	[31] = { ['x'] = 1249.19, ['y'] = -473.534, ['z'] = 70.183, ['h'] = 85.0 },
-	[32] = { ['x'] = 1244.66, ['y'] = -502.716, ['z'] = 69.7121, ['h'] = 166.0 },
-	[33] = { ['x'] = 1241.05, ['y'] = -510.333, ['z'] = 69.3491, ['h'] = 69.0 },
-	[34] = { ['x'] = 1230.21, ['y'] = -561.59, ['z'] = 69.6558, ['h'] = 86.0 },
-	[35] = { ['x'] = 1234.31, ['y'] = -597.905, ['z'] = 69.7801, ['h'] = 88.0 },
-	[36] = { ['x'] = 1239.3, ['y'] = -623.331, ['z'] = 69.3586, ['h'] = 27.0 },
-	[37] = { ['x'] = 1257.57, ['y'] = -660.436, ['z'] = 67.9229, ['h'] = 214.0 },
-	[38] = { ['x'] = 1259.65, ['y'] = -687.33, ['z'] = 66.0316, ['h'] = 87.0 },
-	[39] = { ['x'] = 1259.6, ['y'] = -711.274, ['z'] = 64.5067, ['h'] = 146.0 },
-	[40] = { ['x'] = 1309.37, ['y'] = -511.344, ['z'] = 71.4607, ['h'] = 333.0 },
-	[41] = { ['x'] = 1335.48, ['y'] = -522.574, ['z'] = 72.2481, ['h'] = 343.0 },
-	[42] = { ['x'] = 1355.02, ['y'] = -531.362, ['z'] = 73.8917, ['h'] = 343.0 },
-	[43] = { ['x'] = 1380.56, ['y'] = -542.445, ['z'] = 74.493, ['h'] = 336.0 },
-	[44] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[45] = { ['x'] = 1399.29, ['y'] = -603.883, ['z'] = 74.4855, ['h'] = 234.0 },
-	[46] = { ['x'] = 1367.04, ['y'] = -623.296, ['z'] = 74.7109, ['h'] = 180.0 },
-	[47] = { ['x'] = 1330.79, ['y'] = -608.409, ['z'] = 74.5081, ['h'] = 144.0 },
-	[48] = { ['x'] = 1315.91, ['y'] = -598.107, ['z'] = 73.2464, ['h'] = 153.0 },
-	[49] = { ['x'] = 1295.77, ['y'] = -590.212, ['z'] = 71.7323, ['h'] = 164.0 },
-	[50] = { ['x'] = 1446.63, ['y'] = -1482.28, ['z'] = 63.6212, ['h'] = 338.0 },
-	[51] = { ['x'] = 1391.01, ['y'] = -1508.39, ['z'] = 58.4358, ['h'] = 33.0 },
-	[52] = { ['x'] = 1344.81, ['y'] = -1513.26, ['z'] = 54.5857, ['h'] = 357.0 },
-	[53] = { ['x'] = 1311.69, ['y'] = -1515.27, ['z'] = 51.8117, ['h'] = 4.0 },
-	[54] = { ['x'] = 1228.41, ['y'] = -1577.24, ['z'] = 53.5565, ['h'] = 30.0 },
-	[55] = { ['x'] = 1203.95, ['y'] = -1594.63, ['z'] = 50.7435, ['h'] = 26.0 },
-	[56] = { ['x'] = 1184.0, ['y'] = -1611.2, ['z'] = 45.2209, ['h'] = 36.0 },
-	[57] = { ['x'] = 1203.27, ['y'] = -1670.63, ['z'] = 42.9817, ['h'] = 215.0 },
-	[58] = { ['x'] = 1220.14, ['y'] = -1658.76, ['z'] = 48.6416, ['h'] = 208.0 },
-	[59] = { ['x'] = 1252.63, ['y'] = -1638.55, ['z'] = 53.2072, ['h'] = 207.0 },
-	[60] = { ['x'] = 1276.36, ['y'] = -1628.96, ['z'] = 54.543, ['h'] = 212.0 },
-	[61] = { ['x'] = 1297.1, ['y'] = -1618.03, ['z'] = 54.5775, ['h'] = 192.0 },
-	[62] = { ['x'] = 1330.81, ['y'] = -1559.66, ['z'] = 54.0515, ['h'] = 223.0 },
-	[63] = { ['x'] = 1361.84, ['y'] = -1568.36, ['z'] = 56.3538, ['h'] = 193.0 },
-	[64] = { ['x'] = 1389.98, ['y'] = -1546.35, ['z'] = 57.1072, ['h'] = 34.0 },
-	[65] = { ['x'] = 1369.06, ['y'] = -1735.37, ['z'] = 65.6303, ['h'] = 188.0 },
-	[66] = { ['x'] = 1321.22, ['y'] = -1745.97, ['z'] = 54.7014, ['h'] = 197.0 },
-	[67] = { ['x'] = 1300.47, ['y'] = -1752.43, ['z'] = 54.2713, ['h'] = 104.0 },
-	[68] = { ['x'] = 1263.03, ['y'] = -1773.29, ['z'] = 49.6573, ['h'] = 201.0 },
-	[69] = { ['x'] = 1244.19, ['y'] = -1722.22, ['z'] = 52.0243, ['h'] = 24.0 },
-	[70] = { ['x'] = 1283.76, ['y'] = -1699.89, ['z'] = 55.4751, ['h'] = 25.0 },
-	[71] = { ['x'] = 1315.03, ['y'] = -1684.94, ['z'] = 58.2329, ['h'] = 15.0 },
-	[72] = { ['x'] = 1337.64, ['y'] = -1688.8, ['z'] = 60.5184, ['h'] = 81.0 },
-	[73] = { ['x'] = -46.3021, ['y'] = -1771.48, ['z'] = 28.0876, ['h'] = 48.0 },
-	[74] = { ['x'] = -29.7425, ['y'] = -1787.78, ['z'] = 27.8203, ['h'] = 300.0 },
-	[75] = { ['x'] = 29.7196, ['y'] = -1832.62, ['z'] = 24.6007, ['h'] = 323.0 },
-	[76] = { ['x'] = 39.525, ['y'] = -1845.02, ['z'] = 24.0588, ['h'] = 218.0 },
-	[77] = { ['x'] = 56.9605, ['y'] = -1853.58, ['z'] = 23.2871, ['h'] = 315.0 },
-	[78] = { ['x'] = 64.8814, ['y'] = -1864.15, ['z'] = 22.7985, ['h'] = 306.0 },
-	[79] = { ['x'] = 105.383, ['y'] = -1900.98, ['z'] = 21.4066, ['h'] = 332.0 },
-	[80] = { ['x'] = 122.743, ['y'] = -1910.01, ['z'] = 21.3163, ['h'] = 324.0 },
-	[81] = { ['x'] = 138.976, ['y'] = -1921.69, ['z'] = 21.3808, ['h'] = 292.0 },
-	[82] = { ['x'] = 118.249, ['y'] = -1974.3, ['z'] = 21.3223, ['h'] = 204.0 },
-	[83] = { ['x'] = 75.7193, ['y'] = -1970.01, ['z'] = 21.1252, ['h'] = 128.0 },
-	[84] = { ['x'] = 67.9144, ['y'] = -1960.05, ['z'] = 21.1675, ['h'] = 136.0 },
-	[85] = { ['x'] = 64.0576, ['y'] = -1948.15, ['z'] = 21.3685, ['h'] = 126.0 },
-	[86] = { ['x'] = 47.1782, ['y'] = -1932.79, ['z'] = 21.9035, ['h'] = 141.0 },
-	[87] = { ['x'] = 30.4997, ['y'] = -1923.88, ['z'] = 21.9569, ['h'] = 139.0 },
-	[88] = { ['x'] = 16.3038, ['y'] = -1906.7, ['z'] = 22.9652, ['h'] = 138.0 },
-	[89] = { ['x'] = 3.05277, ['y'] = -1893.08, ['z'] = 23.6959, ['h'] = 210.0 },
-	[90] = { ['x'] = -10.4963, ['y'] = -1883.65, ['z'] = 24.1416, ['h'] = 230.0 },
-	[91] = { ['x'] = -29.2414, ['y'] = -1869.56, ['z'] = 25.3351, ['h'] = 231.0 },
-	[92] = { ['x'] = -42.6142, ['y'] = -1859.04, ['z'] = 26.1948, ['h'] = 132.0 },
-	[93] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[94] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[95] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[96] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[97] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[98] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[99] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[100] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[101] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[102] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[103] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[104] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[105] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[106] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[107] = { ['x'] = -158.121, ['y'] = -1629.52, ['z'] = 37.4674, ['h'] = 48.0 },
-	[108] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[109] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[110] = { ['x'] = -165.35, ['y'] = -1614.55, ['z'] = 34.0912, ['h'] = 55.0 },
-	[111] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[112] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[113] = { ['x'] = -165.686, ['y'] = -1615.24, ['z'] = 37.382, ['h'] = 65.0 },
-	[114] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[115] = { ['x'] = -118.701, ['y'] = -1564.27, ['z'] = 34.5801, ['h'] = 321.0 },
-	[116] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[117] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[118] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[119] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[120] = { ['x'] = -157.778, ['y'] = -1595.88, ['z'] = 34.9205, ['h'] = 52.0 },
-	[121] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[122] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[123] = { ['x'] = -119.017, ['y'] = -1563.91, ['z'] = 37.4142, ['h'] = 329.0 },
-	[124] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[125] = { ['x'] = -103.274, ['y'] = -1577.19, ['z'] = 37.4142, ['h'] = 327.0 },
-	[126] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[127] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[128] = { ['x'] = -157.547, ['y'] = -1595.3, ['z'] = 37.8084, ['h'] = 58.0 },
-	[129] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[130] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[131] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[132] = { ['x'] = 21.0753, ['y'] = -1432.44, ['z'] = 30.9509, ['h'] = 335.0 },
-	[133] = { ['x'] = 3.37753, ['y'] = -1430.26, ['z'] = 30.9557, ['h'] = 352.0 },
-	[134] = { ['x'] = -32.3522, ['y'] = -1432.79, ['z'] = 31.8826, ['h'] = 266.0 },
-	[135] = { ['x'] = -48.0192, ['y'] = -1430.98, ['z'] = 32.4209, ['h'] = 4.0 },
-	[136] = { ['x'] = -66.8769, ['y'] = -1436.29, ['z'] = 32.526, ['h'] = 96.0 },
-	[137] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[138] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[139] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[140] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[141] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[142] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[143] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[144] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[145] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[146] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[147] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[148] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[149] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[150] = { ['x'] = -204.159, ['y'] = -1549.78, ['z'] = 37.9307, ['h'] = 52.0 },
-	[151] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[152] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[153] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[154] = { ['x'] = -198.45, ['y'] = -1598.19, ['z'] = 34.9031, ['h'] = 263.0 },
-	[155] = { ['x'] = -201.04, ['y'] = -1612.09, ['z'] = 34.9031, ['h'] = 250.0 },
-	[156] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[157] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[158] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[159] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[160] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[161] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[162] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[163] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[164] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[165] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[166] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[167] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[168] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[169] = { ['x'] = -232.055, ['y'] = -1620.07, ['z'] = 38.1289, ['h'] = 97.0 },
-	[170] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[171] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[172] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[173] = { ['x'] = -200.6, ['y'] = -1605.18, ['z'] = 38.3317, ['h'] = 258.0 },
-	[174] = { ['x'] = -212.476, ['y'] = -1683.01, ['z'] = 34.8503, ['h'] = 174.0 },
-	[175] = { ['x'] = -231.161, ['y'] = -1683.01, ['z'] = 34.8503, ['h'] = 173.0 },
-	[176] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[177] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[178] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[179] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[180] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[181] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[182] = { ['x'] = -231.232, ['y'] = -1683.02, ['z'] = 37.6224, ['h'] = 179.0 },
-	[183] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[184] = { ['x'] = -233.191, ['y'] = -1649.58, ['z'] = 38.002, ['h'] = 76.0 },
-	[185] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[186] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[187] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[188] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[189] = { ['x'] = 213.806, ['y'] = -1884.49, ['z'] = 24.813, ['h'] = 323.0 },
-	[190] = { ['x'] = 197.061, ['y'] = -1871.88, ['z'] = 25.057, ['h'] = 335.0 },
-	[191] = { ['x'] = 176.333, ['y'] = -1857.69, ['z'] = 24.3915, ['h'] = 331.0 },
-	[192] = { ['x'] = 156.55, ['y'] = -1852.71, ['z'] = 24.5839, ['h'] = 338.0 },
-	[193] = { ['x'] = 135.818, ['y'] = -1842.49, ['z'] = 25.2339, ['h'] = 333.0 },
-	[194] = { ['x'] = 94.7125, ['y'] = -1895.32, ['z'] = 24.3114, ['h'] = 141.0 },
-	[195] = { ['x'] = 112.932, ['y'] = -1900.37, ['z'] = 23.9315, ['h'] = 233.0 },
-	[196] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 233.0 },
-	[197] = { ['x'] = 128.334, ['y'] = -1906.1, ['z'] = 23.6723, ['h'] = 242.0 },
-	[198] = { ['x'] = -1084.46, ['y'] = -1559.07, ['z'] = 4.78279, ['h'] = 31.0 },
-	[199] = { ['x'] = -1076.89, ['y'] = -1554.03, ['z'] = 4.6303, ['h'] = 46.0 },
-	[200] = { ['x'] = -1063.67, ['y'] = -1557.76, ['z'] = 5.14176, ['h'] = 126.0 },
-	[201] = { ['x'] = -108.55, ['y'] = -1488.05, ['z'] = 34.1594, ['h'] = 229.0 },
-	[202] = { ['x'] = -96.661, ['y'] = -1473.85, ['z'] = 34.1594, ['h'] = 217.0 },
-	[203] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[204] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[205] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[206] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[207] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[208] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[209] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[210] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[211] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[212] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[213] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[214] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[215] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[216] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[217] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[218] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[219] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[220] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[221] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[222] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[223] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[224] = { ['x'] = 1404.48, ['y'] = -563.109, ['z'] = 74.4965, ['h'] = 294.0 },
-	[225] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[226] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[227] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[228] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[229] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[230] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[231] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[232] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[233] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[234] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[235] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[236] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[237] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[238] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[239] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[240] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[241] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[242] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[243] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[244] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[245] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[246] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[247] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[248] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[249] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[250] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[251] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[252] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[253] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[254] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[255] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[256] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[257] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[258] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[259] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[260] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[261] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[262] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[263] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[264] = { ['x'] = 240.807, ['y'] = -1662.47, ['z'] = 29.6646, ['h'] = 45.0 },
-	[265] = { ['x'] = 230.935, ['y'] = -1678.15, ['z'] = 29.6922, ['h'] = 48.0 },
-	[266] = { ['x'] = 220.447, ['y'] = -1689.27, ['z'] = 29.6923, ['h'] = 39.0 },
-	[267] = { ['x'] = 208.595, ['y'] = -1706.14, ['z'] = 29.678, ['h'] = 131.0 },
-	[268] = { ['x'] = 192.676, ['y'] = -1711.92, ['z'] = 29.6651, ['h'] = 20.0 },
-	[269] = { ['x'] = 158.095, ['y'] = -1835.94, ['z'] = 27.8559, ['h'] = 229.0 },
-	[270] = { ['x'] = 259.607, ['y'] = -1740.49, ['z'] = 29.6612, ['h'] = 228.0 },
-	[271] = { ['x'] = 269.065, ['y'] = -1728.61, ['z'] = 29.6455, ['h'] = 317.0 },
-	[272] = { ['x'] = 278.521, ['y'] = -1715.2, ['z'] = 29.6664, ['h'] = 321.0 },
-	[273] = { ['x'] = 291.901, ['y'] = -1701.82, ['z'] = 29.6479, ['h'] = 221.0 },
-	[274] = { ['x'] = 320.765, ['y'] = -1732.7, ['z'] = 29.7216, ['h'] = 54.0 },
-	[275] = { ['x'] = 310.893, ['y'] = -1750.29, ['z'] = 29.6304, ['h'] = 45.0 },
-	[276] = { ['x'] = 295.449, ['y'] = -1767.43, ['z'] = 29.1026, ['h'] = 35.0 },
-	[277] = { ['x'] = 288.206, ['y'] = -1775.43, ['z'] = 28.4192, ['h'] = 54.0 },
-	[278] = { ['x'] = 285.535, ['y'] = -1783.77, ['z'] = 28.086, ['h'] = 323.0 },
-	[279] = { ['x'] = 170.703, ['y'] = -1924.1, ['z'] = 21.1857, ['h'] = 143.0 },
-	[280] = { ['x'] = 155.193, ['y'] = -1935.35, ['z'] = 20.23, ['h'] = 57.0 },
-	[281] = { ['x'] = 139.872, ['y'] = -1952.64, ['z'] = 19.4581, ['h'] = 44.0 },
-	[282] = { ['x'] = 131.66, ['y'] = -1961.68, ['z'] = 18.859, ['h'] = 58.0 },
-	[283] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[284] = { ['x'] = 260.212, ['y'] = -1945.14, ['z'] = 24.7021, ['h'] = 226.0 },
-	[285] = { ['x'] = 269.755, ['y'] = -1932.84, ['z'] = 25.4362, ['h'] = 323.0 },
-	[286] = { ['x'] = 279.145, ['y'] = -1919.32, ['z'] = 26.1697, ['h'] = 320.0 },
-	[287] = { ['x'] = 292.825, ['y'] = -1906.21, ['z'] = 27.2702, ['h'] = 232.0 },
-	[288] = { ['x'] = 329.382, ['y'] = -1864.37, ['z'] = 27.5042, ['h'] = 230.0 },
-	[289] = { ['x'] = 340.672, ['y'] = -1849.81, ['z'] = 27.7638, ['h'] = 328.0 },
-	[290] = { ['x'] = 348.393, ['y'] = -1839.2, ['z'] = 28.3365, ['h'] = 134.0 },
-	[291] = { ['x'] = 360.685, ['y'] = -1829.24, ['z'] = 28.8903, ['h'] = 230.0 },
-	[292] = { ['x'] = 416.187, ['y'] = -1759.95, ['z'] = 29.7091, ['h'] = 321.0 },
-	[293] = { ['x'] = 430.605, ['y'] = -1741.27, ['z'] = 29.604, ['h'] = 307.0 },
-	[294] = { ['x'] = 440.203, ['y'] = -1728.01, ['z'] = 29.6002, ['h'] = 314.0 },
-	[295] = { ['x'] = 453.512, ['y'] = -1714.6, ['z'] = 29.7097, ['h'] = 225.0 },
-	[296] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[297] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[298] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[299] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[300] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[301] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[302] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[303] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[304] = { ['x'] = 478.025, ['y'] = -1710.32, ['z'] = 29.7062, ['h'] = 72.0 },
-	[305] = { ['x'] = 465.601, ['y'] = -1731.92, ['z'] = 29.1523, ['h'] = 71.0 },
-	[306] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 233.0 },
-	[307] = { ['x'] = 465.432, ['y'] = -1748.54, ['z'] = 29.0851, ['h'] = 67.0 },
-	[308] = { ['x'] = 429.443, ['y'] = -1820.18, ['z'] = 28.3583, ['h'] = 43.0 },
-	[309] = { ['x'] = 417.937, ['y'] = -1832.31, ['z'] = 28.4631, ['h'] = 134.0 },
-	[310] = { ['x'] = 401.66, ['y'] = -1849.46, ['z'] = 27.3197, ['h'] = 132.0 },
-	[311] = { ['x'] = 390.48, ['y'] = -1861.77, ['z'] = 26.7113, ['h'] = 134.0 },
-	[312] = { ['x'] = 375.822, ['y'] = -1873.41, ['z'] = 26.035, ['h'] = 39.0 },
-	[313] = { ['x'] = 357.387, ['y'] = -1885.69, ['z'] = 25.18, ['h'] = 40.0 },
-	[314] = { ['x'] = 315.671, ['y'] = -1937.43, ['z'] = 24.8138, ['h'] = 139.0 },
-	[315] = { ['x'] = 302.25, ['y'] = -1946.64, ['z'] = 24.6092, ['h'] = 55.0 },
-	[316] = { ['x'] = 286.786, ['y'] = -1963.83, ['z'] = 22.9009, ['h'] = 39.0 },
-	[317] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 233.0 },
-	[318] = { ['x'] = 279.592, ['y'] = -1971.78, ['z'] = 21.5813, ['h'] = 47.0 },
-	[319] = { ['x'] = 250.782, ['y'] = -2011.95, ['z'] = 19.2588, ['h'] = 54.0 },
-	[320] = { ['x'] = 240.661, ['y'] = -2021.45, ['z'] = 18.7072, ['h'] = 132.0 },
-	[321] = { ['x'] = 224.657, ['y'] = -2036.36, ['z'] = 18.1768, ['h'] = 58.0 },
-	[322] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[323] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[324] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[325] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[326] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[327] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[328] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[329] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[330] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[331] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[332] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[333] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[334] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[335] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[336] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[337] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[338] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[339] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[340] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[341] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[342] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[343] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[344] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[345] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[346] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[347] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[348] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[349] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[350] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[351] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[352] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[353] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[354] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[355] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[356] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[357] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[358] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[359] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[360] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[361] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[362] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[363] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[364] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[365] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[366] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[367] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[368] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[369] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[370] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[371] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[372] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[373] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[374] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[375] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[376] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[377] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[378] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[379] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[380] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[381] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[382] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[383] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[384] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[385] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[386] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[387] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[388] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[389] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[390] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[391] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[392] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[393] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[394] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[395] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[396] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[397] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[398] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[399] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[400] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[401] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[402] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[403] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[404] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[405] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[406] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[407] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[408] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[409] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[410] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[411] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[412] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[413] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[414] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[415] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[416] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[417] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[418] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[419] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[420] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[421] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[422] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[423] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[424] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[425] = { ['x'] = -948.239, ['y'] = -951.487, ['z'] = 2.14531, ['h'] = 123.0 },
-	[426] = { ['x'] = -960.719, ['y'] = -941.413, ['z'] = 2.14531, ['h'] = 125.0 },
-	[427] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[428] = { ['x'] = -975.323, ['y'] = -909.596, ['z'] = 2.34262, ['h'] = 29.0 },
-	[429] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[430] = { ['x'] = -987.459, ['y'] = -891.585, ['z'] = 2.15068, ['h'] = 206.0 },
-	[431] = { ['x'] = -998.293, ['y'] = -904.541, ['z'] = 2.74627, ['h'] = 201.0 },
-	[432] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[433] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[434] = { ['x'] = -1019.74, ['y'] = -895.29, ['z'] = 8.75882, ['h'] = 20.0 },
-	[435] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[436] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[437] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[438] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[439] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[440] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[441] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[442] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[443] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[444] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[445] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[446] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[447] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[448] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[449] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[450] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[451] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[452] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[453] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[454] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[455] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[456] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[457] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[458] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[459] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 },
-	[460] = { ['x'] = 0.0, ['y'] = 0.0, ['z'] = 0.0, ['h'] = 0.0 }
-}

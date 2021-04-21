@@ -152,7 +152,7 @@ function NPX.DB.FetchCharacterData(self, user, callback)
 
     if not hexId or hexid == "" then callback(false, true) return end
 
-    local q = [[SELECT id, owner, first_name, last_name, date_created,  cash, bank, phone_number, dob, story, gender, new, deleted, jail_time, dirty_money, gang_type, jail_time_mobster, stress_level, judge_type, iswjob FROM characters WHERE owner = @owner]]
+    local q = [[SELECT id, owner, first_name, last_name, date_created,  cash, bank, phone_number, dob, story, gender, new, deleted, jail_time, dirty_money, gang_type, jail_time_mobster, stress_level, judge_type FROM characters WHERE owner = @owner]]
     local v = {["owner"] = hexId}
 
     exports.ghmattimysql:execute(q,v, function(results)

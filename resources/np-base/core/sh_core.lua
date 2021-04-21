@@ -40,4 +40,6 @@ function NPX.Core.WaitForExports(self)
     end)
 end
 
+exports("getModule", getModule)
+exports("addModule", addModule)
 NPX.Core:WaitForExports()

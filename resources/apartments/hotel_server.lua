@@ -1,164 +1,109 @@
+local motels = {}
+local houses = {}
 local roomSV = 0
 
-
-RegisterServerEvent("hotel:createRoom")
-AddEventHandler("hotel:createRoom", function(cid)
+RegisterServerEvent('hotel:createRoom')
+AddEventHandler('hotel:createRoom', function(cid)
+    houses = {}
+    motels = {}
     local src = source
-    exports.ghmattimysql:execute("INSERT INTO user_apartment cid, roomType, mykeys, ilness, isImprisoned, isClothesSpawn, cash) VALUE (@cid, @roomType, @mykeys, @ilness, @isImprisoned, @isClothesSpawn, @cash)", {
-        ['@cid'] = cid,
-        ['@roomType'] = 1,
-        ['@mykeys'] = true,
-        ['@ilness'] = false,
-        ['@isImprisoned'] = false,
-        ['isClothesSpawn'] = true,
-        ['cash'] = 0,
-    })
-    TriggerEvent('refresh', cid)
-end)
-
-RegisterServerEvent('hotel:load')
-AddEventHandler('hotel:load', function()
-    local src = source
-    local user = exports["np-base"]:getModule("Player"):GetUser(src)
-	
-	-- Sometimes runs before character is selected
-	if not user then 
-		return 
-	end
-	
-    local char = user:getCurrentCharacter()
-    local charachter = user:getCurrentCharacter()
-
-    local name = charachter.first_name .. ' ' .. charachter.last_name
-    exports.ghmattimysql:execute('SELECT * FROM user_apartment WHERE cid = @cid', {["cid"] = char.id}, function(result)
-            if(result[1]) then
-                    TriggerClientEvent('hotel:createRoomFirst', src, result[1].room, result[1].roomType)
-                    TriggerClientEvent('hotel:SetID', src, result[1].room)
-                else
-                    roomSV = roomSV + 1
-                    TriggerClientEvent('hotel:createRoomFirst', src, roomSV, 1)
-                    TriggerClientEvent('hotel:SetID', src, roomSV)
-            end
+    local pussy = 0
+    --local number = math.random(1,88)
+    local asshole = {}
+    exports.ghmattimysql:execute("SELECT * FROM __housing WHERE cid= ?", {cid}, function(data)
+        asshole = data
+        if data[1] == nil then
+            roomSV = roomSV + 1
+            table.insert(motels, {owner = cid, roomnumber = roomSV})
+            exports.ghmattimysql:execute("SELECT * FROM __housedata WHERE cid= ?", {cid}, function(chicken)
+                exports.ghmattimysql:execute("SELECT * FROM __housekeys WHERE cid= ?", {cid}, function(chicken2)
+                for k, r in pairs(chicken) do
+                    if r ~= nil then
+                        if r.housename ~= nil then
+                            local random = math.random(1111,9999)
+                            houses[random] = {}
+                            table.insert(houses[random], {["house_name"] = r.housename, ["house_model"] = r.house_model, ["house_id"] = r.house_id})
+                            end
+                        end
+                    end
+                    for k, j in pairs(chicken2) do
+                        if j ~= nil then
+                            if j.housename ~= nil then
+                                local random = math.random(1111,9999)
+                                houses[random] = {}
+                                table.insert(houses[random], {["house_name"] = j.housename, ["house_model"] = j.house_model, ["house_id"] = j.house_id})
+                            end
+                        end
+                    end
+                    for k, v in pairs(motels) do
+                        if v.owner == cid then
+                        pussy = v.roomnumber
+                    end
+                end
+                    TriggerClientEvent('hotel:createRoom1', src, pussy, 1, houses)
+                    TriggerClientEvent('hotel:SetID', src, cid)
+                end)
+            end)
+        else
+            exports.ghmattimysql:execute("SELECT * FROM __housedata WHERE cid= ?", {cid}, function(chicken)
+                for k, v in pairs(chicken) do
+                    if v ~= nil then
+                        if v.housename ~= nil then
+                            local random = math.random(1111,9999)
+                            houses[random] = {}
+                            table.insert(houses[random], {["house_name"] = v.housename, ["house_model"] = v.house_model, ["house_id"] = v.house_id})
+                            TriggerClientEvent('hotel:createRoom1', src, asshole[1].roomNumber, asshole[1].roomType, houses)
+                            TriggerClientEvent('hotel:SetID', src, cid)
+                            return
+                        end
+                    end
+                end
+           
+                TriggerClientEvent('hotel:createRoom1', src, asshole[1].roomNumber, asshole[1].roomType, 0)
+                TriggerClientEvent('hotel:SetID', src, cid)
+            end)
+        end
     end)
 end)
 
-
-
-
-
-RegisterServerEvent('hotel:updateLockStatus')
-AddEventHandler('hotel:updateLockStatus', function(status)
+RegisterServerEvent('hotel:updatelocks')
+AddEventHandler('hotel:updatelocks', function(status)
     local src = source
     TriggerClientEvent('hotel:updateLockStatus', src, status)
 end)
 
-
-RegisterServerEvent("hotel:AddCashToHotel")
-AddEventHandler('hotel:AddCashToHotel', function(clientcash, cid)
-    local src = source
-    local user = exports["np-base"]:getModule("Player"):GetUser(src)
-    
-    if user:getCash() >= tonumber(clientcash) then
-        exports.ghmattimysql:execute("UPDATE user_apartment SET `cash` = cash + @cash WHERE cid = @cid",{
-           ['@cash'] = clientcash,
-           ['@cid'] = cid
-         }, function(data)
-            user:removeMoney(clientcash)
-            TriggerClientEvent("DoLongHudText", src, "You deposited "..clientcash.."$ to your apartment.", 1)
-       end)
-    else
-        TriggerClientEvent("DoLongHudText", src, "You dont have enough money fuck off.", 2)
+RegisterServerEvent('hotel:clearStates')
+AddEventHandler('hotel:clearStates', function(cid)
+    for k, v in pairs(motels) do
+        if v.owner == cid then
+            table.remove(motels, k)
+        end
     end
 end)
 
-RegisterServerEvent("hotel:RemoveCashFromHotel")
-AddEventHandler('hotel:RemoveCashFromHotel', function(clientcash, cid)
-    local src = source
-    local user = exports["np-base"]:getModule("Player"):GetUser(src)
-    
-    exports.ghmattimysql:execute("SELECT cash FROM user_apartment WHERE cid = @cid", {['@cid'] = cid}, function (result)
-        if tonumber(result[1].cash) >= tonumber(clientcash) then
-            exports.ghmattimysql:execute("UPDATE user_apartment SET `cash` = cash - @cash WHERE cid = @cid",{
-                ['@cash'] = clientcash,
-                ['@cid'] = cid
-              }, function(data)
-            end)
-            user:addMoney(clientcash)
-            TriggerClientEvent("DoLongHudText", src, "You took "..clientcash.."$ from your apartment.", 1)
-        else
-            TriggerClientEvent("DoLongHudText", src, "You dont have that much in your apartmend stooopid.", 2)
-        end
-    end)
-end)
-
-RegisterServerEvent('hotel:CheckCashFromHotel')
-AddEventHandler('hotel:CheckCashFromHotel', function(cid)
-    local src = source
-    local user = exports["np-base"]:getModule("Player"):GetUser(src)
-    local money = 0
-
-    exports.ghmattimysql:execute("SELECT cash FROM user_apartment WHERE cid = @cid", {['@cid'] = cid}, function (result)
-        if (result) then
-          money = result[1].cash
-          TriggerClientEvent('DoLongHudText', src, "Current amount in your room: "..tonumber(result[1].cash).."$", 1)
-        end
-    end)
-end)
-
-
-
-RegisterServerEvent('hmm')
-AddEventHandler('hmm', function(source)
-    local src = source
-    local user = exports["np-base"]:getModule("Player"):GetUser(src)
-    local char = user:getCurrentCharacter()
-    exports.ghmattimysql:execute('SELECT * FROM user_apartment WHERE cid = @cid', {["cid"] = char.id}, function(result)
-    roomSV = result[1].room
-    roomSV = (roomSV - 1)
-    exports.ghmattimysql:execute("ALTER TABLE user_apartment AUTO_INCREMENT = @cid", {["cid"] = char.id})
-        TriggerEvent('hotel:delete', cid)
-    end)
-end)
-
-
 RegisterServerEvent('hotel:upgradeApartment')
-AddEventHandler('hotel:upgradeApartment', function()
+AddEventHandler('hotel:upgradeApartment', function(cid, roomType, roomNumber)
     local src = source
     local user = exports["np-base"]:getModule("Player"):GetUser(src)
-    local char = user:getCurrentCharacter()
-    
-    if (tonumber(user:getCash()) >= 25000) then
-            user:removeMoney(25000)
-            exports.ghmattimysql:execute("INSERT INTO user_apartment (cid, roomType, mykeys, ilness, isImprisoned, isClothesSpawn, cash) VALUE (@cid, @roomType, @mykeys, @ilness, @isImprisoned, @isClothesSpawn, @cash)", {
-                ['@cid'] = char.id,
-                ['@roomType'] = 2,
-                ['@mykeys'] = true,
-                ['@ilness'] = false,
-                ['@isImprisoned'] = false,
-                ['isClothesSpawn'] = true,
-                ['cash'] = 0,
-            })
-            exports.ghmattimysql:execute('SELECT * FROM user_apartment WHERE cid = @cid', {["cid"] = char.id}, function(result)
-                Citizen.Wait(3000)
-                TriggerClientEvent('hotel:createRoomFirst', src, result[1].room, 2)
-                TriggerClientEvent('hotel:SetID', src, result[1].room)
-            end)
-        else
-            TriggerClientEvent("DoShortHudText",src, "You need $25000 + Tax.",2)
+    for k, v in pairs(motels) do
+        if v.owner == cid then
+            table.remove(motels, k)
         end
-    end)
-
-RegisterServerEvent('refresh')
-AddEventHandler('refresh', function(cid)
-    local src = source
-    exports.ghmattimysql:execute('SELECT * FROM user_apartment WHERE cid = @cid', {["cid"] = cid}, function(result)
-        Citizen.Wait(3000)
-        TriggerClientEvent('hotel:createRoomFirst', src, result[1].room, result[1].roomType)
-        TriggerClientEvent('hotel:SetID', src, result[1].room)
-    end)
+    end
+    if user:getCash() >= 50000 then
+        if roomType == 1 then
+            user:removeMoney(50000)
+            exports.ghmattimysql:execute('INSERT INTO __housing(cid, roomType) VALUES(?, ?)', {cid, 2})
+            TriggerClientEvent('newRoomType', src, 2)
+            TriggerClientEvent('DoLongHudText', src, "Congratulations, your new Integrity Apartment is available!")
+            roomSV = roomSV - 1
+        else
+            TriggerClientEvent('DoLongHudText', src, "You already have an Integrity Apartment!", 2)
+        end
+    else
+        TriggerClientEvent('DoLongHudText', src, "You dont have enough money to buy an Integrity Apartment!", 2)
+    end
 end)
-
-
 
 AddEventHandler('playerDropped', function()
     roomSV = (roomSV - 1)
