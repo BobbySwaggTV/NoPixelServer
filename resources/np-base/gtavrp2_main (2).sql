@@ -13,6 +13,7 @@ CREATE TABLE `characters` (
   `deleted` INT(11) NOT NULL DEFAULT 0,
   `deletion_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
   `gender` INT(1) NOT NULL DEFAULT 0,
+  `stress_level` int(11) DEFAULT 0,
   `jail_time` INT(11) NOT NULL DEFAULT 0,
   `dirty_money` INT(11) NOT NULL DEFAULT 0,
   `gang_type` INT(11) NOT NULL DEFAULT 0,

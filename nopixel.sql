@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `story` text NOT NULL,
   `new` int(1) NOT NULL DEFAULT 1,
   `deleted` int(11) NOT NULL DEFAULT 0,
+  `deletion_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
   `gender` int(1) NOT NULL DEFAULT 0,
   `jail_time` int(11) NOT NULL DEFAULT 0,
   `dirty_money` int(11) NOT NULL DEFAULT 0,
