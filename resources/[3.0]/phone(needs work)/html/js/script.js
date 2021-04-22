@@ -32,7 +32,7 @@ const callStates = {
     3: "isCallInProgress"
 }
 
-var decodeEntities = (function () {
+var decodeEntities = (function() {
     // this prevents any overhead from creating the object each time
     var element = document.createElement('div');
 
@@ -63,10 +63,10 @@ const calendarFormatDate = {
 
 moment.updateLocale('en', {
     relativeTime: {
-        past: function (input) {
-            return input === 'now'
-                ? input
-                : input + ' ago'
+        past: function(input) {
+            return input === 'now' ?
+                input :
+                input + ' ago'
         },
         s: 'now',
         future: "in %s",
@@ -84,11 +84,12 @@ moment.updateLocale('en', {
     }
 });
 
-var debounce = function (func, wait, immediate) {
+var debounce = function(func, wait, immediate) {
     var timeout;
-    return function () {
-        var context = this, args = arguments;
-        var later = function () {
+    return function() {
+        var context = this,
+            args = arguments;
+        var later = function() {
             timeout = null;
             if (!immediate) func.apply(context, args);
         };
@@ -99,25 +100,25 @@ var debounce = function (func, wait, immediate) {
     };
 };
 
-$(document).ready(function () {
+$(document).ready(function() {
     $('.collapsible').collapsible();
     $('.modal').modal();
 
     $.post('http://phone/getWeather', JSON.stringify({}));
 
-    setInterval(function () {
+    setInterval(function() {
         $.post('http://phone/getWeather', JSON.stringify({}));
     }, 60 * 1000);
 
     /* This handles keyEvents - ESC etc */
-    document.onkeyup = function (data) {
+    document.onkeyup = function(data) {
         // If Key == ESC -> Close Phone
         if (data.which == 27) {
             $.post('http://phone/close', JSON.stringify({}));
         }
     }
 
-    $(".phone-screen").on('click', '.phone-button', function (e) {
+    $(".phone-screen").on('click', '.phone-button', function(e) {
         var action = $(this).data('action');
         var actionButton = $(this).data('action-button');
         if (actionButton !== undefined) {
@@ -170,7 +171,7 @@ $(document).ready(function () {
                     $('#group-manage-rank-modal #group-manage-rank-id').prop('disabled', false);
                     M.updateTextFields();
                     break;
-                case "nopixel-radio":
+                case "ffrp-radio":
                     openRadio();
                     break;
                 case "getCallHistory":
@@ -179,8 +180,8 @@ $(document).ready(function () {
                     else
                         $.post('http://phone/' + action, JSON.stringify({}));
                     break;
-                case "spotify":
-                    openBrowser('http://mysound.ge/index.php');
+                case "dabcoin":
+                    //openBrowser('http://ffrp.online/dabcoin/login.php');
                     break;
                 default:
                     $.post('http://phone/' + action, JSON.stringify({}));
@@ -189,7 +190,7 @@ $(document).ready(function () {
         }
     });
 
-    window.addEventListener('message', function (event) {
+    window.addEventListener('message', function(event) {
         var item = event.data;
 
         if (item.newContact === true) {
@@ -210,14 +211,14 @@ $(document).ready(function () {
             playerId = item.playerId;
             $('.status-bar-player-id').text(item.playerId);
             openContainer("home")
-            if(callStates[currentCallState] !== "isNotInCall") {
+            if (callStates[currentCallState] !== "isNotInCall") {
                 phoneCallerScreenSetup()
             }
         }
 
         if (item.openPhone === false) {
             closePhoneShell();
-            $('#browser').fadeOut(300);
+            $('#browser').fadeOut(250);
             closeContainer("home");
         }
 
@@ -265,7 +266,6 @@ $(document).ready(function () {
                         }
                     }
                 }
-                $('.notification-sms').fadeOut(150);
                 openContainer("messages");
                 break;
             case "messageRead":
@@ -279,6 +279,7 @@ $(document).ready(function () {
                         }
                     }
                 }
+                $('.notification-sms').fadeOut(150);
                 openContainer("message");
                 break;
             case "messagesOther":
@@ -334,7 +335,7 @@ $(document).ready(function () {
                 break;
             case "deepweb":
                 if (true) {
-                    openBrowser("http://www.nopixel.online/morbrowser/mor-browser-setup-1/");
+                    //openBrowser("http://www.nopixel.online/morbrowser/mor-browser-setup-1/");
                 }
                 break;
             case "gurgleEntries":
@@ -389,7 +390,7 @@ $(document).ready(function () {
                 break;
             case "RealEstate":
                 openContainer("real-estate");
-                if(item.RERank >= 4) {
+                if (item.RERank >= 4) {
                     $('.btn-evict-house').css("visibility", "visible").hide().fadeIn(150);
                     $('.btn-transfer-house').css("visibility", "visible").hide().fadeIn(150);
                 }
@@ -446,7 +447,6 @@ $(document).ready(function () {
             case "racing-start":
                 $('#racing-start-tracks').empty();
                 maps = item.maps;
-                console.log('maps ' + item.maps.track_n)
                 addRacingTracks(maps);
                 openContainer('racing-start');
                 break;
@@ -522,7 +522,7 @@ $(document).ready(function () {
     });
 });
 
-$('.phone-screen').on('copy', '.number-badge', function (event) {
+$('.phone-screen').on('copy', '.number-badge', function(event) {
     if (event.originalEvent.clipboardData) {
         let selection = document.getSelection();
         selection = selection.toString().replace(/-/g, "")
@@ -553,7 +553,7 @@ function drawRaceStats() {
 }
 
 function setBatteryLevel(serverTime) {
-    let restartTimes = ["00:00:00", "08:00:00", "16:00:00"];
+    let restartTimes = ["06:00", "12:00", "18:00", "00:00"];
     restartTimes = restartTimes.map(time => moment(time, "HH:mm:ss"));
     serverTime = moment(serverTime, "HH:mm:ss")
 
@@ -594,7 +594,7 @@ function addRacingHighScores(highScores) {
                         <div class="row no-padding">
                             <div class="col s3 right-align">
                                 <i class="fas fa-stopwatch fa-2x icon "></i>
-                            </div>  
+                            </div>
                             <div class="col s9">
                                 <strong>Fastest Lap</strong> <span data-badge-caption="" class="new badge">${score.fastestLap === -1 ? 'N/A' : moment(score.fastestLap).format("mm:ss.SSS")}</span>
                                 <br>${score.fastestName}
@@ -603,7 +603,7 @@ function addRacingHighScores(highScores) {
                         <div class="row no-padding">
                             <div class="col s3 right-align">
                                 <i class="fas fa-shipping-fast fa-2x icon "></i>
-                            </div>  
+                            </div>
                             <div class="col s9">
                                 <strong>Fastest Sprint</strong> <span data-badge-caption="" class="new badge">${score.fastestSprint === -1 ? 'N/A' : moment(score.fastestSprint).format("mm:ss.SSS")}</span>
                                 <br>${score.fastestSprintName}
@@ -612,7 +612,7 @@ function addRacingHighScores(highScores) {
                         <div class="row no-padding">
                             <div class="col s3 right-align">
                                 <i class="fas fa-route fa-2x icon "></i>
-                            </div>  
+                            </div>
                             <div class="col s9">
                                 <strong>Distance</strong>
                                 <br>${score.mapDistance}m
@@ -635,16 +635,12 @@ function addRacingTracks(tracks) {
 }
 
 function racingStartsTimer() {
-//    console.log("small peen");
-    $('.racing-entries .racing-start-timer').each(function () {
-//        console.log("Fat peen");
+    $('.racing-entries .racing-start-timer').each(function() {
         let startTime = moment.utc($(this).data('start-time'));
-        // console.log(startTime.diff(moment.utc()));
         if (startTime.diff(moment.utc()) > 0) {
             let formatedTime = makeTimer(startTime);
             $(this).text(`Starts in ${formatedTime.minutes} min ${formatedTime.seconds} sec`);
-        }
-        else {
+        } else {
             $(this).text('Closed');
         }
     });
@@ -681,13 +677,13 @@ function addRace(race, raceId) {
                 <div class="row no-padding">
                     <div class="col s12">
             `
-        raceElement += `<button class="waves-effect waves-light btn racing-entries-entrants" data-id="${race.identifier}" aria-label="Race information" data-balloon-pos="up"><i class="fas fa-info icon"></i></button> `
+    raceElement += `<button class="waves-effect waves-light btn racing-entries-entrants" data-id="${race.identifier}" aria-label="Race information" data-balloon-pos="up"><i class="fas fa-info icon"></i></button> `
 
-        if (race.open)
-            raceElement += `<button class="waves-effect waves-light btn green racing-entries-join" data-id="${race.identifier}" aria-label="Join race" data-balloon-pos="up"><i class="fas fa-flag-checkered icon"></i></button> `
+    if (race.open)
+        raceElement += `<button class="waves-effect waves-light btn green racing-entries-join" data-id="${race.identifier}" aria-label="Join race" data-balloon-pos="up"><i class="fas fa-flag-checkered icon"></i></button> `
 
-        raceElement += `<button class="waves-effect red waves-light btn phone-button" data-action="racing:event:leave" aria-label="Leave race" data-balloon-pos="up"><i class="fas fa-sign-out-alt icon"></i></button> `
-        raceElement +=
+    raceElement += `<button class="waves-effect red waves-light btn phone-button" data-action="racing:event:leave" aria-label="Leave race" data-balloon-pos="up"><i class="fas fa-sign-out-alt icon"></i></button> `
+    raceElement +=
         `           </div>
                 </div>
             </div>
@@ -700,7 +696,6 @@ function addRace(race, raceId) {
 function addRaces(races) {
     for (let race in races) {
         let curRace = races[race]
-        console.log(curRace)
         addRace(curRace, race);
     }
 }
@@ -732,16 +727,36 @@ function addManageKeys(keys) {
 
 function addOutstandingPayments(payments) {
     for (let payment in Object.keys(payments)) {
-        $('.outstanding-payments-entries').append("<div class='col s12 outstanding-payment-entry'>" + payments[payment].Plate + "<br>" + payments[payment].AmountDue + "<br>" + payments[payment].cid + "<br>" + payments[payment].Info + "<hr></div>");
-        
+        var timer = Math.ceil(payments[payment].financetimer / 1440)
+        var element = `
+            <ul>
+                <div class="row no-padding">
+                    <div class="col s12 outstanding-payment-entry">
+                        <h3>Owner: ${payments[payment].firstname + ", " + payments[payment].lastname}</h3>
+                        <h3>Plate: ${payments[payment].plate}</h3>
+                        <h3>PhoneNumber: ${payments[payment].phonenumber}</h3>
+                        <h3>Amount Owed: ${payments[payment].finance}</h3>
+                    </div>
+                </div>
+            </ul>
+        `
+        $('.outstanding-payments-entries').append("<div class='col s12 outstanding-payment-entry'>" + element + "<hr></div>");
+        //<h3>Days Left: ${timer}</h3>
     }
 }
 
 function addGroupManage(group) {
     $('.group-manage-company-name').text(group.groupName).data('group-id', group.groupId);
     $('.group-manage-company-bank').text('$' + group.bank);
+
     for (let i = 0; i < group.employees.length; i++) {
+
         let employee = group.employees[i];
+        if (employee.giver !== undefined) {
+            var giver = employee.giver[i];
+        } else {
+            var giver = 'unknown';
+        }
         let employeeEntry = `
         <li>
             <div class="row no-padding">
@@ -751,7 +766,7 @@ function addGroupManage(group) {
                             <div class="row no-padding">
                                 <div class="col s12">
                                     <span class="card-title group-manage-entry-title">${employee.name} [${employee.cid}]</span>
-                                    <span class="group-manage-entry-body">Promoted to Rank ${employee.rank} by ${employee.giver}</span>
+                                    <span class="group-manage-entry-body">Promoted to Rank ${employee.rank} by ${giver}</span>
                                 </div>
                             </div>
                             <div class="row no-padding" style="padding-top:10px !important">
@@ -767,6 +782,7 @@ function addGroupManage(group) {
         </li>
         `
         $('.group-manage-entries').append(employeeEntry);
+        //<button class="waves-effect waves-light btn-small group-manage-fire" data-cid="${employee.cid}" data-rank="${employee.rank}" aria-label="Fire Employee" data-balloon-pos="up"><i class="fas fa-frown-open"></i></button>
     }
 }
 
@@ -789,7 +805,6 @@ function addGroupTasks(tasks) {
                     <br><span style="font-weight:bold">${currentTask.assignedTo === 0 ? "Unassigned" : `Assigned to ${currentTask.assignedTo}`}</span> <span data-badge-caption="" class="new badge">${currentTask.identifier}</span>
                 </li>
             `
-
             $('.group-tasks-entries').append(taskElement);
         }
     }
@@ -801,13 +816,12 @@ function addGroups(groups) {
             <li class="collection-item">
                 <span style="font-weight:bold">${groups[group].namesent}</span>
                 <a href="#!" class="secondary-content">
-                    <span class="phone-button" data-action="btnTaskGang" data-action-data="${groups[group].idsent}" aria-label="Tasks" data-balloon-pos="left"><i class="fas fa-tasks fa-2x"></i></span> &nbsp;&nbsp; 
-                    <span class="phone-button" data-action="group-manage" data-action-data="${groups[group].idsent}" aria-label="Manage" data-balloon-pos="left"><i class="grey-text text-darken-3 fas fa-briefcase fa-2x"></i></span>
+                    <!-- <span class="phone-button" data-action="btnTaskGang" data-action-data="${groups[group].idsent}" aria-label="Tasks" data-balloon-pos="left"><i class="fas fa-tasks fa-2x"></i></span> &nbsp;&nbsp; -->
+                    <span class="phone-button" data-action="group-manage" data-action-data="${groups[group].idsent}" aria-label="Manage job" data-balloon-pos="left"><i class="grey-text text-darken-3 fas fa-sign-in-alt fa-2x"></i></span>
                 </a>
                 <br><span style="font-weight:300">${groups[group].ranksent}</span>
             </li>
         `
-
         $('.groups-entries').append(groupElement);
     }
 }
@@ -844,38 +858,75 @@ function addDeliveries(deliveries) {
     }
 }
 
+function ConvertMinutes(num){
+    d = Math.floor(num/1440); // 60*24
+    h = Math.floor((num-(d*1440))/60);
+    m = Math.round(num%60);
+  
+    if(d>0){
+      return(d + " days, " + h + " hours, "+m+" minutes");
+    }else{
+      return(h + " hours, "+m+" minutes");
+    }
+  }
+  
+  var input1 = 68.68
+
+  var input2 = 4568.68
+
 function addKeys(keys) {
-    for (const [ keyType, value ] of Object.entries(keys)) {
-        for (const [ data, v ] of Object.entries(value)) {
-            let penis = keys[keyType][data][0]
+    for (let keyType of Object.keys(keys)) {
+        for (let i = 0; i < keys[keyType].length; i++) {
+            let key = keys[keyType][i];
             var keyElement = `
             <li data-key-type="${keyType}">
                 <div class="collapsible-header">
                     <span class="left">
                     <i class="fas ${keyType === "sharedKeys" ? "fa-handshake" : "fa-key"}"> </i>
-                    ${penis.house_name}</span>
+                    ${key.house_name}</span>
                     <div class="col s2 right-align">
-                        <i class="fas fa-map-marker-alt teal-text gps-location-click" data-house-type="${penis.house_model}" data-house-id="${penis.house_id}"></i>
+                        <i class="fas fa-map-marker-alt teal-text gps-location-click" data-house-type="${key.house_model}" data-house-id="${key.house_id}"></i>
                     </div>
                 </div>
                 <div class="collapsible-body garage-body">
                     <div class="row">
                         <div class="col s12">
                             <ul class="collection">`
-                keyElement += `
-                                </ul>
-                            </div>
-                        </div>
-                        `
+            if (keyType === "ownedKeys") {
+                let paymentDue = Math.ceil(parseFloat(ConvertMinutes(key.days)));
+                let shitstuff = Math.ceil(parseFloat(key.amountdue));
+                let paymentString = "";
+                let shitstuffString = "";
+                if (paymentDue == 0)
+                    paymentString = "Today";
+                else if (paymentDue < 0)
+                    paymentString = `Payment was due ${Math.abs(paymentDue)} days ago.`
+                else
+                    paymentString = `${paymentDue} until payment is due.`
+                if (shitstuff == 0)
+                shitstuffString = "You owe $0";
+                else
+                shitstuffString = `You owe $${Math.round(key.amountdue/key.rent_due)}`
+
+                if (key.amountdue > 1)
+                    keyElement += `<li class="collection-item"><i class="fas fa-credit-card"></i> ${key.rent_due} payments left</li>`
+                
+                keyElement += `<li class="collection-item"><i class="fas fa-hourglass-half"></i> ${key.paymentDue == 0 ? 'No remaining payments.' : paymentString}</li>
+                 <li class="collection-item"><i class="fas fa-money-check-alt"></i> ${key.shitstuff == 0 ? '' : shitstuffString}</li>`}
+            keyElement += `
+                </ul>
+                </div>
+            </div>
+                    `
             if (keyType === "ownedKeys") {
                 keyElement += `
                         <div class="row no-padding">
                             <div class="col s12 center-align no-padding button-row" >
-                            <button class="waves-effect waves-light btn-small phone-button" data-action="btnGiveKey" aria-label="Give Keys" data-balloon-pos="up"><i class="fas fa-key"></i></button>
-                            <button class="waves-effect waves-light btn-small manage-keys" aria-label="Manage Keys" data-balloon-pos="up"><i class="fas fa-user-slash"></i></button>
-                            <button class="waves-effect waves-light btn-small phone-button" data-action="btnPayMortgage" aria-label="Pay Mortgage" data-balloon-pos="up-left"><i class="fas fa-dollar-sign"></i></button>
-                            <button class="waves-effect waves-light btn-small phone-button" data-action="btnFurniture" aria-label="Furniture" data-balloon-pos="up"><i class="fas fa-couch"></i></button>
-                            <button class="waves-effect waves-light btn-small phone-button" data-action="btnPropertyOutstanding" aria-label="Check Mortgage" data-balloon-pos="up-left"><i class="fas fa-check"></i></button>
+                                <button class="waves-effect waves-light btn-small phone-button" data-action="btnPropertyUnlock2" aria-label="Toggle Unlock" data-balloon-pos="up-left"><i class="fas fa-lock-open"></i></button>
+                                <button class="waves-effect waves-light btn-small phone-button" data-action="btnGiveKey" aria-label="Give Keys" data-balloon-pos="up"><i class="fas fa-key"></i></button>
+                           
+                                <button class="waves-effect waves-light btn-small phone-button" data-action="btnFurniture" aria-label="Furniture" data-balloon-pos="up"><i class="fas fa-couch"></i></button>
+                                <button class="waves-effect waves-light btn-small phone-button" data-action="btnMortgage" aria-label="Pay Mortgage" data-balloon-pos="up-right"><i class="fas fa-hand-holding-usd"></i></button>
                             </div>
                         </div>
                         `
@@ -883,7 +934,9 @@ function addKeys(keys) {
                 keyElement += `
                 <div class="row no-padding">
                     <div class="col s12 center-align no-padding">
-                        <button class="waves-effect waves-light btn-small remove-shared-key" data-house-id="${penis.house_id}" data-house-model="${penis.house_model}" aria-label="Remove key" data-balloon-pos="up"><i class="fas fa-user-slash"></i></button>
+                        <button class="waves-effect waves-light btn-small phone-button" data-action="btnPropertyUnlock2" aria-label="Toggle Unlock" data-balloon-pos="up-left"><i class="fas fa-lock-open"></i></button>
+                        <button class="waves-effect waves-light btn-small phone-button" data-action="btnMortgage" aria-label="Pay Mortgage" data-balloon-pos="up-right"><i class="fas fa-hand-holding-usd"></i></button>
+                        <button class="waves-effect waves-light btn-small remove-shared-key" data-house-id="${key.id}" data-house-model="${key.model}" aria-label="Remove key" data-balloon-pos="up"><i class="fas fa-user-slash"></i></button>
                     </div>
                 </div>
                 `
@@ -919,7 +972,7 @@ function openBrowser(url) {
 function openRadio() {
     let browserRadio =
         `
-        <object type="text/html" data="https://nopixel.online/radio/player.html" class="browser-radio-window">
+        <object type="text/html" data="" class="browser-radio-window">
         </object>
     `;
 
@@ -991,18 +1044,29 @@ function addVehicles(vehicleData, showCarPayments) {
         $('.btn-car-payments').css("visibility", "visible").hide().fadeIn(150);
     for (let vehicle of Object.keys(vehicleData)) {
         let carIconColor = "green";
+        let carBGColor = "";
         if (vehicleData[vehicle].amountDue > 0)
             carIconColor = "red";
         else if (vehicleData[vehicle].amountDue == 0 && vehicleData[vehicle].payments > 0)
             carIconColor = "orange";
         else
-        console.log(JSON.stringify(vehicleData))
             carIconColor = "green";
+
+        if (vehicleData[vehicle].garage == "Garage OUT"){
+            vehicleData[vehicle].garage = "OUT";
+            carBGColor = "red";
+        }
+            else
+        {
+            carBGColor = "";
+        }
+
+
         var vehicleElement = `
             <li>
                 <div class="collapsible-header">
                     <i class="fas fa-car ${carIconColor}-text"></i>${vehicleData[vehicle].name}
-                    <span class="new badge" style="text-overflow:ellipsis;overflow:hidden;max-width:15ch;white-space: nowrap;" data-badge-caption="">(${vehicleData[vehicle].state}) ${vehicleData[vehicle].garage}</span>
+                    <span class="new badge" style="text-overflow:ellipsis;overflow:hidden;max-width:15ch;white-space:nowrap;background-color:${carBGColor}" data-badge-caption="">${vehicleData[vehicle].garage}</span>
                 </div>
                 <div class="collapsible-body garage-body">
                     <div class="row">
@@ -1012,11 +1076,10 @@ function addVehicles(vehicleData, showCarPayments) {
                                 <li class="collection-item"><i class="fas fa-closed-captioning"></i> ${vehicleData[vehicle].plate}</li>
                                 <li class="collection-item"><i class="fas fa-oil-can"></i> ${vehicleData[vehicle].enginePercent}% Engine</li>
                                 <li class="collection-item"><i class="fas fa-car-crash"></i> ${vehicleData[vehicle].bodyPercent}% Body</li>
-                                <li class="collection-item"><i class="fas fa-hourglass-half"></i> ${vehicleData[vehicle].payments == 0 ? 'No remaining payments.' : Math.ceil(7 - parseFloat(vehicleData[vehicle].lastPayment)) + ' days until payment is due.'}</li>
+                                <li class="collection-item"><i class="fas fa-hourglass-half"></i> ${vehicleData[vehicle].payments == 0 ? 'No remaining payments.' : (vehicleData[vehicle].lastPayment) + ' days until payment is due.'}</li>
                                 `
         if (vehicleData[vehicle].payments != 0) {
             vehicleElement += `
-                                <li class="collection-item"><i class="fas fa-credit-card"></i> ${vehicleData[vehicle].payments} payments left.</li>
                                 <li class="collection-item"><i class="fas fa-dollar-sign"></i> <span class="car-payment-due">${vehicleData[vehicle].amountDue}</span> amount due.</li>
                                 `
         }
@@ -1029,7 +1092,7 @@ function addVehicles(vehicleData, showCarPayments) {
         if (vehicleData[vehicle].canSpawn)
             vehicleElement += `<button class="waves-effect waves-light btn-small garage-spawn" data-plate="${vehicleData[vehicle].plate}"><i class="fas fa-magic"></i> Spawn</button> `
 
-        if (vehicleData[vehicle].payments > 0 && vehicleData[vehicle].amountDue > 0)
+        if (vehicleData[vehicle].lastPayment <= 1 && vehicleData[vehicle].amountDue > 0)
             vehicleElement += `<button class="waves-effect waves-light btn-small red garage-pay" data-plate="${vehicleData[vehicle].plate}"><i class="fas fa-hand-holding-usd"></i> Pay</button> `
 
         vehicleElement += `<button class="waves-effect waves-light btn-small garage-track" data-plate="${vehicleData[vehicle].plate}"><i class="fas fa-map-marker-alt"></i> Track</button>
@@ -1081,11 +1144,19 @@ function addGPSLocations(locations) {
 
 function addAccountInformation(accountInfo) {
     if (accountInfo) {
-        $('.account-information-cid').text((accountInfo.cid ? accountInfo.cid : 0));
         $('.account-information-cash').text('$' + (accountInfo.cash ? accountInfo.cash : 0));
         $('.account-information-bank').text('$' + (accountInfo.bank ? accountInfo.bank : 0));
-        licenses = accountInfo.licenses
-
+        $('.account-information-primary-job').text(accountInfo.job ? accountInfo.job : "Unemployed.");
+        $('.account-information-secondary-job').text(accountInfo.secondaryJob ? accountInfo.secondaryJob : "No secondary job.").hide();
+        licenses = accountInfo.licenses/* .split('<br>') */
+        // let licensesObject = {}
+        /* for (var i = 0; i < licenses.length; i++) {
+            // let license = licenses[i].replace(/<[^>]*>?/gm, '').split("|");
+            // let license = licenses[i].replace("<br>", "")
+            if (license[0] && license !== "") {
+                licensesObject[license[0].replace(/\s/gm, '')] = license[1].replace(/\s/gm, '')
+            }
+        } */
         let licenseTable =
             `<table class="responsive-table license-table" >
                 <thead>
@@ -1101,7 +1172,7 @@ function addAccountInformation(accountInfo) {
             string = string.charAt(0).toUpperCase() + string.slice(1)
             licenseTable += `<tr>
                                 <td>${string}</td>
-                                <td><i class="${key["status"] == 1 ? "fas fa-check green-text" : "fas fa-times red-text"}"></i></td>
+                                <td><i class="${key["status"] !== 0 ? "fas fa-check green-text" : "fas fa-times red-text"}"></i></td>
                             </tr>`
         }
         licenseTable +=
@@ -1110,15 +1181,18 @@ function addAccountInformation(accountInfo) {
         </table>
         `
         $('.account-information-licenses').html(licenseTable);
-        if (accountInfo.pagerStatus)
+        /* if (accountInfo.pagerStatus)
             $('.account-information-toggle-pager').removeClass('red-text').addClass('green-text')
         else
-            $('.account-information-toggle-pager').removeClass('green-text').addClass('red-text')
-        $('.account-information-primary-job').text(accountInfo.job ? accountInfo.job : "Unemployed.");
-        $('.account-information-secondary-job').text(accountInfo.secondaryJob ? accountInfo.secondaryJob : "No secondary job.");
+            $('.account-information-toggle-pager').removeClass('green-text').addClass('red-text') */
     }
 }
 
+var decodeHTML = function (html) {
+	var txt = document.createElement('textarea');
+	txt.innerHTML = html;
+	return txt.value;
+};
 function addTweets(tweets, myHandle) {
     $(".twatter-handle").empty();
     $(".twatter-handle").append(myHandle);
@@ -1127,27 +1201,46 @@ function addTweets(tweets, myHandle) {
             if (message && message.handle && message.message) {
                 var twat = message.message;
                 if (twat !== "") {
-                    var twatEntry = $(`<div class="row no-padding">
-                                        <div class="col s12">
-                                            <div class="card blue darken-3 twat-card">
-                                                <div class="card-content white-text twatter-content">
-                                                    <span class="card-title twatter-title">${message.handle}</span>
-                                                    <p>${twat}</p>
-                                                </div>
-                                                <div class="card-action" style="padding-top: 8px;padding-right: 16px;padding-bottom: 8px;padding-left: 16px;">
-                                                    <span data-poster="${message.handle}" class="twat-reply white-text"><i class="fas fa-reply fa-1x"></i></span>
-                                                    <span class="right white-text" aria-label="${moment.utc(message.time).local().calendar(null, calendarFormatDate)}" data-balloon-pos="down">${moment.utc(message.time).local().fromNow()}</span>
-                                              </div>
-                                            </div>
-                                            
+                    twat = decodeHTML(twat)
+                    var twatEntry
+                    if (twat.startsWith("https://") == true) {
+                        twatEntry = $(`<div class="row no-padding">
+                                <div class="col s12">
+                                    <div class="card blue darken-3 twat-card">
+                                        <div class="card-content white-text twatter-content">
+                                            <span class="card-title twatter-title">${message.handle}</span>
+                                            <img src="${twat}"/>
                                         </div>
-                                    </div>`);
+                                        <div class="card-action" style="padding-top: 8px;padding-right: 16px;padding-bottom: 8px;padding-left: 16px;">
+                                            <span data-poster="${message.handle}" class="twat-reply white-text"><i class="fas fa-reply fa-1x"></i></span>
+                                            <span class="right white-text" aria-label="${moment.utc(message.time).local().calendar(null, calendarFormatDate)}" data-balloon-pos="down">${moment.utc(message.time).local().fromNow()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`);
+                    } else {
+                        twatEntry = $(`<div class="row no-padding">
+                                <div class="col s12">
+                                    <div class="card blue darken-3 twat-card">
+                                        <div class="card-content white-text twatter-content">
+                                            <span class="card-title twatter-title">${message.handle}</span>
+                                            <p>${twat}</p>
+                                        </div>
+                                        <div class="card-action" style="padding-top: 8px;padding-right: 16px;padding-bottom: 8px;padding-left: 16px;">
+                                            <span data-poster="${message.handle}" class="twat-reply white-text"><i class="fas fa-reply fa-1x"></i></span>
+                                            <span class="right white-text" aria-label="${moment.utc(message.time).local().calendar(null, calendarFormatDate)}" data-balloon-pos="down">${moment.utc(message.time).local().fromNow()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`);
+                    }
                     $('.twatter-entries').prepend(twatEntry);
                 }
             }
         }
     }
 }
+
 
 function addCallHistoryEntries(callHistory) {
     if (callHistory && Object.keys(callHistory).length > 0) {
@@ -1179,18 +1272,22 @@ function addCallHistoryEntries(callHistory) {
     }
 }
 
+
 function addYellowPage(item) {
-    var yellowPage = $(`
+    message = decodeHTML(item.message)
+    var yellowPage
+    if (message.startsWith("https://")) {
+        yellowPage = $(`
         <div class="row no-padding">
             <div class="col s12">
                 <div class="card yellow darken-1 yellow-page-entry">
                     <div class="card-content black-text yellow-page-body center-align">
-                        <strong>${item.message}</strong>
+                        <img src="${message}"/>
                     </div>
                     <div class="card-action" style="padding-top: 8px;padding-right: 16px;padding-bottom: 8px;padding-left: 16px;font-size:14px">
                         <div class="row no-padding">
                             <div class="col s6">
-                                <span aria-label="Call" data-balloon-pos="up-left" data-number="${item.phoneNumber}" class="yellow-pages-call"><i class="fas fa-phone-alt fa-1x"></i> ${item.phoneNumber}</span>
+                                <span aria-label="Ara" data-balloon-pos="up-left" data-number="${item.phoneNumber}" class="yellow-pages-call"><i class="fas fa-phone-alt fa-1x"></i> ${item.phoneNumber}</span>
                             </div>
                             <div class="col s6" data-balloon-length="medium" aria-label="${item.name}" data-balloon-pos="down-right">
                                 <span class="truncate"><i class="fas fa-user-circle fa-1x"></i> ${item.name}</span>
@@ -1200,9 +1297,30 @@ function addYellowPage(item) {
                 </div>
             </div>
         </div>`);
+    } else {
+        yellowPage = $(`
+        <div class="row no-padding">
+            <div class="col s12">
+                <div class="card yellow darken-1 yellow-page-entry">
+                    <div class="card-content black-text yellow-page-body center-align">
+                        <strong>${message}</strong>
+                    </div>
+                    <div class="card-action" style="padding-top: 8px;padding-right: 16px;padding-bottom: 8px;padding-left: 16px;font-size:14px">
+                        <div class="row no-padding">
+                            <div class="col s6">
+                                <span aria-label="Ara" data-balloon-pos="up-left" data-number="${item.phoneNumber}" class="yellow-pages-call"><i class="fas fa-phone-alt fa-1x"></i> ${item.phoneNumber}</span>
+                            </div>
+                            <div class="col s6" data-balloon-length="medium" aria-label="${item.name}" data-balloon-pos="down-right">
+                                <span class="truncate"><i class="fas fa-user-circle fa-1x"></i> ${item.name}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`);
+    }
     $('.yellow-pages-entries').prepend(yellowPage);
 }
-
 function addMessage(item) {
     var date = (item.date === undefined ? Date.now() : item.date);
     var element = $('<div class="row messages-entry"> <div class="col s2 white-text"> <i class="far fa-user-circle fa-2x"></i> </div> <div class="col s10 messages-entry-details"> <div class="row no-padding"> <div class="col s8 messages-entry-details-sender">' + item.msgDisplayName + '</div> <div class="col s4 messages-entry-details-date right-align">' + moment(date).local().fromNow() + '</div> </div> <div class="row "> <div class="col s12 messages-entry-body">' + item.message + '</div> </div> </div> </div>');
@@ -1386,7 +1504,7 @@ var currentSettings = [];
 var currentSettingWindow = "tokovoip";
 
 var checkedFunctions = ["stereoAudio","localClickOn","localClickOff","remoteClickOn","remoteClickOff"];
-var sliderFunctions = ["clickVolume","radioVolume", "phoneVolume"];
+var sliderFunctions = ["mainVolume","clickVolume","radioVolume"];
 
 
 controlNames[0] = ["label","Toko Voip Controls"];
@@ -1396,62 +1514,58 @@ controlNames[3] = ["distanceChange","Toko: Distance Change",false];
 controlNames[4] = ["handheld","Toko: Handheld Radio",true];
 controlNames[5] = ["carStereo","Toko: Car Stereo",true];
 controlNames[6] = ["switchRadioEmergency","Toko: Emergency change radio",false];
-controlNames[7] = ["radiovolumedown","Toko: Volume down",true];
-controlNames[8] = ["radiovolumeup","Toko: Volume up",true];
-controlNames[9] = ["radiotoggle","Toko: Toggle Radio",true];
 
 
 
-controlNames[10] = ["label","General Controls"];
+controlNames[7] = ["label","General Controls"];
 
-controlNames[11] = ["generalPhone","General: Phone",true];
-controlNames[12] = ["generalInventory","General: Inventory",true]; 
-controlNames[13] = ["generalEscapeMenu","General: Leave Menu",true]; 
-controlNames[14] = ["generalChat","General: Chat",true];
+controlNames[8] = ["generalPhone","General: Phone",true];
+controlNames[9] = ["generalInventory","General: Inventory",true]; 
+controlNames[10] = ["generalEscapeMenu","General: Leave Menu",true]; 
+controlNames[11] = ["generalChat","General: Chat",true];
 
-controlNames[15] = ["actionBar","General: Action Bar",true];
-controlNames[16] = ["generalUse","General: Use Action",false]; // this is set to false , might end up setting true might need testing
-controlNames[17] = ["generalUseSecondary","General: Menu Secondary",true];
-controlNames[18] = ["generalUseSecondaryWorld","General: World Secondary",true];
-controlNames[19] = ["generalUseThird","General: World Third",false];
-controlNames[20] = ["generalTackle","General: Tackle",true];
-controlNames[21] = ["generalMenu","General: Action Menu",true];
-controlNames[22] = ["generalProp","General: Prop Drop",false];
-controlNames[23] = ["generalScoreboard","General: Scoreboard",false];
+controlNames[12] = ["actionBar","General: Action Bar",true];
+controlNames[13] = ["generalUse","General: Use Action",false]; // this is set to false , might end up setting true might need testing
+controlNames[14] = ["generalUseSecondary","General: Menu Secondary",true];
+controlNames[15] = ["generalUseSecondaryWorld","General: World Secondary",true];
+controlNames[16] = ["generalUseThird","General: World Third",false];
+controlNames[17] = ["generalTackle","General: Tackle",true];
+controlNames[18] = ["generalMenu","General: Action Menu",true];
+controlNames[19] = ["generalProp","General: Prop Drop",false];
+controlNames[20] = ["generalScoreboard","General: Scoreboard",false];
 
-controlNames[24] = ["label","Movement Controls"];
-controlNames[25] = ["movementCrouch","Move: Crouch",false];
-controlNames[26] = ["movementCrawl","Move: Crawl",false];
-
-
-controlNames[27] = ["label","Vehicle Controls"];
-controlNames[28] = ["vehicleCruise","Vehicle: Cruise Control",false];
-controlNames[29] = ["vehicleSearch","Vehicle: Search",false];
-controlNames[30] = ["vehicleHotwire","Vehicle: Hotwire",false];
-controlNames[31] = ["vehicleDoors","Vehicle: Door Lock",false];
-controlNames[32] = ["vehicleBelt","Vehicle: Toggle Belt",false];
-
-controlNames[33] = ["vehicleSlights","Siren: Toggle Lights",false];
-controlNames[34] = ["vehicleSsound","Siren: Toggle Sound",false];
-controlNames[35] = ["vehicleSnavigate","Siren: Switch Lights",false];
+controlNames[21] = ["label","Movement Controls"];
+controlNames[22] = ["movementCrouch","Move: Crouch",false];
+controlNames[23] = ["movementCrawl","Move: Crawl",false];
 
 
+controlNames[24] = ["label","Vehicle Controls"];
+controlNames[25] = ["vehicleCruise","Vehicle: Cruise Control",false];
+controlNames[26] = ["vehicleSearch","Vehicle: Search",false];
+controlNames[27] = ["vehicleHotwire","Vehicle: Hotwire",false];
+controlNames[28] = ["vehicleDoors","Vehicle: Door Lock",false];
+controlNames[29] = ["vehicleBelt","Vehicle: Toggle Belt",false];
 
-controlNames[36] = ["heliCam","Heli: Cam",false];
-controlNames[37] = ["helivision","Heli: Vision",false];
-controlNames[38] = ["helirappel","Heli: Rappel",false];
-controlNames[39] = ["helispotlight","Heli: Spotlight",false];
-controlNames[40] = ["helilockon","Heli: Lockon",false];
+controlNames[30] = ["vehicleSlights","Siren: Toggle Lights",false];
+controlNames[31] = ["vehicleSsound","Siren: Toggle Sound",false];
+controlNames[32] = ["vehicleSnavigate","Siren: Switch Lights",false];
 
 
-controlNames[41] = ["label","News Controls"];
-controlNames[42] = ["newsTools","Bring out News Tools",false];
-controlNames[43] = ["newsNormal","Camera Normal",false];
-controlNames[44] = ["newsMovie","Camera Movie",false];
 
-controlNames[45] = ["label","Motel Controls"];
-controlNames[46] = ["housingMain","Motel: Main Useage",false];
-controlNames[47] = ["housingSecondary","Motel: Secondary Usage",false];
+controlNames[33] = ["heliCam","Heli: Cam",false];
+controlNames[34] = ["helivision","Heli: Vision",false];
+controlNames[35] = ["helirappel","Heli: Rappel",false];
+controlNames[36] = ["helispotlight","Heli: Spotlight",false];
+controlNames[37] = ["helilockon","Heli: Lockon",false];
+
+controlNames[38] = ["label","News Controls"];
+controlNames[39] = ["newsTools","Bring out News Tools",false];
+controlNames[40] = ["newsNormal","Camera Normal",false];
+controlNames[41] = ["newsMovie","Camera Movie",false];
+
+controlNames[42] = ["label","Motel Controls"];
+controlNames[43] = ["housingMain","Motel: Main Useage",false];
+controlNames[44] = ["housingSecondary","Motel: Secondary Usage",false];
 
 function updateSettings()
 {
@@ -1460,7 +1574,7 @@ function updateSettings()
             updateTokoSettings();
             break;
         case "control":
-            $.post('http://phone/settingsUpdateToko', JSON.stringify({tag: "controlUpdate", controls: currentBinds}));
+            $.post('http://phone/settingsUpdateToko', JSON.stringify({tag: "controlUpdate",controls: currentBinds}));
             break;
         case "browser":
             break;
@@ -1468,7 +1582,6 @@ function updateSettings()
             console.log("Error: incorrect active tab found")
             break;
     }
-
 }
 
 function ResetSettings()
@@ -1488,7 +1601,6 @@ function ResetSettings()
     }
     openContainer(oldContainerHistory.pop(), null, currentContainer);
 }
-
 
 var validBinds = [
     "esc","f1","f2","f3","f5","f5","f6","f7","f8","f9","f10",
@@ -1512,7 +1624,6 @@ function getCurrentBindFromID(bindID)
             return currentBinds[i][1];
         }
     }
-
     return false;
 }
 
@@ -1536,7 +1647,6 @@ function validKey(key)
         }
     }
     return bindValid
-    
 }
 
 
@@ -1587,13 +1697,11 @@ function createControlList()
                              <input class="errorChecking white-text" id="${bindID}" type="text" onfocusout="TriggerSubmit(id)" data-isUnique="${controlNames[i][2]}"> 
                         </div>
                     </div>
-                <span class="error" id="${bindID}-error" aria-live="polite"></span> 
-                `);
+                <span class="error" id="${bindID}-error" aria-live="polite"></span> `);
             }
             $('#controlSettings').append(element);
-            $("#"+bindID).val(getCurrentBindFromID(bindID))
-        }
-         
+            $("#"+bindID).val(getCurrentBindFromID(bindID).toUpperCase())
+        } 
     }
 }
 
@@ -1606,11 +1714,19 @@ function setSettings()
            
             if(findTypeOf(name) == 1)
             {   
-                $('#'+name).prop('checked', outcome);
+                $('#'+name).prop('checked',outcome);
             }
             else if(findTypeOf(name) == 2)
             {
-                $('#' + name).val(outcome * 10);
+                var varDataLocal
+                if (name.toString() == "mainVolume") {
+                    varDataLocal = MinMaxOpposite(10,60,outcome)
+                } else if (name.toString() == "clickVolume") {
+                    varDataLocal = MinMaxOpposite(5,20,outcome)
+                } else if (name.toString() == "radioVolume") {
+                    varDataLocal = MinMaxOpposite(0,10,outcome)
+                }
+                $('#'+name).val(varDataLocal);
             }
         }
     }
@@ -1638,6 +1754,14 @@ async function delayedLog(item) {
 // I have autism
 // this gets the minimum number in a slider, the maximum, then returns the exact opposite.
 
+function MinMaxOpposite(min,max,num) {
+    s = parseInt(num)
+    x = parseInt(max)
+    n = parseInt(min)
+    let response = ((x-n)-((s-n)*2))+s
+    return response
+}
+
 async function updateTokoSettings()
 {
 
@@ -1652,8 +1776,17 @@ async function updateTokoSettings()
         var name = sliderFunctions[j]
         var varData = $('#'+name).val();
 
-        updateOnID(name, varData / 10);
+        if (name == "mainVolume") {
+            varData = MinMaxOpposite(10,60,varData)
+        } else if (name == "clickVolume") {
+            varData = MinMaxOpposite(5,20,varData)
+        } else if (name == "radioVolume") {
+            varData = MinMaxOpposite(0,10,varData)
+        }
+        updateOnID(name,varData);
         await delayedLog(name);
+
+
     }
 
     await delayedLog();
@@ -1686,7 +1819,6 @@ function findTypeOf(settingID)
             }
         }
     }
-
     return type
 }
 
@@ -1701,8 +1833,7 @@ function TriggerSubmit(name)
     var inputVal = $("#"+name).val();
     var isUnique = $("#"+name).attr("data-isUnique");
 
-
-     if(inputVal == "")
+    if(inputVal == "")
     {
         valid = false;
         errorMessage = "There must be a bind for this.";
@@ -1710,7 +1841,6 @@ function TriggerSubmit(name)
 
     if(valid)
     {
-
         if(inputVal.includes('+'))
         {
             var split = inputVal.split("+");
@@ -1855,13 +1985,10 @@ $('#racing-start-tracks').on('change', function (e) {
 
 $('#racing-start').submit(function (e) {
     e.preventDefault();
-    let reverseTrack = false;
-    if ($('#racing-reverse-track').is(":checked")) { reverseTrack = true };
     $.post('http://phone/racing:event:start', JSON.stringify({
         raceMap: $('#racing-start-tracks').val(),
         raceLaps: $('#racing-start-laps').val(),
         raceStartTime: moment.utc().add($('#racing-start-time').val(), 'seconds'),
-        reverseTrack: reverseTrack,
         raceCountdown: $('#racing-start-time').val(),
         raceName: $('#racing-start-name').val(),
         mapCreator: $('#racing-start-map-creator').text(),
@@ -1898,7 +2025,7 @@ $('#real-estate-transfer-form').submit(function (e) {
     $('#real-estate-transfer-modal').modal('close');
 });
 
-$("#group-manage-pay-form").submit(function (e) {
+$("#group-manage-pay-form").submit(function(e) {
     e.preventDefault();
 
     let cashToPay = escapeHtml($("#group-manage-pay-form #group-manage-amount").val());
@@ -1913,7 +2040,6 @@ $("#group-manage-pay-form").submit(function (e) {
     let currentValue = $('.group-manage-company-bank').text();
     let newValue = parseInt(currentValue.substring(1, currentValue.length)) - parseInt(cashToPay);
     $('.group-manage-company-bank').text('$' + newValue);
-
 });
 
 $("#group-manage-rank-form").submit(function (e) {
@@ -1921,7 +2047,7 @@ $("#group-manage-rank-form").submit(function (e) {
     $.post('http://phone/promoteGroup', JSON.stringify({
         gangid: escapeHtml($(".group-manage-company-name").data('group-id')),
         cid: escapeHtml($("#group-manage-rank-form #group-manage-rank-id").val()),
-        newrank: escapeHtml($("#group-manage-rank-form #group-manage-rank").val())
+        newrank: escapeHtml($("#group-manage-rank-form #group-manage-rank").val()),
     }));
     $('#group-manage-rank-form').trigger('reset');
     $('#group-manage-rank-modal').modal('close');
@@ -1940,6 +2066,16 @@ $("#group-manage-bank-form").submit(function (e) {
     let newValue = parseInt(currentValue.substring(1, currentValue.length)) + parseInt(cashToAdd);
     $('.group-manage-company-bank').text('$' + newValue);
 });
+
+/*$("#group-manage-fire-form").submit(function (e) {
+    e.preventDefault();
+    $.post('http://phone/fireEmployee', JSON.stringify({
+        id: escapeHtml($("#group-manage-fire-modal #group-manage-fire-id").val()),
+        rank: escapeHtml($("#group-manage-fire-modal #group-manage-fire").val()),
+    }));
+    $('#group-manage-fire-form').trigger('reset');
+    $('#group-manage-fire-modal').modal('close');
+});*/
 
 $("#group-tasks-assign-modal-form").submit(function (e) {
     e.preventDefault();
@@ -2053,10 +2189,12 @@ $('.racing-map-delete').click(function () {
         $('.racing-delete-confirm').fadeIn(150)
     }
 });
+
 $('.racing-map-delete-confirm').click(function () {  
     let raceMap = $('#racing-map-selected').val()
     $.post('http://phone/racing:map:delete', JSON.stringify({ id: raceMap }));
     $('.racing-delete-confirm').fadeOut(150)
+
     $('.racing-map-creation').fadeOut(150)
     $('#racing-information').fadeOut(150)
     $('.racing-map-options').fadeOut(150)
@@ -2066,6 +2204,15 @@ $('.racing-map-delete-confirm').click(function () {
 $('#real-estate-evict-modal-accept').click(function () {
     $.post('http://phone/btnEvictHouse', JSON.stringify({}));
     $('#real-estate-evict-modal-').modal('close');
+});
+
+$('#group-manage-fire-accept').click(function () {
+    var id = $(".group-manage-fire").data('cid');
+    var rank = $(".group-manage-fire").data('rank');
+
+    $.post('http://phone/groupFire', JSON.stringify({id: id, rank: rank}));
+    $('#group-manage-fire-modal').modal('close');
+    console.log(JSON.stringify({id: id, rank: rank}))
 });
 
 $('.btn-racing-clear').click(function() {
@@ -2148,7 +2295,7 @@ $('.racing-entries').on('click', '.racing-entries-entrants', function () {
         let racer = currentRace.racers[id];
         let racerElement = `
             <li>
-                <div class="collapsible-header">Titanium#${racer.server_id}</div>
+                <div class="collapsible-header">${racer.name}</div>
                 <div class="collapsible-body">
                     <div class="row">
                         <div class="col s3 right-align">
@@ -2230,6 +2377,13 @@ $('.group-manage-entries').on('click', '.group-manage-rank', function () {
     M.updateTextFields();
 });
 
+$('.group-manage-entries').on('click', '.group-manage-fire', function () {
+    $('#group-manage-fire-modal').modal('open');
+    $('#group-manage-fire-modal #group-manage-fire-id').val($(this).data('id')).prop('disabled', true);
+    $('#group-manage-fire-modal #group-manage-fire').val($(this).data('rank'));
+    M.updateTextFields();
+});
+
 $('.group-tasks-entries').on('click', '.group-tasks-track', function () {
     $.post('http://phone/trackTaskLocation', JSON.stringify({ TaskIdentifier: $(this).data('id') }));
 });
@@ -2308,14 +2462,14 @@ $('.settings-reset').click(function (e) {
     ResetSettings();
 });
 
-function openContainer(containerName, fadeInTime = 500, ...args) {
+function openContainer(containerName, fadeInTime = 100, ...args) {
     closeContainer(currentContainer, (currentContainer !== containerName ? 300 : 0));
     $("." + containerName + "-container").hide().fadeIn((currentContainer !== containerName ? fadeInTime : 0));
     if (containerName === "home") {
         $(".phone-screen .rounded-square:not('.hidden-buttons')").each(function () {
             $(this).fadeIn(1000);
         });
-        $(".navigation-menu").fadeTo("slow", 0.5, null);
+        $(".navigation-menu").fadeTo("slow", 0.7, null);
     }
     else
         $(".navigation-menu").fadeTo("slow", 1, null);
@@ -2334,7 +2488,7 @@ function openContainer(containerName, fadeInTime = 500, ...args) {
     currentContainer = containerName;
 }
 
-function closeContainer(containerName, fadeOutTime = 500) {
+function closeContainer(containerName, fadeOutTime = 100) {
     $.when($("." + containerName + "-container").fadeOut(fadeOutTime).hide()).then(function () {
         if (containerName === "home")
             $(".phone-screen .rounded-square").each(function () {
@@ -2385,8 +2539,8 @@ function openPhoneShell() {
 
 function closePhoneShell() {
     $(".phone-screen").fadeOut();
-    $(".phone-case").slideToggle();
-    $(".phone-shell").slideToggle();
+    $(".phone-case").slideUp();
+    $(".phone-shell").slideUp();
 }
 
 
