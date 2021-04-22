@@ -15,7 +15,6 @@
             <div class="modal-content">
                 <h4>Leaving</h4>
                 <p>Would you like to purchase these clothes?</p>
-                <h5 class="green-text text-darken-4" id="totalPriceWithTax"></h5>
             </div>
             <div class="modal-footer">
                 <a href="#!" id="save" class="modal-close waves-effect waves-light btn green">Save Changes</a>
@@ -23,7 +22,7 @@
                 <a href="#!" id="cancel" class="modal-close waves-effect waves-light btn grey">Go Back</a>
             </div>
         </div>
-        <div id="clothing_shop" style="display: none" class="row">
+        <div id="clothesmenu" style="display: none" class="row">
             <div id="clothes-container" class="col s5">
                 <div id="button_menu" class="row">
                     <button id="button-clothes" data-target="clothes"
@@ -648,7 +647,7 @@
                 </div>
             </div>
         </div>
-        <div id="barber_shop" style="display: none" class="row">
+        <div id="barbermenu" style="display: none" class="row">
             <div id="barber-container" class="col s5">
                 <div id="button_menu" class="row">
                     <button id="button-inheritance" data-target="inheritance"
@@ -661,8 +660,6 @@
                         class="button-menu waves-effect waves-light btn">Hair</button>
                     <button id="button-features" data-target="features"
                         class="button-menu waves-effect waves-light btn">Makeup</button>
-                    <button id="button-backup" data-target="backup"
-                        class="button-menu waves-effect waves-light btn">Backup</button>
                 </div>
                 <div id="camera_menu" class="row">
                     <div class="col s12">
@@ -1304,33 +1301,6 @@
                         </div>
                     </div>
                 </div>
-                <div id="backup" style="display: none;" class="row">
-                    <div class="scroll-container">
-                        <div id="backupJson" class="col s12 panel">
-                            <div class="col s12 panel-title">
-                                <h6 class="grey-text text-lighten-3 panel-label">Backup Json</h6>
-                            </div>
-                            <div class="col s12 panel-bottom">
-
-                                <div class="col s12">
-                                    <input id="backupJsonInput" class="input-number col s12" type="text" value='' />
-                                </div>
-
-                                <div class="col s12 panel-col">
-                                    <button class="backup_save col s2 btn-cam waves-effect waves-light btn-large">
-                                        Save
-                                    </button>
-                                    <button class="backup_empty col s2 btn-cam waves-effect waves-light btn-large">
-                                        Empty
-                                    </button>
-                                    <button class="backup_load col s2 btn-cam waves-effect waves-light btn-large">
-                                        Load
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div id="features" style="display: none;" class="row">
                     <div class="scroll-container">
                         <div id="Makeup" class="col s12 panel">
@@ -1445,7 +1415,7 @@
             </div>
         </div>
 
-        <div id="tattoo_shop" style="display: none" class="row">
+        <div id="tattoomenu" style="display: none" class="row">
             <div id="tats-container" class="col s5">
                 <!-- <div id="button_menu" class="row">
                     <button id="button-clothes" data-target="clothes"
